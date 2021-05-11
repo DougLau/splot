@@ -1,121 +1,50 @@
+use crate::axis::Axis;
+use crate::text::{Anchor, Text};
+use crate::page::{AspectRatio, Edge, Rect};
 use std::fmt;
-
-#[derive(Clone, Copy)]
-enum Edge {
-    Top,
-    Left,
-    Bottom,
-    Right,
-}
-
-#[derive(Clone)]
-struct Rect {
-    x: i32,
-    y: i32,
-    width: u32,
-    height: u32,
-}
-
-impl Rect {
-    fn new(x: i32, y: i32, width: u32, height: u32) -> Self {
-        Self {
-            x,
-            y,
-            width,
-            height,
-        }
-    }
-    fn inset(mut self, value: u16) -> Self {
-        let vi = i32::from(value);
-        self.x += vi;
-        self.y += vi;
-        let v2 = 2 * u32::from(value);
-        self.width = self.width.saturating_sub(v2);
-        self.height = self.height.saturating_sub(v2);
-        self
-    }
-    fn split(&mut self, edge: Edge, value: u16) -> Self {
-        let v = u32::from(value);
-        match edge {
-            Edge::Top => {
-                let y = self.y;
-                let height = self.height.saturating_sub(v);
-                let h = self.height - height;
-                self.y += h as i32;
-                self.height = height;
-                Rect::new(self.x, y, self.width, h)
-            }
-            Edge::Left => {
-                let x = self.x;
-                let width = self.width.saturating_sub(v);
-                let w = self.width - width;
-                self.x += w as i32;
-                self.width = width;
-                Rect::new(x, self.y, w, self.height)
-            }
-            Edge::Bottom => {
-                let height = self.height.saturating_sub(v);
-                let h = self.height - height;
-                let y = self.y + height as i32;
-                self.height = height;
-                Rect::new(self.x, y, self.width, h)
-            }
-            Edge::Right => {
-                let width = self.width.saturating_sub(v);
-                let w = self.width - width;
-                let x = self.x + width as i32;
-                self.width = width;
-                Rect::new(x, self.y, w, self.height)
-            }
-        }
-    }
-    fn transform(&self, f: &mut fmt::Formatter, edge: Edge) -> fmt::Result {
-        let x = self.x + self.width as i32 / 2;
-        let y = self.y + self.height as i32 / 2;
-        write!(f," transform='translate({} {})", x, y)?;
-        match edge {
-            Edge::Left => write!(f, " rotate(-90)")?,
-            Edge::Right => write!(f, " rotate(90)")?,
-            _ => (),
-        }
-        write!(f, "'")
-    }
-}
-
-#[derive(Clone, Copy)]
-pub enum AspectRatio {
-    Landscape,
-    Square,
-    Portrait,
-}
-
-impl AspectRatio {
-    fn rect(self) -> Rect {
-        match self {
-            AspectRatio::Landscape => Rect::new(0, 0, 1000, 750),
-            AspectRatio::Square => Rect::new(0, 0, 1000, 1000),
-            AspectRatio::Portrait => Rect::new(0, 0, 750, 1000),
-        }
-    }
-}
 
 pub struct Title {
     text: String,
+    anchor: Anchor,
     edge: Edge,
 }
 
-impl From<&str> for Title {
-    fn from(text: &str) -> Self {
-        Title::new(text)
+impl<T> From<T> for Title
+where
+    T: Into<String>,
+{
+    fn from(text: T) -> Self {
+        Title::new(text.into())
     }
 }
 
 impl Title {
-    pub fn new(text: &str) -> Self {
+    pub(crate) fn new_with_edge<T>(text: T, edge: Edge) -> Self
+    where
+        T: Into<String>,
+    {
         Title {
-            text: text.to_owned(),
-            edge: Edge::Top,
+            text: text.into(),
+            anchor: Anchor::Middle,
+            edge,
         }
+    }
+
+    pub fn new<T>(text: T) -> Self
+    where
+        T: Into<String>,
+    {
+        Self::new_with_edge(text, Edge::Top)
+    }
+
+    pub fn at_start(mut self) -> Self {
+        self.anchor = Anchor::Start;
+        self
+    }
+
+    pub fn at_end(mut self) -> Self {
+        self.anchor = Anchor::End;
+        self
     }
 
     pub fn on_bottom(mut self) -> Self {
@@ -134,22 +63,22 @@ impl Title {
     }
 
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
-        write!(f, "<text")?;
-        rect.transform(f, self.edge)?;
-        write!(f, ">")?;
-        write!(f, "{}", self.text)?;
-        writeln!(f, "</text>")
+        let text =
+            Text::new(&self.text, self.edge, self.anchor).class_name("title");
+        text.display(f, rect)
     }
 }
 
 pub struct ChartBuilder {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
+    axes: Vec<Axis>,
 }
 
 pub struct Chart {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
+    axes: Vec<Axis>,
 }
 
 impl Default for ChartBuilder {
@@ -157,6 +86,7 @@ impl Default for ChartBuilder {
         Self {
             aspect_ratio: AspectRatio::Landscape,
             titles: vec![],
+            axes: vec![],
         }
     }
 }
@@ -175,10 +105,16 @@ impl ChartBuilder {
         self
     }
 
+    pub fn axis(mut self, axis: Axis) -> Self {
+        self.axes.push(axis);
+        self
+    }
+
     pub fn build(self) -> Chart {
         Chart {
             aspect_ratio: self.aspect_ratio,
             titles: self.titles,
+            axes: self.axes,
         }
     }
 }
@@ -193,11 +129,12 @@ impl Chart {
         writeln!(
             f,
             "<svg xmlns='http://www.w3.org/2000/svg' viewBox='{} {} {} {}'>",
-            rect.x,
-            rect.y,
-            rect.width,
-            rect.height,
+            rect.x, rect.y, rect.width, rect.height,
         )?;
+        writeln!(f, "<style>")?;
+        writeln!(f, ".title {{ font-size: 25px; }}")?;
+        writeln!(f, ".axis {{ font-size: 20px; }}")?;
+        writeln!(f, "</style>")?;
         Ok(())
     }
 
@@ -211,8 +148,12 @@ impl fmt::Display for Chart {
         self.header(f)?;
         let mut area = self.aspect_ratio.rect().inset(10);
         for title in &self.titles {
-            let rect = area.split(title.edge, 25);
+            let rect = area.split(title.edge, 50);
             title.display(f, rect)?;
+        }
+        for axis in &self.axes {
+            let rect = area.split(axis.edge(), axis.space());
+            axis.display(f, rect)?;
         }
         self.footer(f)?;
         Ok(())

@@ -1,0 +1,94 @@
+use crate::page::{Edge, Rect};
+use crate::text::{Anchor, Label, Text};
+use std::fmt;
+
+#[derive(Debug)]
+pub struct Tick {
+    value: f32,
+    text: String,
+}
+
+impl Tick {
+    pub fn new<T>(value: f32, text: T) -> Self
+    where
+        T: Into<String>,
+    {
+        let text = text.into();
+        Tick { value, text }
+    }
+}
+
+pub struct Axis {
+    edge: Edge,
+    ticks: Vec<Tick>,
+    name: Option<String>,
+    inverted: bool,
+    label: Label,
+}
+
+impl Axis {
+    pub(crate) fn new(edge: Edge, ticks: Vec<Tick>) -> Self {
+        Self {
+            edge,
+            ticks,
+            name: None,
+            inverted: false,
+            label: Label::new(),
+        }
+    }
+
+    pub(crate) fn edge(&self) -> Edge {
+        self.edge
+    }
+
+    pub fn name<N>(mut self, name: N) -> Self
+    where
+        N: Into<String>,
+    {
+        self.name = Some(name.into());
+        self
+    }
+
+    pub fn inverted(mut self) -> Self {
+        self.inverted = !self.inverted;
+        self
+    }
+
+    pub fn on_top(mut self) -> Self {
+        if self.edge == Edge::Bottom {
+            self.edge = Edge::Top;
+        }
+        self
+    }
+
+    pub fn on_right(mut self) -> Self {
+        if self.edge == Edge::Left {
+            self.edge = Edge::Right;
+        }
+        self
+    }
+
+    pub(crate) fn space(&self) -> u16 {
+        match self.name {
+            Some(_) => 80,
+            None => 40,
+        }
+    }
+
+    pub(crate) fn display(
+        &self,
+        f: &mut fmt::Formatter,
+        mut area: Rect,
+    ) -> fmt::Result {
+        if let Some(name) = &self.name {
+            let rect = area.split(self.edge, self.space() / 2);
+            let text =
+                Text::new(name, self.edge, Anchor::Middle).class_name("axis");
+            text.display(f, rect)?;
+        }
+        for tick in &self.ticks {
+            dbg!(tick);
+        }
+        Ok(())
+    }
+}
