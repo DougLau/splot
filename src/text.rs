@@ -177,4 +177,3 @@ impl<'a> Text<'a> {
         write!(f, "'")
     }
 }
-

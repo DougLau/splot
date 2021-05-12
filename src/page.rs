@@ -42,6 +42,12 @@ impl Rect {
             height,
         }
     }
+    pub fn right(&self) -> i32 {
+        self.x + i32::from(self.width)
+    }
+    pub fn bottom(&self) -> i32 {
+        self.y + i32::from(self.height)
+    }
     pub fn inset(mut self, value: u16) -> Self {
         let vi = i32::from(value);
         self.x += vi;
@@ -84,5 +90,17 @@ impl Rect {
                 Rect::new(x, self.y, w, self.height)
             }
         }
+    }
+    pub fn intersect_horiz(&mut self, rhs: &Rect) {
+        let x = self.x.max(rhs.x);
+        let x2 = self.right().min(rhs.right());
+        self.x = x;
+        self.width = (x2 - x) as u16;
+    }
+    pub fn intersect_vert(&mut self, rhs: &Rect) {
+        let y = self.y.max(rhs.y);
+        let y2 = self.bottom().min(rhs.bottom());
+        self.y = y;
+        self.height = (y2 - y) as u16;
     }
 }

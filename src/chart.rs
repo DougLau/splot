@@ -1,6 +1,6 @@
 use crate::axis::Axis;
-use crate::text::{Anchor, Text};
 use crate::page::{AspectRatio, Edge, Rect};
+use crate::text::{Anchor, Text};
 use std::fmt;
 
 pub struct Title {
@@ -134,6 +134,11 @@ impl Chart {
         writeln!(f, "<style>")?;
         writeln!(f, ".title {{ font-size: 25px; }}")?;
         writeln!(f, ".axis {{ font-size: 20px; }}")?;
+        writeln!(f, ".line {{")?;
+        writeln!(f, "  stroke: black;")?;
+        writeln!(f, "  stroke-width: 1;")?;
+        writeln!(f, "  shape-rendering: crispEdges;")?;
+        writeln!(f, "}}")?;
         writeln!(f, "</style>")?;
         Ok(())
     }
@@ -151,9 +156,13 @@ impl fmt::Display for Chart {
             let rect = area.split(title.edge, 50);
             title.display(f, rect)?;
         }
+        let mut rects = vec![];
         for axis in &self.axes {
             let rect = area.split(axis.edge(), axis.space());
-            axis.display(f, rect)?;
+            rects.push(rect);
+        }
+        for (axis, rect) in self.axes.iter().zip(rects) {
+            axis.display(f, rect, &area)?;
         }
         self.footer(f)?;
         Ok(())

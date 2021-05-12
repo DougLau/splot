@@ -78,17 +78,36 @@ impl Axis {
     pub(crate) fn display(
         &self,
         f: &mut fmt::Formatter,
-        mut area: Rect,
+        mut rect: Rect,
+        area: &Rect,
     ) -> fmt::Result {
+        match self.edge {
+            Edge::Top | Edge::Bottom => rect.intersect_horiz(&area),
+            Edge::Left | Edge::Right => rect.intersect_vert(&area),
+        }
+        self.display_line(f, &rect)?;
         if let Some(name) = &self.name {
-            let rect = area.split(self.edge, self.space() / 2);
+            let r = rect.split(self.edge, self.space() / 2);
             let text =
                 Text::new(name, self.edge, Anchor::Middle).class_name("axis");
-            text.display(f, rect)?;
-        }
-        for tick in &self.ticks {
-            dbg!(tick);
+            text.display(f, r)?;
         }
         Ok(())
+    }
+
+    fn display_line(&self, f: &mut fmt::Formatter, rect: &Rect) -> fmt::Result {
+        let x = match self.edge {
+            Edge::Left => rect.right(),
+            _ => rect.x,
+        };
+        let y = match self.edge {
+            Edge::Top => rect.bottom(),
+            _ => rect.y,
+        };
+        let (hv, span) = match self.edge {
+            Edge::Top | Edge::Bottom => ("h", rect.width),
+            Edge::Left | Edge::Right => ("v", rect.height),
+        };
+        writeln!(f, "<path class='line' d='M{} {} {}{}' />", x, y, hv, span)
     }
 }
