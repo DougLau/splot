@@ -146,7 +146,11 @@ impl<'a> Text<'a> {
             write!(f, " class='{}'", class_name)?;
         }
         self.transform(f, rect)?;
-        writeln!(f, " y='0.5em'{}>", self.anchor)?;
+        match self.class_name {
+            Some("tick") => write!(f, " y='0.3em'")?,
+            _ => write!(f, " y='0.5em'")?,
+        }
+        writeln!(f, "{}>", self.anchor)?;
         writeln!(f, "{}", self.text)?;
         writeln!(f, "</text>")
     }
@@ -157,9 +161,9 @@ impl<'a> Text<'a> {
                 rect.x
             }
             (Edge::Top, Anchor::End) | (Edge::Bottom, Anchor::End) => {
-                rect.x + rect.width as i32
+                rect.x + i32::from(rect.width)
             }
-            _ => rect.x + rect.width as i32 / 2,
+            _ => rect.x + i32::from(rect.width) / 2,
         };
         let y = match (self.edge, self.anchor) {
             (Edge::Left, Anchor::End) | (Edge::Right, Anchor::Start) => rect.y,

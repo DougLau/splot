@@ -16,6 +16,20 @@ impl Tick {
         let text = text.into();
         Tick { value, text }
     }
+    fn x(&self, edge: Edge, rect: &Rect, len: i32) -> f32 {
+        match edge {
+            Edge::Left => (rect.right() - len) as f32,
+            Edge::Right => (rect.x + len) as f32,
+            _ => rect.x as f32 + self.value * rect.width as f32,
+        }
+    }
+    fn y(&self, edge: Edge, rect: &Rect, len: i32) -> f32 {
+        match edge {
+            Edge::Top => (rect.bottom() - len) as f32,
+            Edge::Bottom => (rect.y + len) as f32,
+            _ => rect.y as f32 + self.value * rect.height as f32,
+        }
+    }
 }
 
 pub struct Axis {
@@ -85,13 +99,14 @@ impl Axis {
             Edge::Top | Edge::Bottom => rect.intersect_horiz(&area),
             Edge::Left | Edge::Right => rect.intersect_vert(&area),
         }
-        self.display_line(f, &rect)?;
         if let Some(name) = &self.name {
             let r = rect.split(self.edge, self.space() / 2);
             let text =
                 Text::new(name, self.edge, Anchor::Middle).class_name("axis");
             text.display(f, r)?;
         }
+        self.display_line(f, &rect)?;
+        self.display_ticks(f, &rect)?;
         Ok(())
     }
 
@@ -109,5 +124,35 @@ impl Axis {
             Edge::Left | Edge::Right => ("v", rect.height),
         };
         writeln!(f, "<path class='line' d='M{} {} {}{}' />", x, y, hv, span)
+    }
+
+    fn display_ticks(
+        &self,
+        f: &mut fmt::Formatter,
+        rect: &Rect,
+    ) -> fmt::Result {
+        const TICK_LEN: i32 = 10;
+        let (hv, span, anchor) = match self.edge {
+            Edge::Top => ("v", TICK_LEN, Anchor::Middle),
+            Edge::Bottom => ("v", -TICK_LEN, Anchor::Middle),
+            Edge::Left => ("h", TICK_LEN, Anchor::End),
+            Edge::Right => ("h", -TICK_LEN, Anchor::Start),
+        };
+        for tick in &self.ticks {
+            let x = tick.x(self.edge, &rect, TICK_LEN);
+            let y = tick.y(self.edge, &rect, TICK_LEN);
+            writeln!(
+                f,
+                "<path class='line' d='M{} {} {}{}' />",
+                x, y, hv, span
+            )?;
+            let text = Text::new(&tick.text, Edge::Top, anchor)
+                .class_name("tick");
+            let x = tick.x(self.edge, &rect, TICK_LEN + 4);
+            let y = tick.y(self.edge, &rect, TICK_LEN * 2);
+            let r = Rect::new(x as i32, y as i32, 0, 0);
+            text.display(f, r)?;
+        }
+        Ok(())
     }
 }

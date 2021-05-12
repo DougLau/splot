@@ -139,6 +139,7 @@ impl Chart {
         writeln!(f, "  stroke-width: 1;")?;
         writeln!(f, "  shape-rendering: crispEdges;")?;
         writeln!(f, "}}")?;
+        writeln!(f, ".tick {{ font-size: 16px; }}")?;
         writeln!(f, "</style>")?;
         Ok(())
     }
@@ -151,7 +152,7 @@ impl Chart {
 impl fmt::Display for Chart {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.header(f)?;
-        let mut area = self.aspect_ratio.rect().inset(10);
+        let mut area = self.aspect_ratio.rect().inset(20);
         for title in &self.titles {
             let rect = area.split(title.edge, 50);
             title.display(f, rect)?;
