@@ -15,7 +15,7 @@ pub enum Edge {
     Right,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Rect {
     pub x: i32,
     pub y: i32,

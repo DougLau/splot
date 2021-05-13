@@ -166,7 +166,7 @@ impl fmt::Display for Chart {
             rects.push(rect);
         }
         for (axis, rect) in self.axes.iter().zip(rects) {
-            axis.display(f, rect, &area)?;
+            axis.display(f, rect, area)?;
         }
         self.footer(f)?;
         Ok(())

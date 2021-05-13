@@ -19,14 +19,14 @@ impl Tick {
         let text = text.into();
         Tick { value, text }
     }
-    fn x(&self, edge: Edge, rect: &Rect, len: i32) -> i32 {
+    fn x(&self, edge: Edge, rect: Rect, len: i32) -> i32 {
         match edge {
             Edge::Left => (rect.right() - len),
             Edge::Right => (rect.x + len),
             _ => rect.x + (self.value * rect.width as f32).round() as i32,
         }
     }
-    fn y(&self, edge: Edge, rect: &Rect, len: i32) -> i32 {
+    fn y(&self, edge: Edge, rect: Rect, len: i32) -> i32 {
         match edge {
             Edge::Top => (rect.bottom() - len),
             Edge::Bottom => (rect.y + len),
@@ -96,7 +96,7 @@ impl Axis {
         &self,
         f: &mut fmt::Formatter,
         mut rect: Rect,
-        area: &Rect,
+        area: Rect,
     ) -> fmt::Result {
         match self.edge {
             Edge::Top | Edge::Bottom => rect.intersect_horiz(&area),
@@ -111,14 +111,14 @@ impl Axis {
             writeln!(f, "{}", name)?;
             text.display_done(f)?;
         }
-        self.display_tick_lines(f, &rect)?;
-        self.display_tick_labels(f, &rect)
+        self.display_tick_lines(f, rect)?;
+        self.display_tick_labels(f, rect)
     }
 
     fn display_tick_lines(
         &self,
         f: &mut fmt::Formatter,
-        rect: &Rect,
+        rect: Rect,
     ) -> fmt::Result {
         let x = match self.edge {
             Edge::Left => rect.right(),
@@ -140,8 +140,8 @@ impl Axis {
             Edge::Right => ("h", -Tick::LEN),
         };
         for tick in self.ticks.iter() {
-            let x = tick.x(self.edge, &rect, Tick::LEN);
-            let y = tick.y(self.edge, &rect, Tick::LEN);
+            let x = tick.x(self.edge, rect, Tick::LEN);
+            let y = tick.y(self.edge, rect, Tick::LEN);
             write!(f, " M{} {} {}{}", x, y, hv, span)?;
         }
         writeln!(f, "' />")
@@ -150,7 +150,7 @@ impl Axis {
     fn display_tick_labels(
         &self,
         f: &mut fmt::Formatter,
-        rect: &Rect,
+        rect: Rect,
     ) -> fmt::Result {
         let anchor = match self.edge {
             Edge::Left => Anchor::End,
@@ -160,8 +160,8 @@ impl Axis {
         let text = Text::new(Edge::Top, anchor).class_name("tick");
         text.display(f)?;
         for tick in &self.ticks {
-            let x = tick.x(self.edge, &rect, Tick::HLEN);
-            let y = tick.y(self.edge, &rect, Tick::VLEN);
+            let x = tick.x(self.edge, rect, Tick::HLEN);
+            let y = tick.y(self.edge, rect, Tick::VLEN);
             let tspan = Tspan::new(&tick.text).x(x).y(y).dy(0.33);
             tspan.display(f)?;
         }
