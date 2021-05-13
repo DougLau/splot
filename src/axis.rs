@@ -1,5 +1,5 @@
 use crate::page::{Edge, Rect};
-use crate::text::{Anchor, Label, Text};
+use crate::text::{Anchor, Label, Text, Tspan};
 use std::fmt;
 
 #[derive(Debug)]
@@ -9,6 +9,9 @@ pub struct Tick {
 }
 
 impl Tick {
+    const LEN: i32 = 20;
+    const HLEN: i32 = Tick::LEN + 8;
+    const VLEN: i32 = Tick::LEN * 2;
     pub fn new<T>(value: f32, text: T) -> Self
     where
         T: Into<String>,
@@ -16,18 +19,18 @@ impl Tick {
         let text = text.into();
         Tick { value, text }
     }
-    fn x(&self, edge: Edge, rect: &Rect, len: i32) -> f32 {
+    fn x(&self, edge: Edge, rect: &Rect, len: i32) -> i32 {
         match edge {
-            Edge::Left => (rect.right() - len) as f32,
-            Edge::Right => (rect.x + len) as f32,
-            _ => rect.x as f32 + self.value * rect.width as f32,
+            Edge::Left => (rect.right() - len),
+            Edge::Right => (rect.x + len),
+            _ => rect.x + (self.value * rect.width as f32).round() as i32,
         }
     }
-    fn y(&self, edge: Edge, rect: &Rect, len: i32) -> f32 {
+    fn y(&self, edge: Edge, rect: &Rect, len: i32) -> i32 {
         match edge {
-            Edge::Top => (rect.bottom() - len) as f32,
-            Edge::Bottom => (rect.y + len) as f32,
-            _ => rect.y as f32 + self.value * rect.height as f32,
+            Edge::Top => (rect.bottom() - len),
+            Edge::Bottom => (rect.y + len),
+            _ => rect.y + (self.value * rect.height as f32).round() as i32,
         }
     }
 }
@@ -84,8 +87,8 @@ impl Axis {
 
     pub(crate) fn space(&self) -> u16 {
         match self.name {
-            Some(_) => 80,
-            None => 40,
+            Some(_) => 160,
+            None => 80,
         }
     }
 
@@ -101,16 +104,22 @@ impl Axis {
         }
         if let Some(name) = &self.name {
             let r = rect.split(self.edge, self.space() / 2);
-            let text =
-                Text::new(name, self.edge, Anchor::Middle).class_name("axis");
-            text.display(f, r)?;
+            let text = Text::new(self.edge, Anchor::Middle)
+                .rect(r)
+                .class_name("axis");
+            text.display(f)?;
+            writeln!(f, "{}", name)?;
+            text.display_done(f)?;
         }
-        self.display_line(f, &rect)?;
-        self.display_ticks(f, &rect)?;
-        Ok(())
+        self.display_tick_lines(f, &rect)?;
+        self.display_tick_labels(f, &rect)
     }
 
-    fn display_line(&self, f: &mut fmt::Formatter, rect: &Rect) -> fmt::Result {
+    fn display_tick_lines(
+        &self,
+        f: &mut fmt::Formatter,
+        rect: &Rect,
+    ) -> fmt::Result {
         let x = match self.edge {
             Edge::Left => rect.right(),
             _ => rect.x,
@@ -123,36 +132,39 @@ impl Axis {
             Edge::Top | Edge::Bottom => ("h", rect.width),
             Edge::Left | Edge::Right => ("v", rect.height),
         };
-        writeln!(f, "<path class='line' d='M{} {} {}{}' />", x, y, hv, span)
+        write!(f, "<path class='line' d='M{} {} {}{}", x, y, hv, span)?;
+        let (hv, span) = match self.edge {
+            Edge::Top => ("v", Tick::LEN),
+            Edge::Bottom => ("v", -Tick::LEN),
+            Edge::Left => ("h", Tick::LEN),
+            Edge::Right => ("h", -Tick::LEN),
+        };
+        for tick in self.ticks.iter() {
+            let x = tick.x(self.edge, &rect, Tick::LEN);
+            let y = tick.y(self.edge, &rect, Tick::LEN);
+            write!(f, " M{} {} {}{}", x, y, hv, span)?;
+        }
+        writeln!(f, "' />")
     }
 
-    fn display_ticks(
+    fn display_tick_labels(
         &self,
         f: &mut fmt::Formatter,
         rect: &Rect,
     ) -> fmt::Result {
-        const TICK_LEN: i32 = 10;
-        let (hv, span, anchor) = match self.edge {
-            Edge::Top => ("v", TICK_LEN, Anchor::Middle),
-            Edge::Bottom => ("v", -TICK_LEN, Anchor::Middle),
-            Edge::Left => ("h", TICK_LEN, Anchor::End),
-            Edge::Right => ("h", -TICK_LEN, Anchor::Start),
+        let anchor = match self.edge {
+            Edge::Left => Anchor::End,
+            Edge::Right => Anchor::Start,
+            _ => Anchor::Middle,
         };
+        let text = Text::new(Edge::Top, anchor).class_name("tick");
+        text.display(f)?;
         for tick in &self.ticks {
-            let x = tick.x(self.edge, &rect, TICK_LEN);
-            let y = tick.y(self.edge, &rect, TICK_LEN);
-            writeln!(
-                f,
-                "<path class='line' d='M{} {} {}{}' />",
-                x, y, hv, span
-            )?;
-            let text = Text::new(&tick.text, Edge::Top, anchor)
-                .class_name("tick");
-            let x = tick.x(self.edge, &rect, TICK_LEN + 4);
-            let y = tick.y(self.edge, &rect, TICK_LEN * 2);
-            let r = Rect::new(x as i32, y as i32, 0, 0);
-            text.display(f, r)?;
+            let x = tick.x(self.edge, &rect, Tick::HLEN);
+            let y = tick.y(self.edge, &rect, Tick::VLEN);
+            let tspan = Tspan::new(&tick.text).x(x).y(y).dy(0.33);
+            tspan.display(f)?;
         }
-        Ok(())
+        text.display_done(f)
     }
 }

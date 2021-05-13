@@ -26,9 +26,9 @@ pub struct Rect {
 impl AspectRatio {
     pub(crate) fn rect(self) -> Rect {
         match self {
-            AspectRatio::Landscape => Rect::new(0, 0, 1000, 750),
-            AspectRatio::Square => Rect::new(0, 0, 1000, 1000),
-            AspectRatio::Portrait => Rect::new(0, 0, 750, 1000),
+            AspectRatio::Landscape => Rect::new(0, 0, 2000, 1500),
+            AspectRatio::Square => Rect::new(0, 0, 2000, 2000),
+            AspectRatio::Portrait => Rect::new(0, 0, 1500, 2000),
         }
     }
 }

@@ -43,10 +43,18 @@ pub struct Label {
 }
 
 pub struct Text<'a> {
-    text: &'a str,
     edge: Edge,
     anchor: Anchor,
+    rect: Option<Rect>,
+    dy: Option<f32>,
     class_name: Option<&'a str>,
+}
+
+pub struct Tspan<'a> {
+    text: &'a str,
+    x: Option<i32>,
+    y: Option<i32>,
+    dy: Option<f32>,
 }
 
 impl fmt::Display for Anchor {
@@ -126,13 +134,24 @@ impl Label {
 }
 
 impl<'a> Text<'a> {
-    pub fn new(text: &'a str, edge: Edge, anchor: Anchor) -> Self {
+    pub fn new(edge: Edge, anchor: Anchor) -> Self {
         Text {
-            text,
             edge,
             anchor,
+            rect: None,
+            dy: None,
             class_name: None,
         }
+    }
+
+    pub fn dy(mut self, dy: f32) -> Self {
+        self.dy = Some(dy);
+        self
+    }
+
+    pub fn rect(mut self, rect: Rect) -> Self {
+        self.rect = Some(rect);
+        self
     }
 
     pub fn class_name(mut self, class_name: &'a str) -> Self {
@@ -140,22 +159,25 @@ impl<'a> Text<'a> {
         self
     }
 
-    pub fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
+    pub fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "<text")?;
         if let Some(class_name) = self.class_name {
             write!(f, " class='{}'", class_name)?;
         }
-        self.transform(f, rect)?;
-        match self.class_name {
-            Some("tick") => write!(f, " y='0.3em'")?,
-            _ => write!(f, " y='0.5em'")?,
+        if let Some(rect) = &self.rect {
+            self.transform(f, rect)?;
         }
-        writeln!(f, "{}>", self.anchor)?;
-        writeln!(f, "{}", self.text)?;
+        if let Some(dy) = self.dy {
+            write!(f, " dy='{}em'", dy)?;
+        }
+        writeln!(f, "{}>", self.anchor)
+    }
+
+    pub fn display_done(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "</text>")
     }
 
-    fn transform(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
+    fn transform(&self, f: &mut fmt::Formatter, rect: &Rect) -> fmt::Result {
         let x = match (self.edge, self.anchor) {
             (Edge::Top, Anchor::Start) | (Edge::Bottom, Anchor::Start) => {
                 rect.x
@@ -179,5 +201,46 @@ impl<'a> Text<'a> {
             _ => (),
         }
         write!(f, "'")
+    }
+}
+
+impl<'a> Tspan<'a> {
+    pub fn new(text: &'a str) -> Self {
+        Tspan {
+            text,
+            x: None,
+            y: None,
+            dy: None,
+        }
+    }
+
+    pub fn x(mut self, x: i32) -> Self {
+        self.x = Some(x);
+        self
+    }
+
+    pub fn y(mut self, y: i32) -> Self {
+        self.y = Some(y);
+        self
+    }
+
+    pub fn dy(mut self, dy: f32) -> Self {
+        self.dy = Some(dy);
+        self
+    }
+
+    pub fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "<tspan")?;
+        if let Some(x) = self.x {
+            write!(f, " x='{}'", x)?;
+        }
+        if let Some(y) = self.y {
+            write!(f, " y='{}'", y)?;
+        }
+        if let Some(dy) = self.dy {
+            write!(f, " dy='{}em'", dy)?;
+        }
+        write!(f, ">{}", &self.text)?;
+        writeln!(f, "</tspan>")
     }
 }

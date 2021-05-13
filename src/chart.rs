@@ -63,9 +63,12 @@ impl Title {
     }
 
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
-        let text =
-            Text::new(&self.text, self.edge, self.anchor).class_name("title");
-        text.display(f, rect)
+        let text = Text::new(self.edge, self.anchor)
+            .rect(rect)
+            .class_name("title");
+        text.display(f)?;
+        writeln!(f, "{}", self.text)?;
+        text.display_done(f)
     }
 }
 
@@ -132,14 +135,14 @@ impl Chart {
             rect.x, rect.y, rect.width, rect.height,
         )?;
         writeln!(f, "<style>")?;
-        writeln!(f, ".title {{ font-size: 25px; }}")?;
-        writeln!(f, ".axis {{ font-size: 20px; }}")?;
+        writeln!(f, ".title {{ font-size: 50px; }}")?;
+        writeln!(f, ".axis {{ font-size: 40px; }}")?;
         writeln!(f, ".line {{")?;
         writeln!(f, "  stroke: black;")?;
-        writeln!(f, "  stroke-width: 1;")?;
-        writeln!(f, "  shape-rendering: crispEdges;")?;
+        writeln!(f, "  stroke-width: 1px;")?;
+        writeln!(f, "  vector-effect: non-scaling-stroke;")?;
         writeln!(f, "}}")?;
-        writeln!(f, ".tick {{ font-size: 16px; }}")?;
+        writeln!(f, ".tick {{ font-size: 32px; }}")?;
         writeln!(f, "</style>")?;
         Ok(())
     }
@@ -152,9 +155,9 @@ impl Chart {
 impl fmt::Display for Chart {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.header(f)?;
-        let mut area = self.aspect_ratio.rect().inset(20);
+        let mut area = self.aspect_ratio.rect().inset(40);
         for title in &self.titles {
-            let rect = area.split(title.edge, 50);
+            let rect = area.split(title.edge, 100);
             title.display(f, rect)?;
         }
         let mut rects = vec![];
