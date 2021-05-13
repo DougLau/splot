@@ -132,7 +132,7 @@ impl Axis {
             Edge::Top | Edge::Bottom => ("h", rect.width),
             Edge::Left | Edge::Right => ("v", rect.height),
         };
-        write!(f, "<path class='line' d='M{} {} {}{}", x, y, hv, span)?;
+        write!(f, "<path class='axis-line' d='M{} {} {}{}", x, y, hv, span)?;
         let (hv, span) = match self.edge {
             Edge::Top => ("v", Tick::LEN),
             Edge::Bottom => ("v", -Tick::LEN),

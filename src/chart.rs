@@ -1,5 +1,6 @@
 use crate::axis::Axis;
 use crate::page::{AspectRatio, Edge, Rect};
+use crate::plot::Plot;
 use crate::text::{Anchor, Text};
 use std::fmt;
 
@@ -72,29 +73,32 @@ impl Title {
     }
 }
 
-pub struct ChartBuilder {
+pub struct ChartBuilder<'a> {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
     axes: Vec<Axis>,
+    plots: Vec<Box<dyn Plot + 'a>>,
 }
 
-pub struct Chart {
+pub struct Chart<'a> {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
     axes: Vec<Axis>,
+    plots: Vec<Box<dyn Plot + 'a>>,
 }
 
-impl Default for ChartBuilder {
+impl<'a> Default for ChartBuilder<'a> {
     fn default() -> Self {
         Self {
             aspect_ratio: AspectRatio::Landscape,
             titles: vec![],
             axes: vec![],
+            plots: vec![],
         }
     }
 }
 
-impl ChartBuilder {
+impl<'a> ChartBuilder<'a> {
     pub fn aspect_ratio(mut self, aspect: AspectRatio) -> Self {
         self.aspect_ratio = aspect;
         self
@@ -113,17 +117,26 @@ impl ChartBuilder {
         self
     }
 
-    pub fn build(self) -> Chart {
+    pub fn plot<P>(mut self, plot: P) -> Self
+    where
+        P: Into<Box<dyn Plot + 'a>>,
+    {
+        self.plots.push(plot.into());
+        self
+    }
+
+    pub fn build(self) -> Chart<'a> {
         Chart {
             aspect_ratio: self.aspect_ratio,
             titles: self.titles,
             axes: self.axes,
+            plots: self.plots,
         }
     }
 }
 
-impl Chart {
-    pub fn builder() -> ChartBuilder {
+impl<'a> Chart<'a> {
+    pub fn builder() -> ChartBuilder<'a> {
         ChartBuilder::default()
     }
 
@@ -136,13 +149,20 @@ impl Chart {
         )?;
         writeln!(f, "<style>")?;
         writeln!(f, ".title {{ font-size: 50px; }}")?;
-        writeln!(f, ".axis {{ font-size: 40px; }}")?;
-        writeln!(f, ".line {{")?;
+        writeln!(f, ".axis {{")?;
+        writeln!(f, "  font-size: 40px;")?;
+        writeln!(f, "}}")?;
+        writeln!(f, ".axis-line {{")?;
         writeln!(f, "  stroke: black;")?;
         writeln!(f, "  stroke-width: 1px;")?;
         writeln!(f, "  vector-effect: non-scaling-stroke;")?;
         writeln!(f, "}}")?;
         writeln!(f, ".tick {{ font-size: 32px; }}")?;
+        writeln!(f, ".series-a {{")?;
+        writeln!(f, "  fill: none;")?;
+        writeln!(f, "  stroke: #1F77B4;")?;
+        writeln!(f, "  stroke-width: 4px;")?;
+        writeln!(f, "}}")?;
         writeln!(f, "</style>")?;
         Ok(())
     }
@@ -152,7 +172,7 @@ impl Chart {
     }
 }
 
-impl fmt::Display for Chart {
+impl<'a> fmt::Display for Chart<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.header(f)?;
         let mut area = self.aspect_ratio.rect().inset(40);
@@ -167,6 +187,9 @@ impl fmt::Display for Chart {
         }
         for (axis, rect) in self.axes.iter().zip(rects) {
             axis.display(f, rect, area)?;
+        }
+        for plot in &self.plots {
+            plot.display(f, area)?;
         }
         self.footer(f)?;
         Ok(())
