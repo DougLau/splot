@@ -16,7 +16,7 @@ fn main() {
     let chart = Chart::builder()
     	.title("Line Chart")
         .axis(line.x_axis().name("X Axis Name"))
-        .axis(line.y_axis().name("Y Axis Name").inverted().on_right())
+        .axis(line.y_axis().name("Y Axis Name").on_right())
         .plot(line)
         .build();
     println!("{}", chart);

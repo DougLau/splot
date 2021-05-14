@@ -39,7 +39,6 @@ pub struct Axis {
     edge: Edge,
     ticks: Vec<Tick>,
     name: Option<String>,
-    inverted: bool,
     label: Label,
 }
 
@@ -49,7 +48,6 @@ impl Axis {
             edge,
             ticks,
             name: None,
-            inverted: false,
             label: Label::new(),
         }
     }
@@ -63,11 +61,6 @@ impl Axis {
         N: Into<String>,
     {
         self.name = Some(name.into());
-        self
-    }
-
-    pub fn inverted(mut self) -> Self {
-        self.inverted = !self.inverted;
         self
     }
 

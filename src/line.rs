@@ -96,8 +96,8 @@ where
 
     fn y_scale(&self) -> NumScale<Y> {
         match &self.y_domain {
-            Some(domain) => domain.clone(),
-            None => NumScale::of_data(&self.data[..], |pt| pt.y()),
+            Some(domain) => domain.clone().inverted(),
+            None => NumScale::of_data(&self.data[..], |pt| pt.y()).inverted(),
         }
     }
 

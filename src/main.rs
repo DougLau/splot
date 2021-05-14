@@ -5,8 +5,9 @@ fn main() {
     let line = LinePlot::new(&data);
     let chart = Chart::builder()
         .title("Chart Title")
-        .axis(line.x_axis().name("X Axis Name").on_top())
+        .axis(line.x_axis().name("X Axis Name"))
         .axis(line.y_axis().name("Y Axis Name"))
+        .axis(line.y_axis().on_right())
         .plot(line)
         .build();
     print!("{}", chart);

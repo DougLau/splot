@@ -58,6 +58,18 @@ impl<V> NumScale<V>
 where
     V: Value,
 {
+    fn new(min: V, max: V) -> Self {
+        let tick_spacing = Self::spacing(min.as_f32(), max.as_f32());
+        let start = (min.as_f32() / tick_spacing).floor() * tick_spacing;
+        let stop = (max.as_f32() / tick_spacing).ceil() * tick_spacing;
+        Self {
+            _value: PhantomData,
+            start,
+            stop,
+            tick_spacing,
+        }
+    }
+
     fn spacing(min: f32, max: f32) -> f32 {
         let span = max - min;
         let power = span.log10().floor() as i32;
@@ -73,18 +85,6 @@ where
             spc / 2.0
         } else {
             spc
-        }
-    }
-
-    fn new(min: V, max: V) -> Self {
-        let tick_spacing = Self::spacing(min.as_f32(), max.as_f32());
-        let start = (min.as_f32() / tick_spacing).floor() * tick_spacing;
-        let stop = (max.as_f32() / tick_spacing).ceil() * tick_spacing;
-        Self {
-            _value: PhantomData,
-            start,
-            stop,
-            tick_spacing,
         }
     }
 
@@ -112,8 +112,20 @@ where
         }
     }
 
+    pub fn inverted(mut self) -> Self {
+        self.tick_spacing = -self.tick_spacing;
+        self
+    }
+
     pub fn tick_spacing(&self) -> f32 {
         self.tick_spacing
+    }
+
+    fn add_tick(&self, val: f32, ticks: &mut Vec<Tick>) {
+        let value = self.proportion(val);
+        let text = format!("{}", val);
+        let tick = Tick::new(value, text);
+        ticks.push(tick);
     }
 }
 
@@ -124,22 +136,32 @@ where
     fn proportion(&self, value: f32) -> f32 {
         let a = self.start;
         let b = self.stop;
-        if (b - a).abs() > f32::EPSILON {
-            (value - a) / (b - a)
+        if b - a > f32::EPSILON {
+            if self.tick_spacing > 0.0 {
+                (value - a) / (b - a)
+            } else {
+                (b - value) / (b - a)
+            }
         } else {
             0.5
         }
     }
     fn ticks(&self) -> Vec<Tick> {
         let mut ticks = vec![];
-        let mut val = self.start;
-        while val <= self.stop {
-            let text = format!("{}", val);
-            let value = self.proportion(val);
-            let tick = Tick::new(value, text);
-            ticks.push(tick);
-            val += self.tick_spacing;
-        }
+        let spacing = self.tick_spacing;
+        if spacing > 0.0 {
+            let mut val = self.start;
+            while val <= self.stop {
+                self.add_tick(val, &mut ticks);
+                val += spacing;
+            }
+        } else {
+            let mut val = self.stop;
+            while val >= self.start {
+                self.add_tick(val, &mut ticks);
+                val += spacing;
+            }
+        };
         ticks
     }
 }
