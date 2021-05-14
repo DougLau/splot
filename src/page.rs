@@ -1,5 +1,3 @@
-use std::fmt;
-
 #[derive(Clone, Copy)]
 pub enum AspectRatio {
     Landscape,

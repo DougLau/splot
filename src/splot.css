@@ -1,0 +1,100 @@
+.title {{ font-size: 50px; }}
+.axis {{
+  font-size: 40px;
+}}
+.axis-line {{
+  stroke: black;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}}
+.tick {{ font-size: 32px; }}
+.series-a {{
+  fill: none;
+  stroke: #4E79A7;
+  stroke-width: 5px;
+  marker: url(#marker-a);
+}}
+#marker-a {{
+  fill: #4E79A7;
+}}
+.series-b {{
+  fill: none;
+  stroke: #F28E2C;
+  stroke-width: 5px;
+  marker: url(#marker-b);
+}}
+#marker-b {{
+  fill: #F28E2C;
+}}
+.series-c {{
+  fill: none;
+  stroke: #E15759;
+  stroke-width: 5px;
+  marker: url(#marker-c);
+}}
+#marker-c {{
+  fill: #E15759;
+}}
+.series-d {{
+  fill: none;
+  stroke: #76B7B2;
+  stroke-width: 5px;
+  marker: url(#marker-d);
+}}
+#marker-d {{
+  fill: #76B7B2;
+}}
+.series-e {{
+  fill: none;
+  stroke: #59A14F;
+  stroke-width: 5px;
+  marker: url(#marker-e);
+}}
+#marker-e {{
+  fill: #59A14F;
+}}
+.series-f {{
+  fill: none;
+  stroke: #EDC949;
+  stroke-width: 5px;
+  marker: url(#marker-f);
+}}
+#marker-f {{
+  fill: #EDC949;
+}}
+.series-g {{
+  fill: none;
+  stroke: #AF7AA1;
+  stroke-width: 5px;
+  marker: url(#marker-g);
+}}
+#marker-g {{
+  fill: #AF7AA1;
+}}
+.series-h {{
+  fill: none;
+  stroke: #FF9DA7;
+  stroke-width: 5px;
+  marker: url(#marker-h);
+}}
+#marker-h {{
+  fill: #FF9DA7;
+}}
+.series-i {{
+  fill: none;
+  stroke: #9C755F;
+  stroke-width: 5px;
+  marker: url(#marker-i);
+}}
+#marker-i {{
+  fill: #9C755F;
+}}
+.series-j {{
+  fill: none;
+  stroke: #BAB0AB;
+  stroke-width: 5px;
+  marker: url(#marker-j);
+}}
+#marker-j {{
+  fill: #BAB0AB;
+}}

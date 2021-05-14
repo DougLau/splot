@@ -148,22 +148,9 @@ impl<'a> Chart<'a> {
             rect.x, rect.y, rect.width, rect.height,
         )?;
         writeln!(f, "<style>")?;
-        writeln!(f, ".title {{ font-size: 50px; }}")?;
-        writeln!(f, ".axis {{")?;
-        writeln!(f, "  font-size: 40px;")?;
-        writeln!(f, "}}")?;
-        writeln!(f, ".axis-line {{")?;
-        writeln!(f, "  stroke: black;")?;
-        writeln!(f, "  stroke-width: 1px;")?;
-        writeln!(f, "  vector-effect: non-scaling-stroke;")?;
-        writeln!(f, "}}")?;
-        writeln!(f, ".tick {{ font-size: 32px; }}")?;
-        writeln!(f, ".series-a {{")?;
-        writeln!(f, "  fill: none;")?;
-        writeln!(f, "  stroke: #1F77B4;")?;
-        writeln!(f, "  stroke-width: 4px;")?;
-        writeln!(f, "}}")?;
+        write!(f, include_str!("splot.css"))?;
         writeln!(f, "</style>")?;
+        write!(f, include_str!("defs.svg"))?;
         Ok(())
     }
 
