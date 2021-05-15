@@ -13,7 +13,27 @@ impl Point for f32 {
     }
 }
 
+impl Point for f64 {
+    fn x(&self) -> f32 {
+        *self as f32
+    }
+
+    fn y(&self) -> f32 {
+        *self as f32
+    }
+}
+
 impl Point for isize {
+    fn x(&self) -> f32 {
+        *self as f32
+    }
+
+    fn y(&self) -> f32 {
+        *self as f32
+    }
+}
+
+impl Point for i32 {
     fn x(&self) -> f32 {
         *self as f32
     }
@@ -33,6 +53,16 @@ impl Point for (f32, f32) {
     }
 }
 
+impl Point for (f64, f64) {
+    fn x(&self) -> f32 {
+        self.0 as f32
+    }
+
+    fn y(&self) -> f32 {
+        self.1 as f32
+    }
+}
+
 impl Point for (isize, isize) {
     fn x(&self) -> f32 {
         self.0 as f32
@@ -43,7 +73,27 @@ impl Point for (isize, isize) {
     }
 }
 
-impl Point for (isize, isize, &str) {
+impl Point for (i8, i8) {
+    fn x(&self) -> f32 {
+        self.0.into()
+    }
+
+    fn y(&self) -> f32 {
+        self.1.into()
+    }
+}
+
+impl Point for (i16, i16) {
+    fn x(&self) -> f32 {
+        self.0.into()
+    }
+
+    fn y(&self) -> f32 {
+        self.1.into()
+    }
+}
+
+impl Point for (i32, i32) {
     fn x(&self) -> f32 {
         self.0 as f32
     }
@@ -53,17 +103,7 @@ impl Point for (isize, isize, &str) {
     }
 }
 
-impl Point for (f32, f32, &str) {
-    fn x(&self) -> f32 {
-        self.0
-    }
-
-    fn y(&self) -> f32 {
-        self.1
-    }
-}
-
-impl Point for (isize, isize, String) {
+impl Point for (i64, i64) {
     fn x(&self) -> f32 {
         self.0 as f32
     }
@@ -73,42 +113,12 @@ impl Point for (isize, isize, String) {
     }
 }
 
-impl Point for (f32, f32, String) {
+impl Point for (i128, i128) {
     fn x(&self) -> f32 {
-        self.0
-    }
-
-    fn y(&self) -> f32 {
-        self.1
-    }
-}
-
-impl Point for (String, f32) {
-    fn x(&self) -> f32 {
-        self.1
-    }
-
-    fn y(&self) -> f32 {
-        self.1
-    }
-}
-
-impl Point for (&str, i32) {
-    fn x(&self) -> f32 {
-        self.1 as f32
+        self.0 as f32
     }
 
     fn y(&self) -> f32 {
         self.1 as f32
-    }
-}
-
-impl Point for (f32, &str) {
-    fn x(&self) -> f32 {
-        self.0
-    }
-
-    fn y(&self) -> f32 {
-        self.0
     }
 }
