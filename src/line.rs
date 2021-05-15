@@ -1,6 +1,6 @@
 use crate::axis::Axis;
 use crate::page::{Edge, Rect};
-use crate::plot::Plot;
+use crate::plot::{private::SealedPlot, Plot};
 use crate::point::Point;
 use crate::scale::{NumScale, Scale, Value};
 use std::fmt;
@@ -16,7 +16,7 @@ where
     y_domain: Option<NumScale<Y>>,
 }
 
-impl<'a, P, X, Y> Plot for LinePlot<'a, P, X, Y>
+impl<'a, P, X, Y> SealedPlot for LinePlot<'a, P, X, Y>
 where
     P: Point<X, Y> + 'a,
     X: Value,
@@ -39,6 +39,14 @@ where
         }
         writeln!(f, "' />")
     }
+}
+
+impl<'a, P, X, Y> Plot for LinePlot<'a, P, X, Y>
+where
+    P: Point<X, Y> + 'a,
+    X: Value,
+    Y: Value,
+{
 }
 
 impl<'a, P, X, Y> From<LinePlot<'a, P, X, Y>> for Box<dyn Plot + 'a>
