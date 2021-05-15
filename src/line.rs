@@ -7,7 +7,7 @@ use std::fmt;
 
 pub struct LinePlot<'a, P>
 where
-    P: Point<f32, f32> + 'a,
+    P: Point + 'a,
 {
     data: &'a [P],
     x_domain: Option<NumScale>,
@@ -16,7 +16,7 @@ where
 
 impl<'a, P> SealedPlot for LinePlot<'a, P>
 where
-    P: Point<f32, f32> + 'a,
+    P: Point + 'a,
 {
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
         write!(f, "<path class='series-a' d='")?;
@@ -39,13 +39,13 @@ where
 
 impl<'a, P> Plot for LinePlot<'a, P>
 where
-    P: Point<f32, f32> + 'a,
+    P: Point + 'a,
 {
 }
 
 impl<'a, P> From<LinePlot<'a, P>> for Box<dyn Plot + 'a>
 where
-    P: Point<f32, f32> + 'a,
+    P: Point + 'a,
 {
     fn from(plot: LinePlot<'a, P>) -> Self {
         Box::new(plot)
@@ -54,7 +54,7 @@ where
 
 impl<'a, P> LinePlot<'a, P>
 where
-    P: Point<f32, f32> + 'a,
+    P: Point + 'a,
 {
     pub fn new(data: &'a [P]) -> Self {
         LinePlot {
@@ -66,7 +66,7 @@ where
 
     pub fn x_domain<T>(mut self, data: &[T]) -> Self
     where
-        T: Point<f32, f32>,
+        T: Point,
     {
         self.x_domain = Some(NumScale::of_data(data, |pt| pt.x()));
         self
@@ -74,7 +74,7 @@ where
 
     pub fn y_domain<T>(mut self, data: &[T]) -> Self
     where
-        T: Point<f32, f32>,
+        T: Point,
     {
         self.y_domain = Some(NumScale::of_data(data, |pt| pt.y()));
         self

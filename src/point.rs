@@ -1,9 +1,9 @@
-pub trait Point<X, Y> {
-    fn x(&self) -> X;
-    fn y(&self) -> Y;
+pub trait Point {
+    fn x(&self) -> f32;
+    fn y(&self) -> f32;
 }
 
-impl Point<f32, f32> for f32 {
+impl Point for f32 {
     fn x(&self) -> f32 {
         *self
     }
@@ -13,7 +13,7 @@ impl Point<f32, f32> for f32 {
     }
 }
 
-impl Point<f32, f32> for isize {
+impl Point for isize {
     fn x(&self) -> f32 {
         *self as f32
     }
@@ -23,7 +23,7 @@ impl Point<f32, f32> for isize {
     }
 }
 
-impl Point<f32, f32> for (f32, f32) {
+impl Point for (f32, f32) {
     fn x(&self) -> f32 {
         self.0
     }
@@ -33,7 +33,7 @@ impl Point<f32, f32> for (f32, f32) {
     }
 }
 
-impl Point<f32, f32> for (isize, isize) {
+impl Point for (isize, isize) {
     fn x(&self) -> f32 {
         self.0 as f32
     }
@@ -43,7 +43,7 @@ impl Point<f32, f32> for (isize, isize) {
     }
 }
 
-impl Point<f32, f32> for (isize, isize, &str) {
+impl Point for (isize, isize, &str) {
     fn x(&self) -> f32 {
         self.0 as f32
     }
@@ -53,7 +53,7 @@ impl Point<f32, f32> for (isize, isize, &str) {
     }
 }
 
-impl Point<f32, f32> for (f32, f32, &str) {
+impl Point for (f32, f32, &str) {
     fn x(&self) -> f32 {
         self.0
     }
@@ -63,7 +63,7 @@ impl Point<f32, f32> for (f32, f32, &str) {
     }
 }
 
-impl Point<f32, f32> for (isize, isize, String) {
+impl Point for (isize, isize, String) {
     fn x(&self) -> f32 {
         self.0 as f32
     }
@@ -73,7 +73,7 @@ impl Point<f32, f32> for (isize, isize, String) {
     }
 }
 
-impl Point<f32, f32> for (f32, f32, String) {
+impl Point for (f32, f32, String) {
     fn x(&self) -> f32 {
         self.0
     }
@@ -83,9 +83,9 @@ impl Point<f32, f32> for (f32, f32, String) {
     }
 }
 
-impl Point<String, f32> for (String, f32) {
-    fn x(&self) -> String {
-        self.0.to_owned()
+impl Point for (String, f32) {
+    fn x(&self) -> f32 {
+        self.1
     }
 
     fn y(&self) -> f32 {
@@ -93,32 +93,22 @@ impl Point<String, f32> for (String, f32) {
     }
 }
 
-impl Point<f32, String> for (f32, &str) {
+impl Point for (&str, i32) {
+    fn x(&self) -> f32 {
+        self.1 as f32
+    }
+
+    fn y(&self) -> f32 {
+        self.1 as f32
+    }
+}
+
+impl Point for (f32, &str) {
     fn x(&self) -> f32 {
         self.0
     }
 
-    fn y(&self) -> String {
-        self.1.to_owned()
-    }
-}
-
-impl Point<f32, String> for (&str, i32) {
-    fn x(&self) -> f32 {
-        self.1 as f32
-    }
-
-    fn y(&self) -> String {
-        self.0.to_owned()
-    }
-}
-
-impl Point<f32, String> for (&str, i32, &str) {
-    fn x(&self) -> f32 {
-        self.1 as f32
-    }
-
-    fn y(&self) -> String {
-        self.0.to_owned()
+    fn y(&self) -> f32 {
+        self.0
     }
 }
