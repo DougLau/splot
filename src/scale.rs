@@ -1,69 +1,29 @@
 use crate::axis::Tick;
-use std::marker::PhantomData;
 
 pub trait Scale<V> {
     fn proportion(&self, value: V) -> f32;
     fn ticks(&self) -> Vec<Tick>;
 }
 
-pub trait Value: Copy + Default + PartialOrd {
-    fn as_f32(self) -> f32;
-}
-
 #[derive(Clone)]
-pub struct NumScale<V>
-where
-    V: Value,
-{
-    _value: PhantomData<V>,
+pub struct NumScale {
     start: f32,
     stop: f32,
     tick_spacing: f32,
 }
 
-impl Value for i64 {
-    fn as_f32(self) -> f32 {
-        self as f32
-    }
-}
-
-impl Value for i32 {
-    fn as_f32(self) -> f32 {
-        self as f32
-    }
-}
-
-impl Value for f32 {
-    fn as_f32(self) -> f32 {
-        self
-    }
-}
-
-impl Value for f64 {
-    fn as_f32(self) -> f32 {
-        self as f32
-    }
-}
-
-impl<V> Default for NumScale<V>
-where
-    V: Value,
-{
+impl Default for NumScale {
     fn default() -> Self {
-        Self::new(V::default(), V::default())
+        Self::new(f32::default(), f32::default())
     }
 }
 
-impl<V> NumScale<V>
-where
-    V: Value,
-{
-    fn new(min: V, max: V) -> Self {
-        let tick_spacing = Self::spacing(min.as_f32(), max.as_f32());
-        let start = (min.as_f32() / tick_spacing).floor() * tick_spacing;
-        let stop = (max.as_f32() / tick_spacing).ceil() * tick_spacing;
+impl NumScale {
+    fn new(min: f32, max: f32) -> Self {
+        let tick_spacing = Self::spacing(min, max);
+        let start = (min / tick_spacing).floor() * tick_spacing;
+        let stop = (max / tick_spacing).ceil() * tick_spacing;
         Self {
-            _value: PhantomData,
             start,
             stop,
             tick_spacing,
@@ -88,7 +48,7 @@ where
         }
     }
 
-    pub fn of_data<'a, I, P>(data: I, get: fn(&P) -> V) -> Self
+    pub fn of_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
     where
         I: IntoIterator<Item = &'a P>,
         P: 'a,
@@ -129,15 +89,12 @@ where
     }
 }
 
-impl<V> Scale<f32> for NumScale<V>
-where
-    V: Value,
-{
+impl Scale<f32> for NumScale {
     fn proportion(&self, value: f32) -> f32 {
         let a = self.start;
         let b = self.stop;
         if b - a > f32::EPSILON {
-            if self.tick_spacing > 0.0 {
+            if self.tick_spacing() > 0.0 {
                 (value - a) / (b - a)
             } else {
                 (b - value) / (b - a)
@@ -148,7 +105,7 @@ where
     }
     fn ticks(&self) -> Vec<Tick> {
         let mut ticks = vec![];
-        let spacing = self.tick_spacing;
+        let spacing = self.tick_spacing();
         if spacing > 0.0 {
             let mut val = self.start;
             while val <= self.stop {

@@ -2,25 +2,21 @@ use crate::axis::Axis;
 use crate::page::{Edge, Rect};
 use crate::plot::{private::SealedPlot, Plot};
 use crate::point::Point;
-use crate::scale::{NumScale, Scale, Value};
+use crate::scale::{NumScale, Scale};
 use std::fmt;
 
-pub struct LinePlot<'a, P, X, Y>
+pub struct LinePlot<'a, P>
 where
-    P: Point<X, Y> + 'a,
-    X: Value,
-    Y: Value,
+    P: Point<f32, f32> + 'a,
 {
     data: &'a [P],
-    x_domain: Option<NumScale<X>>,
-    y_domain: Option<NumScale<Y>>,
+    x_domain: Option<NumScale>,
+    y_domain: Option<NumScale>,
 }
 
-impl<'a, P, X, Y> SealedPlot for LinePlot<'a, P, X, Y>
+impl<'a, P> SealedPlot for LinePlot<'a, P>
 where
-    P: Point<X, Y> + 'a,
-    X: Value,
-    Y: Value,
+    P: Point<f32, f32> + 'a,
 {
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
         write!(f, "<path class='series-a' d='")?;
@@ -28,9 +24,9 @@ where
         let y_scale = self.y_scale();
         for (i, pt) in self.data.iter().enumerate() {
             let x = rect.x as f32
-                + f32::from(rect.width) * x_scale.proportion(pt.x().as_f32());
+                + f32::from(rect.width) * x_scale.proportion(pt.x());
             let y = rect.y as f32
-                + f32::from(rect.height) * y_scale.proportion(pt.y().as_f32());
+                + f32::from(rect.height) * y_scale.proportion(pt.y());
             if i == 0 {
                 write!(f, "M{} {}", x, y)?;
             } else {
@@ -41,30 +37,24 @@ where
     }
 }
 
-impl<'a, P, X, Y> Plot for LinePlot<'a, P, X, Y>
+impl<'a, P> Plot for LinePlot<'a, P>
 where
-    P: Point<X, Y> + 'a,
-    X: Value,
-    Y: Value,
+    P: Point<f32, f32> + 'a,
 {
 }
 
-impl<'a, P, X, Y> From<LinePlot<'a, P, X, Y>> for Box<dyn Plot + 'a>
+impl<'a, P> From<LinePlot<'a, P>> for Box<dyn Plot + 'a>
 where
-    P: Point<X, Y> + 'a,
-    X: Value + 'a,
-    Y: Value + 'a,
+    P: Point<f32, f32> + 'a,
 {
-    fn from(plot: LinePlot<'a, P, X, Y>) -> Self {
+    fn from(plot: LinePlot<'a, P>) -> Self {
         Box::new(plot)
     }
 }
 
-impl<'a, P, X, Y> LinePlot<'a, P, X, Y>
+impl<'a, P> LinePlot<'a, P>
 where
-    P: Point<X, Y> + 'a,
-    X: Value,
-    Y: Value,
+    P: Point<f32, f32> + 'a,
 {
     pub fn new(data: &'a [P]) -> Self {
         LinePlot {
@@ -76,7 +66,7 @@ where
 
     pub fn x_domain<T>(mut self, data: &[T]) -> Self
     where
-        T: Point<X, Y>,
+        T: Point<f32, f32>,
     {
         self.x_domain = Some(NumScale::of_data(data, |pt| pt.x()));
         self
@@ -84,13 +74,13 @@ where
 
     pub fn y_domain<T>(mut self, data: &[T]) -> Self
     where
-        T: Point<X, Y>,
+        T: Point<f32, f32>,
     {
         self.y_domain = Some(NumScale::of_data(data, |pt| pt.y()));
         self
     }
 
-    fn x_scale(&self) -> NumScale<X> {
+    fn x_scale(&self) -> NumScale {
         match &self.x_domain {
             Some(domain) => domain.clone(),
             None => NumScale::of_data(&self.data[..], |pt| pt.x()),
@@ -102,7 +92,7 @@ where
         Axis::new(Edge::Bottom, ticks)
     }
 
-    fn y_scale(&self) -> NumScale<Y> {
+    fn y_scale(&self) -> NumScale {
         match &self.y_domain {
             Some(domain) => domain.clone().inverted(),
             None => NumScale::of_data(&self.data[..], |pt| pt.y()).inverted(),
