@@ -129,16 +129,15 @@ mod tests {
 
     #[test]
     fn test() {
-        assert_eq!(NumScale::new(0, 10).tick_spacing(), 1.0);
         assert_eq!(NumScale::new(0.0, 10.0).tick_spacing(), 1.0);
         assert_eq!(NumScale::new(9.5, 10.0).tick_spacing(), 0.1);
-        assert_eq!(NumScale::new(0, 25).tick_spacing(), 5.0);
-        assert_eq!(NumScale::new(0, 30).tick_spacing(), 5.0);
-        assert_eq!(NumScale::new(0, 40).tick_spacing(), 5.0);
-        assert_eq!(NumScale::new(0, 50).tick_spacing(), 10.0);
-        assert_eq!(NumScale::new(0, 75).tick_spacing(), 10.0);
-        assert_eq!(NumScale::new(0, 100).tick_spacing(), 10.0);
-        //assert_eq!(NumScale::new(-50, 50).tick_spacing(), 10.0);
+        assert_eq!(NumScale::new(0.0, 25.0).tick_spacing(), 5.0);
+        assert_eq!(NumScale::new(0.0, 30.0).tick_spacing(), 5.0);
+        assert_eq!(NumScale::new(0.0, 40.0).tick_spacing(), 5.0);
+        assert_eq!(NumScale::new(0.0, 50.0).tick_spacing(), 10.0);
+        assert_eq!(NumScale::new(0.0, 75.0).tick_spacing(), 10.0);
+        assert_eq!(NumScale::new(0.0, 100.0).tick_spacing(), 10.0);
+        //assert_eq!(NumScale::new(-50.0, 50.0).tick_spacing(), 10.0);
         assert_eq!(NumScale::new(0.0, 1.0).tick_spacing(), 0.1);
         assert_eq!(NumScale::new(0.0, 1.5).tick_spacing(), 0.25);
         assert_eq!(NumScale::new(0.0, 2.0).tick_spacing(), 0.25);
