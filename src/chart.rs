@@ -175,8 +175,8 @@ impl<'a> fmt::Display for Chart<'a> {
         for (axis, rect) in self.axes.iter().zip(rects) {
             axis.display(f, rect, area)?;
         }
-        for plot in &self.plots {
-            plot.display(f, area)?;
+        for (plot, num) in self.plots.iter().zip((0..10).cycle()) {
+            plot.display(f, num, area)?;
         }
         self.footer(f)?;
         Ok(())

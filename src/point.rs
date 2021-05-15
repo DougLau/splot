@@ -22,10 +22,15 @@ impl<'a, P> SealedPlot for PointPlot<'a, P>
 where
     P: Point + 'a,
 {
-    fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
-        write!(f, "<path class='series-a' d='")?;
+    fn display(
+        &self,
+        f: &mut fmt::Formatter,
+        num: usize,
+        rect: Rect,
+    ) -> fmt::Result {
+        write!(f, "<path class='series-{}' d='", num)?;
         let x_scale = self.x_scale();
-        let y_scale = self.y_scale();
+        let y_scale = self.y_scale().inverted();
         for (i, pt) in self.data.iter().enumerate() {
             let x = rect.x as f32
                 + f32::from(rect.width) * x_scale.proportion(pt.x());
@@ -41,11 +46,7 @@ where
     }
 }
 
-impl<'a, P> Plot for PointPlot<'a, P>
-where
-    P: Point + 'a,
-{
-}
+impl<'a, P> Plot for PointPlot<'a, P> where P: Point + 'a {}
 
 impl<'a, P> From<PointPlot<'a, P>> for Box<dyn Plot + 'a>
 where
@@ -60,11 +61,19 @@ impl<'a, P> PointPlot<'a, P>
 where
     P: Point + 'a,
 {
-    pub fn new(data: &'a [P]) -> Self {
+    pub fn new_line(data: &'a [P]) -> Self {
         PointPlot {
             data,
             x_domain: None,
             y_domain: None,
+        }
+    }
+
+    pub fn to_line(&self, data: &'a [P]) -> Self {
+        PointPlot {
+            data,
+            x_domain: Some(self.x_scale()),
+            y_domain: Some(self.y_scale()),
         }
     }
 
@@ -98,13 +107,13 @@ where
 
     fn y_scale(&self) -> NumScale {
         match &self.y_domain {
-            Some(domain) => domain.clone().inverted(),
-            None => NumScale::of_data(&self.data[..], |pt| pt.y()).inverted(),
+            Some(domain) => domain.clone(),
+            None => NumScale::of_data(&self.data[..], |pt| pt.y()),
         }
     }
 
     pub fn y_axis(&self) -> Axis {
-        let ticks = self.y_scale().ticks();
+        let ticks = self.y_scale().inverted().ticks();
         Axis::new(Edge::Left, ticks)
     }
 }
@@ -236,6 +245,6 @@ mod tests {
     #[test]
     fn test() {
         let data = [(45.0, 150.0), (90.0, 200.0)];
-        let plot = PointPlot::new(&data).x_domain(&[0, 100]);
+        let plot = PointPlot::new_line(&data).x_domain(&[0, 100]);
     }
 }

@@ -3,7 +3,12 @@ pub(crate) mod private {
     use std::fmt;
 
     pub trait SealedPlot {
-        fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result;
+        fn display(
+            &self,
+            f: &mut fmt::Formatter,
+            num: usize,
+            rect: Rect,
+        ) -> fmt::Result;
     }
 }
 

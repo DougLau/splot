@@ -8,7 +8,7 @@
   vector-effect: non-scaling-stroke;
 }}
 .tick {{ font-size: 32px; }}
-.series-a {{
+.series-0 {{
   fill: none;
   stroke: #4E79A7;
   stroke-width: 5px;
@@ -17,7 +17,7 @@
 #marker-a {{
   fill: #4E79A7;
 }}
-.series-b {{
+.series-1 {{
   fill: none;
   stroke: #F28E2C;
   stroke-width: 5px;
@@ -26,7 +26,7 @@
 #marker-b {{
   fill: #F28E2C;
 }}
-.series-c {{
+.series-2 {{
   fill: none;
   stroke: #E15759;
   stroke-width: 5px;
@@ -35,7 +35,7 @@
 #marker-c {{
   fill: #E15759;
 }}
-.series-d {{
+.series-3 {{
   fill: none;
   stroke: #76B7B2;
   stroke-width: 5px;
@@ -44,7 +44,7 @@
 #marker-d {{
   fill: #76B7B2;
 }}
-.series-e {{
+.series-4 {{
   fill: none;
   stroke: #59A14F;
   stroke-width: 5px;
@@ -53,7 +53,7 @@
 #marker-e {{
   fill: #59A14F;
 }}
-.series-f {{
+.series-5 {{
   fill: none;
   stroke: #EDC949;
   stroke-width: 5px;
@@ -62,7 +62,7 @@
 #marker-f {{
   fill: #EDC949;
 }}
-.series-g {{
+.series-6 {{
   fill: none;
   stroke: #AF7AA1;
   stroke-width: 5px;
@@ -71,7 +71,7 @@
 #marker-g {{
   fill: #AF7AA1;
 }}
-.series-h {{
+.series-7 {{
   fill: none;
   stroke: #FF9DA7;
   stroke-width: 5px;
@@ -80,7 +80,7 @@
 #marker-h {{
   fill: #FF9DA7;
 }}
-.series-i {{
+.series-8 {{
   fill: none;
   stroke: #9C755F;
   stroke-width: 5px;
@@ -89,7 +89,7 @@
 #marker-i {{
   fill: #9C755F;
 }}
-.series-j {{
+.series-9 {{
   fill: none;
   stroke: #BAB0AB;
   stroke-width: 5px;
