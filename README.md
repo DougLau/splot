@@ -10,7 +10,7 @@ is, using `println!`, or even `to_string()` is all that's needed.
 ```rust
 fn main() {
     let data = vec![(13, 74), (111, 37), (125, 52), (190, 66)];
-    let line = LinePlot::new(&data)
+    let line = PointPlot::new(&data)
         .x_domain(&[0.0, 200.0])
         .labels(Label::new().above());
     let chart = Chart::builder()
