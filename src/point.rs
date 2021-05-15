@@ -69,27 +69,11 @@ where
         }
     }
 
-    pub fn to_line(&self, data: &'a [P]) -> Self {
-        PointPlot {
-            data,
-            x_domain: Some(self.x_scale()),
-            y_domain: Some(self.y_scale()),
-        }
-    }
-
     pub fn x_domain<T>(mut self, data: &[T]) -> Self
     where
         T: Point,
     {
         self.x_domain = Some(NumScale::of_data(data, |pt| pt.x()));
-        self
-    }
-
-    pub fn y_domain<T>(mut self, data: &[T]) -> Self
-    where
-        T: Point,
-    {
-        self.y_domain = Some(NumScale::of_data(data, |pt| pt.y()));
         self
     }
 
@@ -100,9 +84,12 @@ where
         }
     }
 
-    pub fn x_axis(&self) -> Axis {
-        let ticks = self.x_scale().ticks();
-        Axis::new(Edge::Bottom, ticks)
+    pub fn y_domain<T>(mut self, data: &[T]) -> Self
+    where
+        T: Point,
+    {
+        self.y_domain = Some(NumScale::of_data(data, |pt| pt.y()));
+        self
     }
 
     fn y_scale(&self) -> NumScale {
@@ -110,6 +97,19 @@ where
             Some(domain) => domain.clone(),
             None => NumScale::of_data(&self.data[..], |pt| pt.y()),
         }
+    }
+
+    pub fn to_line(&self, data: &'a [P]) -> Self {
+        PointPlot {
+            data,
+            x_domain: Some(self.x_scale()),
+            y_domain: Some(self.y_scale()),
+        }
+    }
+
+    pub fn x_axis(&self) -> Axis {
+        let ticks = self.x_scale().ticks();
+        Axis::new(Edge::Bottom, ticks)
     }
 
     pub fn y_axis(&self) -> Axis {
