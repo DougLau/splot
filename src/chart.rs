@@ -148,9 +148,9 @@ impl<'a> Chart<'a> {
             rect.x, rect.y, rect.width, rect.height,
         )?;
         writeln!(f, "<style>")?;
-        write!(f, include_str!("splot.css"))?;
+        write!(f, "{}", include_str!("splot.css"))?;
         writeln!(f, "</style>")?;
-        write!(f, include_str!("defs.svg"))?;
+        write!(f, "{}", include_str!("defs.svg"))?;
         Ok(())
     }
 
