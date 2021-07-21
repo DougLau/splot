@@ -9,10 +9,17 @@ pub trait Point {
     fn y(&self) -> f32;
 }
 
+#[derive(PartialEq)]
+enum PointPlotType {
+    Area,
+    Line,
+}
+
 pub struct PointPlot<'a, P>
 where
     P: Point + 'a,
 {
+    plot_type: PointPlotType,
     data: &'a [P],
     x_domain: Option<NumScale>,
     y_domain: Option<NumScale>,
@@ -29,17 +36,31 @@ where
         rect: Rect,
     ) -> fmt::Result {
         write!(f, "<path class='series-{}' d='", num)?;
+        let rx = rect.x as f32;
+        let ry = rect.y as f32;
+        let rw = f32::from(rect.width);
+        let rh = f32::from(rect.height);
         let x_scale = self.x_scale();
         let y_scale = self.y_scale().inverted();
         for (i, pt) in self.data.iter().enumerate() {
-            let x = rect.x as f32
-                + f32::from(rect.width) * x_scale.proportion(pt.x());
-            let y = rect.y as f32
-                + f32::from(rect.height) * y_scale.proportion(pt.y());
+            let x = rx + rw * x_scale.proportion(pt.x());
+            let y = ry + rh * y_scale.proportion(pt.y());
             if i == 0 {
                 write!(f, "M{} {}", x, y)?;
             } else {
                 write!(f, " {} {}", x, y)?;
+            }
+        }
+        if self.plot_type == PointPlotType::Area {
+            if let Some(pt) = self.data.last() {
+                let x = rx + rw * x_scale.proportion(pt.x());
+                let y = ry + rh * y_scale.proportion(0.0);
+                write!(f, " {} {}", x, y)?;
+            }
+            if let Some(pt) = self.data.first() {
+                let x = rx + rw * x_scale.proportion(pt.x());
+                let y = ry + rh * y_scale.proportion(0.0);
+                write!(f, " {} {} z", x, y)?;
             }
         }
         writeln!(f, "' />")
@@ -61,8 +82,18 @@ impl<'a, P> PointPlot<'a, P>
 where
     P: Point + 'a,
 {
+    pub fn new_area(data: &'a [P]) -> Self {
+        PointPlot {
+            plot_type: PointPlotType::Area,
+            data,
+            x_domain: None,
+            y_domain: None,
+        }
+    }
+
     pub fn new_line(data: &'a [P]) -> Self {
         PointPlot {
+            plot_type: PointPlotType::Line,
             data,
             x_domain: None,
             y_domain: None,
@@ -99,8 +130,18 @@ where
         }
     }
 
+    pub fn to_area(&self, data: &'a [P]) -> Self {
+        PointPlot {
+            plot_type: PointPlotType::Area,
+            data,
+            x_domain: Some(self.x_scale()),
+            y_domain: Some(self.y_scale()),
+        }
+    }
+
     pub fn to_line(&self, data: &'a [P]) -> Self {
         PointPlot {
+            plot_type: PointPlotType::Line,
             data,
             x_domain: Some(self.x_scale()),
             y_domain: Some(self.y_scale()),
