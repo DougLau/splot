@@ -2,7 +2,7 @@ use crate::page::{Edge, Rect};
 use std::fmt;
 
 /// Text label point
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum LabelPoint {
     /// Minimum point (start of bar/column)
     Minimum,
@@ -13,7 +13,7 @@ pub enum LabelPoint {
 }
 
 /// Vertical offset relative to point
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum VerticalOffset {
     /// Label below point
     Below,
@@ -24,7 +24,7 @@ pub enum VerticalOffset {
 }
 
 /// Text anchor
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Anchor {
     /// Anchor at start of text
     Start,
@@ -34,7 +34,7 @@ pub enum Anchor {
     End,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Label {
     point: LabelPoint,
     offset: VerticalOffset,

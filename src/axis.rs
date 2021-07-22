@@ -2,7 +2,7 @@ use crate::page::{Edge, Rect};
 use crate::text::{Anchor, Label, Text, Tspan};
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Tick {
     value: f32,
     text: String,
@@ -35,6 +35,7 @@ impl Tick {
     }
 }
 
+#[derive(Debug, PartialEq)]
 pub struct Axis {
     edge: Edge,
     ticks: Vec<Tick>,

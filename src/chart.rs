@@ -1,6 +1,8 @@
 use crate::axis::Axis;
+use crate::domain::Domain;
 use crate::page::{AspectRatio, Edge, Rect};
-use crate::plot::Plot;
+use crate::plot::{Plot, PlotType, Plotter};
+use crate::point::Point;
 use crate::text::{Anchor, Text};
 use std::fmt;
 
@@ -104,7 +106,7 @@ impl<'a> ChartBuilder<'a> {
         self
     }
 
-    pub fn title<T>(mut self, title: T) -> Self
+    pub fn with_title<T>(mut self, title: T) -> Self
     where
         T: Into<Title>,
     {
@@ -112,16 +114,13 @@ impl<'a> ChartBuilder<'a> {
         self
     }
 
-    pub fn axis(mut self, axis: Axis) -> Self {
+    pub fn with_axis(mut self, axis: Axis) -> Self {
         self.axes.push(axis);
         self
     }
 
-    pub fn plot<P>(mut self, plot: P) -> Self
-    where
-        P: Into<Box<dyn Plot + 'a>>,
-    {
-        self.plots.push(plot.into());
+    pub fn with_plot<P: Point>(mut self, plot: Plotter<'a, P>) -> Self {
+        self.plots.push(Box::new(plot));
         self
     }
 

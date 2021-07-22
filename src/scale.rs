@@ -19,7 +19,7 @@ impl Default for NumScale {
 }
 
 impl NumScale {
-    fn new(min: f32, max: f32) -> Self {
+    pub fn new(min: f32, max: f32) -> Self {
         let tick_spacing = Self::spacing(min, max);
         let start = (min / tick_spacing).floor() * tick_spacing;
         let stop = (max / tick_spacing).ceil() * tick_spacing;

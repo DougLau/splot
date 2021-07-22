@@ -4,6 +4,7 @@
 
 mod axis;
 mod chart;
+mod domain;
 mod page;
 mod plot;
 mod point;
@@ -12,6 +13,7 @@ mod text;
 
 pub use axis::Axis;
 pub use chart::{Chart, ChartBuilder, Title};
+pub use domain::Domain;
 pub use page::AspectRatio;
-pub use plot::Plot;
-pub use point::{Point, PointPlot};
+pub use plot::{Plot, PlotType, Plotter};
+pub use point::Point;

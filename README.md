@@ -10,14 +10,14 @@ is, using `println!`, or even `to_string()` is all that's needed.
 ```rust
 fn main() {
     let data = vec![(13, 74), (111, 37), (125, 52), (190, 66)];
-    let line = PointPlot::new_line(&data)
-        .x_domain(&[0.0, 200.0])
-        .labels(Label::new().above());
+    let domain = Domain::default().with_data(&data).with_x(&[0.0, 200.0]);
     let chart = Chart::builder()
-    	.title("Line Chart")
-        .axis(line.x_axis().name("X Axis Name"))
-        .axis(line.y_axis().name("Y Axis Name").on_right())
-        .plot(line)
+        .with_title("Line Chart")
+        .with_axis(domain.x_axis().with_name("X Axis Name"))
+        .with_axis(domain.y_axis().with_name("Y Axis Name").on_right())
+        .with_plot(
+            Plotter::new(&domain, &data).with_label(Label::new().above())
+        )
         .build();
     println!("{}", chart);
 }
