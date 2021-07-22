@@ -2,19 +2,19 @@ use crate::axis::Tick;
 use crate::private::SealedScale;
 
 #[derive(Clone)]
-pub struct NumScale {
+pub struct Linear {
     start: f32,
     stop: f32,
     tick_spacing: f32,
 }
 
-impl Default for NumScale {
+impl Default for Linear {
     fn default() -> Self {
         Self::new(0.0, 1.0)
     }
 }
 
-impl NumScale {
+impl Linear {
     pub fn new(min: f32, max: f32) -> Self {
         let tick_spacing = Self::spacing(min, max);
         let start = (min / tick_spacing).floor() * tick_spacing;
@@ -29,7 +29,7 @@ impl NumScale {
     pub fn union(self, rhs: Self) -> Self {
         let min = self.start.min(rhs.start);
         let max = self.stop.max(rhs.stop);
-        NumScale::new(min, max)
+        Linear::new(min, max)
     }
 
     fn spacing(min: f32, max: f32) -> f32 {
@@ -93,7 +93,7 @@ impl NumScale {
 
 trait Scale<V>: SealedScale<V> {}
 
-impl SealedScale<f32> for NumScale {
+impl SealedScale<f32> for Linear {
     fn normalize(&self, value: f32) -> f32 {
         let a = self.start;
         let b = self.stop;
@@ -128,7 +128,7 @@ impl SealedScale<f32> for NumScale {
     }
 }
 
-impl Scale<f32> for NumScale {}
+impl Scale<f32> for Linear {}
 
 #[cfg(test)]
 mod tests {
@@ -136,19 +136,19 @@ mod tests {
 
     #[test]
     fn test() {
-        assert_eq!(NumScale::new(0.0, 10.0).tick_spacing(), 1.0);
-        assert_eq!(NumScale::new(9.5, 10.0).tick_spacing(), 0.1);
-        assert_eq!(NumScale::new(0.0, 25.0).tick_spacing(), 5.0);
-        assert_eq!(NumScale::new(0.0, 30.0).tick_spacing(), 5.0);
-        assert_eq!(NumScale::new(0.0, 40.0).tick_spacing(), 5.0);
-        assert_eq!(NumScale::new(0.0, 50.0).tick_spacing(), 10.0);
-        assert_eq!(NumScale::new(0.0, 75.0).tick_spacing(), 10.0);
-        assert_eq!(NumScale::new(0.0, 100.0).tick_spacing(), 10.0);
-        //assert_eq!(NumScale::new(-50.0, 50.0).tick_spacing(), 10.0);
-        assert_eq!(NumScale::new(0.0, 1.0).tick_spacing(), 0.1);
-        assert_eq!(NumScale::new(0.0, 1.5).tick_spacing(), 0.25);
-        assert_eq!(NumScale::new(0.0, 2.0).tick_spacing(), 0.25);
-        assert_eq!(NumScale::new(0.0, 0.1).tick_spacing(), 0.01);
-        assert_eq!(NumScale::new(0.0, 0.1).tick_spacing(), 0.01);
+        assert_eq!(Linear::new(0.0, 10.0).tick_spacing(), 1.0);
+        assert_eq!(Linear::new(9.5, 10.0).tick_spacing(), 0.1);
+        assert_eq!(Linear::new(0.0, 25.0).tick_spacing(), 5.0);
+        assert_eq!(Linear::new(0.0, 30.0).tick_spacing(), 5.0);
+        assert_eq!(Linear::new(0.0, 40.0).tick_spacing(), 5.0);
+        assert_eq!(Linear::new(0.0, 50.0).tick_spacing(), 10.0);
+        assert_eq!(Linear::new(0.0, 75.0).tick_spacing(), 10.0);
+        assert_eq!(Linear::new(0.0, 100.0).tick_spacing(), 10.0);
+        //assert_eq!(Linear::new(-50.0, 50.0).tick_spacing(), 10.0);
+        assert_eq!(Linear::new(0.0, 1.0).tick_spacing(), 0.1);
+        assert_eq!(Linear::new(0.0, 1.5).tick_spacing(), 0.25);
+        assert_eq!(Linear::new(0.0, 2.0).tick_spacing(), 0.25);
+        assert_eq!(Linear::new(0.0, 0.1).tick_spacing(), 0.01);
+        assert_eq!(Linear::new(0.0, 0.1).tick_spacing(), 0.01);
     }
 }

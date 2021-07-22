@@ -1,12 +1,12 @@
 use crate::axis::{Horizontal, Vertical};
 use crate::point::Point;
 use crate::private::SealedScale;
-use crate::scale::NumScale;
+use crate::scale::Linear;
 
 #[derive(Default)]
 pub struct Domain {
-    x_domain: Option<NumScale>,
-    y_domain: Option<NumScale>,
+    x_domain: Option<Linear>,
+    y_domain: Option<Linear>,
 }
 
 impl Domain {
@@ -14,12 +14,12 @@ impl Domain {
     where
         P: Point,
     {
-        let x_domain = NumScale::of_data(data, |pt| pt.x());
+        let x_domain = Linear::of_data(data, |pt| pt.x());
         self.x_domain = match self.x_domain {
             Some(xd) => Some(x_domain.union(xd)),
             None => Some(x_domain),
         };
-        let y_domain = NumScale::of_data(data, |pt| pt.y());
+        let y_domain = Linear::of_data(data, |pt| pt.y());
         self.y_domain = match self.y_domain {
             Some(yd) => Some(y_domain.union(yd)),
             None => Some(y_domain),
@@ -31,7 +31,7 @@ impl Domain {
     where
         P: Point,
     {
-        self.x_domain = Some(NumScale::of_data(data, |pt| pt.x()));
+        self.x_domain = Some(Linear::of_data(data, |pt| pt.x()));
         self
     }
 
@@ -39,21 +39,21 @@ impl Domain {
     where
         P: Point,
     {
-        self.y_domain = Some(NumScale::of_data(data, |pt| pt.y()));
+        self.y_domain = Some(Linear::of_data(data, |pt| pt.y()));
         self
     }
 
-    fn x_scale(&self) -> NumScale {
+    fn x_scale(&self) -> Linear {
         match &self.x_domain {
             Some(domain) => domain.clone(),
-            None => NumScale::default(),
+            None => Linear::default(),
         }
     }
 
-    fn y_scale(&self) -> NumScale {
+    fn y_scale(&self) -> Linear {
         match &self.y_domain {
             Some(domain) => domain.clone(),
-            None => NumScale::default(),
+            None => Linear::default(),
         }.inverted()
     }
 
@@ -82,7 +82,7 @@ mod tests {
     fn test() {
         let data = [(45.0, 150.0), (90.0, 200.0)];
         let domain = Domain::default().with_data(&data);
-        let ticks = NumScale::new(45.0, 90.0).ticks();
+        let ticks = Linear::new(45.0, 90.0).ticks();
         assert_eq!(domain.x_axis(), Horizontal::new(ticks));
     }
 }
