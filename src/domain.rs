@@ -14,12 +14,16 @@ impl Domain {
     where
         P: Point,
     {
-        if self.x_domain.is_none() {
-            self.x_domain = Some(NumScale::of_data(data, |pt| pt.x()));
-        }
-        if self.y_domain.is_none() {
-            self.y_domain = Some(NumScale::of_data(data, |pt| pt.y()));
-        }
+        let x_domain = NumScale::of_data(data, |pt| pt.x());
+        self.x_domain = match self.x_domain {
+            Some(xd) => Some(x_domain.union(xd)),
+            None => Some(x_domain),
+        };
+        let y_domain = NumScale::of_data(data, |pt| pt.y());
+        self.y_domain = match self.y_domain {
+            Some(yd) => Some(y_domain.union(yd)),
+            None => Some(y_domain),
+        };
         self
     }
 
@@ -39,18 +43,18 @@ impl Domain {
         self
     }
 
-    pub(crate) fn x_scale(&self) -> NumScale {
+    fn x_scale(&self) -> NumScale {
         match &self.x_domain {
             Some(domain) => domain.clone(),
-            None => NumScale::new(0.0, 1.0),
+            None => NumScale::default(),
         }
     }
 
-    pub(crate) fn y_scale(&self) -> NumScale {
+    fn y_scale(&self) -> NumScale {
         match &self.y_domain {
             Some(domain) => domain.clone(),
-            None => NumScale::new(0.0, 1.0),
-        }
+            None => NumScale::default(),
+        }.inverted()
     }
 
     pub fn x_axis(&self) -> Horizontal {
@@ -58,7 +62,15 @@ impl Domain {
     }
 
     pub fn y_axis(&self) -> Vertical {
-        Vertical::new(self.y_scale().inverted().ticks())
+        Vertical::new(self.y_scale().ticks())
+    }
+
+    pub(crate) fn x(&self, x: f32) -> f32 {
+        self.x_scale().proportion(x)
+    }
+
+    pub(crate) fn y(&self, y: f32) -> f32 {
+        self.y_scale().proportion(y)
     }
 }
 

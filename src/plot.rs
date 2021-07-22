@@ -1,7 +1,7 @@
 use crate::domain::Domain;
 use crate::page::Rect;
 use crate::point::Point;
-use crate::private::{SealedPlot, SealedScale};
+use crate::private::SealedPlot;
 use std::fmt;
 
 #[derive(Debug, PartialEq)]
@@ -33,11 +33,9 @@ impl PlotType {
         let ry = rect.y as f32;
         let rw = f32::from(rect.width);
         let rh = f32::from(rect.height);
-        let x_scale = plot.domain.x_scale();
-        let y_scale = plot.domain.y_scale().inverted();
         for (i, pt) in plot.data.iter().enumerate() {
-            let x = rx + rw * x_scale.proportion(pt.x());
-            let y = ry + rh * y_scale.proportion(pt.y());
+            let x = rx + rw * plot.domain.x(pt.x());
+            let y = ry + rh * plot.domain.y(pt.y());
             if i == 0 {
                 write!(f, "M{} {}", x, y)?;
             } else {
@@ -47,13 +45,13 @@ impl PlotType {
         match self {
             PlotType::Area => {
                 if let Some(pt) = plot.data.last() {
-                    let x = rx + rw * x_scale.proportion(pt.x());
-                    let y = ry + rh * y_scale.proportion(0.0);
+                    let x = rx + rw * plot.domain.x(pt.x());
+                    let y = ry + rh * plot.domain.y(0.0);
                     write!(f, " {} {}", x, y)?;
                 }
                 if let Some(pt) = plot.data.first() {
-                    let x = rx + rw * x_scale.proportion(pt.x());
-                    let y = ry + rh * y_scale.proportion(0.0);
+                    let x = rx + rw * plot.domain.x(pt.x());
+                    let y = ry + rh * plot.domain.y(0.0);
                     write!(f, " {} {} z", x, y)?;
                 }
             }

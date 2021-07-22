@@ -10,7 +10,7 @@ pub struct NumScale {
 
 impl Default for NumScale {
     fn default() -> Self {
-        Self::new(f32::default(), f32::default())
+        Self::new(0.0, 1.0)
     }
 }
 
@@ -24,6 +24,12 @@ impl NumScale {
             stop,
             tick_spacing,
         }
+    }
+
+    pub fn union(self, rhs: Self) -> Self {
+        let min = self.start.min(rhs.start);
+        let max = self.stop.max(rhs.stop);
+        NumScale::new(min, max)
     }
 
     fn spacing(min: f32, max: f32) -> f32 {

@@ -1,5 +1,4 @@
 use crate::axis::Axis;
-use crate::domain::Domain;
 use crate::page::{AspectRatio, Edge, Rect};
 use crate::plot::{Plot, Plotter};
 use crate::point::Point;
