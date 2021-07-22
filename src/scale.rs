@@ -84,7 +84,7 @@ impl NumScale {
     }
 
     fn add_tick(&self, val: f32, ticks: &mut Vec<Tick>) {
-        let value = self.proportion(val);
+        let value = self.normalize(val);
         let text = format!("{}", val);
         let tick = Tick::new(value, text);
         ticks.push(tick);
@@ -94,7 +94,7 @@ impl NumScale {
 trait Scale<V>: SealedScale<V> {}
 
 impl SealedScale<f32> for NumScale {
-    fn proportion(&self, value: f32) -> f32 {
+    fn normalize(&self, value: f32) -> f32 {
         let a = self.start;
         let b = self.stop;
         if b - a > f32::EPSILON {

@@ -65,12 +65,12 @@ impl Domain {
         Vertical::new(self.y_scale().ticks())
     }
 
-    pub(crate) fn x(&self, x: f32) -> f32 {
-        self.x_scale().proportion(x)
+    pub(crate) fn x_norm(&self, x: f32) -> f32 {
+        self.x_scale().normalize(x)
     }
 
-    pub(crate) fn y(&self, y: f32) -> f32 {
-        self.y_scale().proportion(y)
+    pub(crate) fn y_norm(&self, y: f32) -> f32 {
+        self.y_scale().normalize(y)
     }
 }
 

@@ -29,36 +29,60 @@ impl PlotType {
         plot: &Plotter<P>,
         rect: Rect,
     ) -> fmt::Result {
-        let rx = rect.x as f32;
-        let ry = rect.y as f32;
-        let rw = f32::from(rect.width);
-        let rh = f32::from(rect.height);
-        for (i, pt) in plot.data.iter().enumerate() {
-            let x = rx + rw * plot.domain.x(pt.x());
-            let y = ry + rh * plot.domain.y(pt.y());
-            if i == 0 {
-                write!(f, "M{} {}", x, y)?;
-            } else {
-                write!(f, " {} {}", x, y)?;
-            }
-        }
         match self {
-            PlotType::Area => {
-                if let Some(pt) = plot.data.last() {
-                    let x = rx + rw * plot.domain.x(pt.x());
-                    let y = ry + rh * plot.domain.y(0.0);
-                    write!(f, " {} {}", x, y)?;
-                }
-                if let Some(pt) = plot.data.first() {
-                    let x = rx + rw * plot.domain.x(pt.x());
-                    let y = ry + rh * plot.domain.y(0.0);
-                    write!(f, " {} {} z", x, y)?;
-                }
-            }
-            _ => (),
+            PlotType::Area => display_area(f, plot, rect),
+            PlotType::Line => display_line(f, plot, rect),
+            _ => unimplemented!(),
         }
-        Ok(())
     }
+}
+
+fn display_area<P: Point>(
+    f: &mut fmt::Formatter,
+    plot: &Plotter<P>,
+    rect: Rect,
+) -> fmt::Result {
+    let rx = rect.x as f32;
+    let ry = rect.y as f32;
+    let rw = f32::from(rect.width);
+    let rh = f32::from(rect.height);
+    if let Some(pt) = plot.data.first() {
+        let x = rx + rw * plot.domain.x_norm(pt.x());
+        let y = ry + rh * plot.domain.y_norm(0.0);
+        write!(f, "M{} {}", x, y)?;
+    }
+    for pt in plot.data.iter() {
+        let x = rx + rw * plot.domain.x_norm(pt.x());
+        let y = ry + rh * plot.domain.y_norm(pt.y());
+        write!(f, " {} {}", x, y)?;
+    }
+    if let Some(pt) = plot.data.last() {
+        let x = rx + rw * plot.domain.x_norm(pt.x());
+        let y = ry + rh * plot.domain.y_norm(0.0);
+        write!(f, " {} {}", x, y)?;
+    }
+    Ok(())
+}
+
+fn display_line<P: Point>(
+    f: &mut fmt::Formatter,
+    plot: &Plotter<P>,
+    rect: Rect,
+) -> fmt::Result {
+    let rx = rect.x as f32;
+    let ry = rect.y as f32;
+    let rw = f32::from(rect.width);
+    let rh = f32::from(rect.height);
+    for (i, pt) in plot.data.iter().enumerate() {
+        let x = rx + rw * plot.domain.x_norm(pt.x());
+        let y = ry + rh * plot.domain.y_norm(pt.y());
+        if i == 0 {
+            write!(f, "M{} {}", x, y)?;
+        } else {
+            write!(f, " {} {}", x, y)?;
+        }
+    }
+    Ok(())
 }
 
 impl<'a, P> Plotter<'a, P>

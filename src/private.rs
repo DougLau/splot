@@ -13,7 +13,7 @@ pub trait SealedAxis {
 }
 
 pub(crate) trait SealedScale<V> {
-    fn proportion(&self, value: V) -> f32;
+    fn normalize(&self, value: V) -> f32;
     fn ticks(&self) -> Vec<Tick>;
 }
 
