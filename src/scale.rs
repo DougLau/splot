@@ -1,8 +1,22 @@
 use crate::axis::Tick;
-use crate::private::SealedScale;
 
-#[derive(Clone)]
-pub struct Linear {
+#[derive(Clone, Debug)]
+pub(crate) enum Scale {
+    Unset,
+    Linear(Linear),
+    // Logarithmic(Logarithmic),
+    // Banded(Banded),
+    // Categorical(Categorical),
+}
+
+impl Default for Scale {
+    fn default() -> Self {
+        Scale::Unset
+    }
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct Linear {
     start: f32,
     stop: f32,
     tick_spacing: f32,
@@ -89,11 +103,7 @@ impl Linear {
         let tick = Tick::new(value, text);
         ticks.push(tick);
     }
-}
 
-trait Scale<V>: SealedScale<V> {}
-
-impl SealedScale<f32> for Linear {
     fn normalize(&self, value: f32) -> f32 {
         let a = self.start;
         let b = self.stop;
@@ -108,7 +118,7 @@ impl SealedScale<f32> for Linear {
         }
     }
 
-    fn ticks(&self) -> Vec<Tick> {
+    pub(crate) fn ticks(&self) -> Vec<Tick> {
         let mut ticks = vec![];
         let spacing = self.tick_spacing();
         if spacing > 0.0 {
@@ -128,7 +138,21 @@ impl SealedScale<f32> for Linear {
     }
 }
 
-impl Scale<f32> for Linear {}
+impl Scale {
+    pub fn normalize(&self, value: f32) -> f32 {
+        match self {
+            Scale::Linear(lin) => lin.normalize(value),
+            _ => value,
+        }
+    }
+
+    pub fn ticks(&self) -> Vec<Tick> {
+        match self {
+            Scale::Linear(lin) => lin.ticks(),
+            _ => vec![],
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

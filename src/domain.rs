@@ -1,12 +1,11 @@
 use crate::axis::{Horizontal, Vertical};
 use crate::point::Point;
-use crate::private::SealedScale;
-use crate::scale::Linear;
+use crate::scale::{Linear, Scale};
 
 #[derive(Default)]
 pub struct Domain {
-    x_domain: Option<Linear>,
-    y_domain: Option<Linear>,
+    x_scale: Scale,
+    y_scale: Scale,
 }
 
 impl Domain {
@@ -14,16 +13,16 @@ impl Domain {
     where
         P: Point,
     {
-        let x_domain = Linear::of_data(data, |pt| pt.x());
-        self.x_domain = match self.x_domain {
-            Some(xd) => Some(x_domain.union(xd)),
-            None => Some(x_domain),
-        };
-        let y_domain = Linear::of_data(data, |pt| pt.y());
-        self.y_domain = match self.y_domain {
-            Some(yd) => Some(y_domain.union(yd)),
-            None => Some(y_domain),
-        };
+        let x_scale = Linear::of_data(data, |pt| pt.x());
+        self.x_scale = Scale::Linear(match self.x_scale {
+            Scale::Linear(xd) => x_scale.union(xd),
+            _ => x_scale,
+        });
+        let y_scale = Linear::of_data(data, |pt| pt.y());
+        self.y_scale = Scale::Linear(match self.y_scale {
+            Scale::Linear(yd) => y_scale.union(yd),
+            _ => y_scale,
+        });
         self
     }
 
@@ -31,7 +30,7 @@ impl Domain {
     where
         P: Point,
     {
-        self.x_domain = Some(Linear::of_data(data, |pt| pt.x()));
+        self.x_scale = Scale::Linear(Linear::of_data(data, |pt| pt.x()));
         self
     }
 
@@ -39,22 +38,24 @@ impl Domain {
     where
         P: Point,
     {
-        self.y_domain = Some(Linear::of_data(data, |pt| pt.y()));
+        self.y_scale = Scale::Linear(Linear::of_data(data, |pt| pt.y()));
         self
     }
 
-    fn x_scale(&self) -> Linear {
-        match &self.x_domain {
-            Some(domain) => domain.clone(),
-            None => Linear::default(),
+    fn x_scale(&self) -> Scale {
+        match &self.x_scale {
+            Scale::Unset => Scale::Linear(Linear::default()),
+            _ => self.x_scale.clone(),
         }
     }
 
-    fn y_scale(&self) -> Linear {
-        match &self.y_domain {
-            Some(domain) => domain.clone(),
-            None => Linear::default(),
-        }.inverted()
+    fn y_scale(&self) -> Scale {
+        match &self.y_scale {
+            Scale::Unset => Scale::Linear(Linear::default().inverted()),
+            Scale::Linear(dom) => {
+                Scale::Linear(dom.clone().inverted())
+            }
+        }
     }
 
     pub fn x_axis(&self) -> Horizontal {
