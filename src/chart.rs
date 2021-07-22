@@ -1,7 +1,7 @@
 use crate::axis::Axis;
 use crate::domain::Domain;
 use crate::page::{AspectRatio, Edge, Rect};
-use crate::plot::{Plot, PlotType, Plotter};
+use crate::plot::{Plot, Plotter};
 use crate::point::Point;
 use crate::text::{Anchor, Text};
 use std::fmt;
@@ -78,14 +78,14 @@ impl Title {
 pub struct ChartBuilder<'a> {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
-    axes: Vec<Axis>,
+    axes: Vec<Box<dyn Axis + 'a>>,
     plots: Vec<Box<dyn Plot + 'a>>,
 }
 
 pub struct Chart<'a> {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
-    axes: Vec<Axis>,
+    axes: Vec<Box<dyn Axis + 'a>>,
     plots: Vec<Box<dyn Plot + 'a>>,
 }
 
@@ -114,8 +114,8 @@ impl<'a> ChartBuilder<'a> {
         self
     }
 
-    pub fn with_axis(mut self, axis: Axis) -> Self {
-        self.axes.push(axis);
+    pub fn with_axis<A: Axis + 'a>(mut self, axis: A) -> Self {
+        self.axes.push(Box::new(axis));
         self
     }
 
@@ -168,8 +168,7 @@ impl<'a> fmt::Display for Chart<'a> {
         }
         let mut rects = vec![];
         for axis in &self.axes {
-            let rect = area.split(axis.edge(), axis.space());
-            rects.push(rect);
+            rects.push(axis.split(&mut area));
         }
         for (axis, rect) in self.axes.iter().zip(rects) {
             axis.display(f, rect, area)?;

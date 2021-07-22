@@ -55,6 +55,7 @@ impl Rect {
         self.height = self.height.saturating_sub(v2);
         self
     }
+
     pub fn split(&mut self, edge: Edge, value: u16) -> Self {
         match edge {
             Edge::Top => {

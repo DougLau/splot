@@ -1,4 +1,4 @@
-use splot::{Chart, Domain, Plotter, PlotType};
+use splot::{Chart, Domain, PlotType, Plotter};
 
 fn main() {
     let data_a = vec![(13, 74), (111, 37), (125, 52), (190, 66)];
@@ -6,8 +6,8 @@ fn main() {
     let domain = Domain::default().with_data(&data_a);
     let chart = Chart::builder()
         .with_title("Scatter Plot")
-        .with_axis(domain.x_axis().name("X Axis Name"))
-        .with_axis(domain.y_axis().name("Y Axis Name"))
+        .with_axis(domain.x_axis().with_name("X Axis Name"))
+        .with_axis(domain.y_axis().with_name("Y Axis Name"))
         .with_axis(domain.y_axis().on_right())
         .with_plot(
             Plotter::new(&domain, &data_a).with_plot_type(PlotType::Scatter),

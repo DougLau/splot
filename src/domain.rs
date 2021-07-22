@@ -1,7 +1,7 @@
-use crate::axis::Axis;
-use crate::page::Edge;
+use crate::axis::{Horizontal, Vertical};
 use crate::point::Point;
-use crate::scale::{NumScale, Scale};
+use crate::private::SealedScale;
+use crate::scale::NumScale;
 
 #[derive(Default)]
 pub struct Domain {
@@ -10,9 +10,9 @@ pub struct Domain {
 }
 
 impl Domain {
-    pub fn with_data<T>(mut self, data: &[T]) -> Self
+    pub fn with_data<P>(mut self, data: &[P]) -> Self
     where
-        T: Point,
+        P: Point,
     {
         if self.x_domain.is_none() {
             self.x_domain = Some(NumScale::of_data(data, |pt| pt.x()));
@@ -23,17 +23,17 @@ impl Domain {
         self
     }
 
-    pub fn with_x<T>(mut self, data: &[T]) -> Self
+    pub fn with_x<P>(mut self, data: &[P]) -> Self
     where
-        T: Point,
+        P: Point,
     {
         self.x_domain = Some(NumScale::of_data(data, |pt| pt.x()));
         self
     }
 
-    pub fn with_y<T>(mut self, data: &[T]) -> Self
+    pub fn with_y<P>(mut self, data: &[P]) -> Self
     where
-        T: Point,
+        P: Point,
     {
         self.y_domain = Some(NumScale::of_data(data, |pt| pt.y()));
         self
@@ -53,14 +53,12 @@ impl Domain {
         }
     }
 
-    pub fn x_axis(&self) -> Axis {
-        let ticks = self.x_scale().ticks();
-        Axis::new(Edge::Bottom, ticks)
+    pub fn x_axis(&self) -> Horizontal {
+        Horizontal::new(self.x_scale().ticks())
     }
 
-    pub fn y_axis(&self) -> Axis {
-        let ticks = self.y_scale().inverted().ticks();
-        Axis::new(Edge::Left, ticks)
+    pub fn y_axis(&self) -> Vertical {
+        Vertical::new(self.y_scale().inverted().ticks())
     }
 }
 
@@ -73,6 +71,6 @@ mod tests {
         let data = [(45.0, 150.0), (90.0, 200.0)];
         let domain = Domain::default().with_data(&data);
         let ticks = NumScale::new(45.0, 90.0).ticks();
-        assert_eq!(domain.x_axis(), Axis::new(Edge::Bottom, ticks));
+        assert_eq!(domain.x_axis(), Horizontal::new(ticks));
     }
 }

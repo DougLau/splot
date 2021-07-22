@@ -1,9 +1,5 @@
 use crate::axis::Tick;
-
-pub trait Scale<V> {
-    fn proportion(&self, value: V) -> f32;
-    fn ticks(&self) -> Vec<Tick>;
-}
+use crate::private::SealedScale;
 
 #[derive(Clone)]
 pub struct NumScale {
@@ -89,7 +85,9 @@ impl NumScale {
     }
 }
 
-impl Scale<f32> for NumScale {
+trait Scale<V>: SealedScale<V> {}
+
+impl SealedScale<f32> for NumScale {
     fn proportion(&self, value: f32) -> f32 {
         let a = self.start;
         let b = self.stop;
@@ -103,6 +101,7 @@ impl Scale<f32> for NumScale {
             0.5
         }
     }
+
     fn ticks(&self) -> Vec<Tick> {
         let mut ticks = vec![];
         let spacing = self.tick_spacing();
@@ -122,6 +121,8 @@ impl Scale<f32> for NumScale {
         ticks
     }
 }
+
+impl Scale<f32> for NumScale {}
 
 #[cfg(test)]
 mod tests {

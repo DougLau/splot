@@ -1,7 +1,7 @@
 use crate::domain::Domain;
 use crate::page::Rect;
 use crate::point::Point;
-use crate::scale::Scale;
+use crate::private::{SealedPlot, SealedScale};
 use std::fmt;
 
 #[derive(Debug, PartialEq)]
@@ -11,14 +11,7 @@ pub enum PlotType {
     Scatter,
 }
 
-pub trait Plot {
-    fn display(
-        &self,
-        f: &mut fmt::Formatter,
-        num: usize,
-        rect: Rect,
-    ) -> fmt::Result;
-}
+pub(crate) trait Plot: SealedPlot {}
 
 pub struct Plotter<'a, P>
 where
@@ -88,7 +81,7 @@ where
     }
 }
 
-impl<'a, P> Plot for Plotter<'a, P>
+impl<'a, P> SealedPlot for Plotter<'a, P>
 where
     P: Point,
 {
@@ -103,3 +96,5 @@ where
         writeln!(f, "' />")
     }
 }
+
+impl<'a, P> Plot for Plotter<'a, P> where P: Point {}
