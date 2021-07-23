@@ -4,7 +4,7 @@ use crate::text::{Anchor, Label, Text, Tspan};
 use std::fmt;
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct Tick {
+pub struct Tick {
     value: f32,
     text: String,
 }

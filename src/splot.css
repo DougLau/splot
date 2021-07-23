@@ -12,93 +12,91 @@
 .tick {
   font-size: 32px;
 }
-.series-0 {
-  fill: none;
-  stroke: #4E79A7;
-  stroke-width: 5px;
-  marker: url(#marker-a);
+
+#plot-0 {
+  --color: #4E79A7;
+  --marker: url(#marker-0);
 }
-#marker-a {
+#marker-0 {
   fill: #4E79A7;
 }
-.series-1 {
-  fill: none;
-  stroke: #F28E2C;
-  stroke-width: 5px;
-  marker: url(#marker-b);
+#plot-1 {
+  --color: #F28E2C;
+  --marker: url(#marker-1);
 }
-#marker-b {
+#marker-1 {
   fill: #F28E2C;
 }
-.series-2 {
-  fill: none;
-  stroke: #E15759;
-  stroke-width: 5px;
-  marker: url(#marker-c);
+#plot-2 {
+  --color: #E15759;
+  --marker: url(#marker-2);
 }
-#marker-c {
+#marker-2 {
   fill: #E15759;
 }
-.series-3 {
-  fill: none;
-  stroke: #76B7B2;
-  stroke-width: 5px;
-  marker: url(#marker-d);
+#plot-3 {
+  --color: #76B7B2;
+  --marker: url(#marker-3);
 }
-#marker-d {
+#marker-3 {
   fill: #76B7B2;
 }
-.series-4 {
-  fill: none;
-  stroke: #59A14F;
-  stroke-width: 5px;
-  marker: url(#marker-e);
+#plot-4 {
+  --color: #59A14F;
+  --marker: url(#marker-4);
 }
-#marker-e {
+#marker-4 {
   fill: #59A14F;
 }
-.series-5 {
-  fill: none;
-  stroke: #EDC949;
-  stroke-width: 5px;
-  marker: url(#marker-f);
+#plot-5 {
+  --color: #EDC949;
+  --marker: url(#marker-5);
 }
-#marker-f {
+#marker-5 {
   fill: #EDC949;
 }
-.series-6 {
-  fill: none;
-  stroke: #AF7AA1;
-  stroke-width: 5px;
-  marker: url(#marker-g);
+#plot-6 {
+  --color: #AF7AA1;
+  --marker: url(#marker-6);
 }
-#marker-g {
+#marker-6 {
   fill: #AF7AA1;
 }
-.series-7 {
-  fill: none;
-  stroke: #FF9DA7;
-  stroke-width: 5px;
-  marker: url(#marker-h);
+#plot-7 {
+  --color: #FF9DA7;
+  --marker: url(#marker-7);
 }
-#marker-h {
+#marker-7 {
   fill: #FF9DA7;
 }
-.series-8 {
-  fill: none;
-  stroke: #9C755F;
-  stroke-width: 5px;
-  marker: url(#marker-i);
+#plot-8 {
+  --color: #9C755F;
+  --marker: url(#marker-8);
 }
-#marker-i {
+#marker-8 {
   fill: #9C755F;
 }
-.series-9 {
-  fill: none;
-  stroke: #BAB0AB;
-  stroke-width: 5px;
-  marker: url(#marker-j);
+#plot-9 {
+  --color: #BAB0AB;
+  --marker: url(#marker-9);
 }
-#marker-j {
+#marker-9 {
   fill: #BAB0AB;
+}
+
+.area {
+  fill: var(--color);
+  marker: var(--marker);
+}
+.line {
+  fill: none;
+  stroke: var(--color);
+  stroke-width: 5px;
+  marker: var(--marker);
+}
+.scatter {
+  fill: none;
+  stroke: none;
+  stroke-width: 5px;
+  marker: var(--marker);
 }

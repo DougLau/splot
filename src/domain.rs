@@ -1,28 +1,37 @@
 use crate::axis::{Horizontal, Vertical};
 use crate::point::Point;
-use crate::scale::{Linear, Scale};
+use crate::scale::Scale;
 
 #[derive(Default)]
-pub struct Domain {
-    x_scale: Scale,
-    y_scale: Scale,
+pub struct Domain<X, Y>
+where
+    X: Scale + Default,
+    Y: Scale + Default,
+{
+    x_scale: X,
+    y_scale: Y,
 }
 
-impl Domain {
+impl<X, Y> Domain<X, Y>
+where
+    X: Scale + Default,
+    Y: Scale + Default,
+{
+    pub fn from_data<P>(data: &[P]) -> Self
+    where
+        P: Point,
+    {
+        let x_scale = X::from_data(data, |pt| pt.x());
+        let y_scale = Y::from_data(data, |pt| pt.y());
+        Domain { x_scale, y_scale }
+    }
+
     pub fn with_data<P>(mut self, data: &[P]) -> Self
     where
         P: Point,
     {
-        let x_scale = Linear::of_data(data, |pt| pt.x());
-        self.x_scale = Scale::Linear(match self.x_scale {
-            Scale::Linear(xd) => x_scale.union(xd),
-            _ => x_scale,
-        });
-        let y_scale = Linear::of_data(data, |pt| pt.y());
-        self.y_scale = Scale::Linear(match self.y_scale {
-            Scale::Linear(yd) => y_scale.union(yd),
-            _ => y_scale,
-        });
+        self.x_scale = self.x_scale.union(X::from_data(data, |pt| pt.x()));
+        self.y_scale = self.y_scale.union(Y::from_data(data, |pt| pt.y()));
         self
     }
 
@@ -30,7 +39,7 @@ impl Domain {
     where
         P: Point,
     {
-        self.x_scale = Scale::Linear(Linear::of_data(data, |pt| pt.x()));
+        self.x_scale = X::from_data(data, |pt| pt.x());
         self
     }
 
@@ -38,52 +47,37 @@ impl Domain {
     where
         P: Point,
     {
-        self.y_scale = Scale::Linear(Linear::of_data(data, |pt| pt.y()));
+        self.y_scale = Y::from_data(data, |pt| pt.y());
         self
     }
 
-    fn x_scale(&self) -> Scale {
-        match &self.x_scale {
-            Scale::Unset => Scale::Linear(Linear::default()),
-            _ => self.x_scale.clone(),
-        }
-    }
-
-    fn y_scale(&self) -> Scale {
-        match &self.y_scale {
-            Scale::Unset => Scale::Linear(Linear::default().inverted()),
-            Scale::Linear(dom) => {
-                Scale::Linear(dom.clone().inverted())
-            }
-        }
-    }
-
     pub fn x_axis(&self) -> Horizontal {
-        Horizontal::new(self.x_scale().ticks())
+        Horizontal::new(self.x_scale.ticks())
     }
 
     pub fn y_axis(&self) -> Vertical {
-        Vertical::new(self.y_scale().ticks())
+        Vertical::new(self.y_scale.inverted().ticks())
     }
 
     pub(crate) fn x_norm(&self, x: f32) -> f32 {
-        self.x_scale().normalize(x)
+        self.x_scale.normalize(x)
     }
 
     pub(crate) fn y_norm(&self, y: f32) -> f32 {
-        self.y_scale().normalize(y)
+        self.y_scale.inverted().normalize(y)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::scale::Numeric;
 
     #[test]
     fn test() {
         let data = [(45.0, 150.0), (90.0, 200.0)];
-        let domain = Domain::default().with_data(&data);
-        let ticks = Linear::new(45.0, 90.0).ticks();
+        let domain = Domain::<Numeric, Numeric>::from_data(&data);
+        let ticks = Numeric::new(45.0, 90.0).ticks();
         assert_eq!(domain.x_axis(), Horizontal::new(ticks));
     }
 }

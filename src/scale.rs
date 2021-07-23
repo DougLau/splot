@@ -1,34 +1,30 @@
 use crate::axis::Tick;
 
-#[derive(Clone, Debug)]
-pub(crate) enum Scale {
-    Unset,
-    Linear(Linear),
-    // Logarithmic(Logarithmic),
-    // Banded(Banded),
-    // Categorical(Categorical),
-}
-
-impl Default for Scale {
-    fn default() -> Self {
-        Scale::Unset
-    }
+pub trait Scale {
+    fn from_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
+    where
+        I: IntoIterator<Item = &'a P>,
+        P: 'a;
+    fn union(&self, rhs: Self) -> Self;
+    fn inverted(&self) -> Self;
+    fn normalize(&self, value: f32) -> f32;
+    fn ticks(&self) -> Vec<Tick>;
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct Linear {
+pub struct Numeric {
     start: f32,
     stop: f32,
     tick_spacing: f32,
 }
 
-impl Default for Linear {
+impl Default for Numeric {
     fn default() -> Self {
         Self::new(0.0, 1.0)
     }
 }
 
-impl Linear {
+impl Numeric {
     pub fn new(min: f32, max: f32) -> Self {
         let tick_spacing = Self::spacing(min, max);
         let start = (min / tick_spacing).floor() * tick_spacing;
@@ -38,12 +34,6 @@ impl Linear {
             stop,
             tick_spacing,
         }
-    }
-
-    pub fn union(self, rhs: Self) -> Self {
-        let min = self.start.min(rhs.start);
-        let max = self.stop.max(rhs.stop);
-        Linear::new(min, max)
     }
 
     fn spacing(min: f32, max: f32) -> f32 {
@@ -64,7 +54,20 @@ impl Linear {
         }
     }
 
-    pub fn of_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
+    pub fn tick_spacing(&self) -> f32 {
+        self.tick_spacing
+    }
+
+    fn add_tick(&self, val: f32, ticks: &mut Vec<Tick>) {
+        let value = self.normalize(val);
+        let text = format!("{}", val);
+        let tick = Tick::new(value, text);
+        ticks.push(tick);
+    }
+}
+
+impl Scale for Numeric {
+    fn from_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
     where
         I: IntoIterator<Item = &'a P>,
         P: 'a,
@@ -82,26 +85,24 @@ impl Linear {
                     max = x;
                 }
             }
-            Self::new(min, max)
+            Numeric::new(min, max)
         } else {
-            Self::default()
+            Numeric::default()
         }
     }
 
-    pub fn inverted(mut self) -> Self {
-        self.tick_spacing = -self.tick_spacing;
-        self
+    fn union(&self, rhs: Self) -> Self {
+        let min = self.start.min(rhs.start);
+        let max = self.stop.max(rhs.stop);
+        Numeric::new(min, max)
     }
 
-    pub fn tick_spacing(&self) -> f32 {
-        self.tick_spacing
-    }
-
-    fn add_tick(&self, val: f32, ticks: &mut Vec<Tick>) {
-        let value = self.normalize(val);
-        let text = format!("{}", val);
-        let tick = Tick::new(value, text);
-        ticks.push(tick);
+    fn inverted(&self) -> Self {
+        Numeric {
+            start: self.start,
+            stop: self.stop,
+            tick_spacing: -self.tick_spacing,
+        }
     }
 
     fn normalize(&self, value: f32) -> f32 {
@@ -118,7 +119,7 @@ impl Linear {
         }
     }
 
-    pub(crate) fn ticks(&self) -> Vec<Tick> {
+    fn ticks(&self) -> Vec<Tick> {
         let mut ticks = vec![];
         let spacing = self.tick_spacing();
         if spacing > 0.0 {
@@ -138,41 +139,25 @@ impl Linear {
     }
 }
 
-impl Scale {
-    pub fn normalize(&self, value: f32) -> f32 {
-        match self {
-            Scale::Linear(lin) => lin.normalize(value),
-            _ => value,
-        }
-    }
-
-    pub fn ticks(&self) -> Vec<Tick> {
-        match self {
-            Scale::Linear(lin) => lin.ticks(),
-            _ => vec![],
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test() {
-        assert_eq!(Linear::new(0.0, 10.0).tick_spacing(), 1.0);
-        assert_eq!(Linear::new(9.5, 10.0).tick_spacing(), 0.1);
-        assert_eq!(Linear::new(0.0, 25.0).tick_spacing(), 5.0);
-        assert_eq!(Linear::new(0.0, 30.0).tick_spacing(), 5.0);
-        assert_eq!(Linear::new(0.0, 40.0).tick_spacing(), 5.0);
-        assert_eq!(Linear::new(0.0, 50.0).tick_spacing(), 10.0);
-        assert_eq!(Linear::new(0.0, 75.0).tick_spacing(), 10.0);
-        assert_eq!(Linear::new(0.0, 100.0).tick_spacing(), 10.0);
-        //assert_eq!(Linear::new(-50.0, 50.0).tick_spacing(), 10.0);
-        assert_eq!(Linear::new(0.0, 1.0).tick_spacing(), 0.1);
-        assert_eq!(Linear::new(0.0, 1.5).tick_spacing(), 0.25);
-        assert_eq!(Linear::new(0.0, 2.0).tick_spacing(), 0.25);
-        assert_eq!(Linear::new(0.0, 0.1).tick_spacing(), 0.01);
-        assert_eq!(Linear::new(0.0, 0.1).tick_spacing(), 0.01);
+        assert_eq!(Numeric::new(0.0, 10.0).tick_spacing(), 1.0);
+        assert_eq!(Numeric::new(9.5, 10.0).tick_spacing(), 0.1);
+        assert_eq!(Numeric::new(0.0, 25.0).tick_spacing(), 5.0);
+        assert_eq!(Numeric::new(0.0, 30.0).tick_spacing(), 5.0);
+        assert_eq!(Numeric::new(0.0, 40.0).tick_spacing(), 5.0);
+        assert_eq!(Numeric::new(0.0, 50.0).tick_spacing(), 10.0);
+        assert_eq!(Numeric::new(0.0, 75.0).tick_spacing(), 10.0);
+        assert_eq!(Numeric::new(0.0, 100.0).tick_spacing(), 10.0);
+        //assert_eq!(Numeric::new(-50.0, 50.0).tick_spacing(), 10.0);
+        assert_eq!(Numeric::new(0.0, 1.0).tick_spacing(), 0.1);
+        assert_eq!(Numeric::new(0.0, 1.5).tick_spacing(), 0.25);
+        assert_eq!(Numeric::new(0.0, 2.0).tick_spacing(), 0.25);
+        assert_eq!(Numeric::new(0.0, 0.1).tick_spacing(), 0.01);
+        assert_eq!(Numeric::new(0.0, 0.1).tick_spacing(), 0.01);
     }
 }

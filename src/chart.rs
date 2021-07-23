@@ -1,7 +1,6 @@
 use crate::axis::Axis;
 use crate::page::{AspectRatio, Edge, Rect};
-use crate::plot::{Plot, Plotter};
-use crate::point::Point;
+use crate::plot::Plot;
 use crate::text::{Anchor, Text};
 use std::fmt;
 
@@ -78,14 +77,14 @@ pub struct ChartBuilder<'a> {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
     axes: Vec<Box<dyn Axis + 'a>>,
-    plots: Vec<Box<dyn Plot + 'a>>,
+    plots: Vec<&'a (dyn Plot + 'a)>,
 }
 
 pub struct Chart<'a> {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
     axes: Vec<Box<dyn Axis + 'a>>,
-    plots: Vec<Box<dyn Plot + 'a>>,
+    plots: Vec<&'a (dyn Plot + 'a)>,
 }
 
 impl<'a> Default for ChartBuilder<'a> {
@@ -118,8 +117,8 @@ impl<'a> ChartBuilder<'a> {
         self
     }
 
-    pub fn with_plot<P: Point>(mut self, plot: Plotter<'a, P>) -> Self {
-        self.plots.push(Box::new(plot));
+    pub fn with_plot(mut self, plot: &'a dyn Plot) -> Self {
+        self.plots.push(plot);
         self
     }
 

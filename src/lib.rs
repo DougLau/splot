@@ -15,5 +15,5 @@ mod text;
 pub use chart::{Chart, ChartBuilder, Title};
 pub use domain::Domain;
 pub use page::AspectRatio;
-pub use plot::{PlotType, Plotter};
+pub use plot::{AreaPlot, LinePlot, Plot, ScatterPlot};
 pub use point::Point;
