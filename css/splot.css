@@ -12,17 +12,19 @@
 .tick {
   font-size: 32px;
 }
-.area {
+.plot-area {
   fill: var(--color);
+  stroke: none;
+  stroke-width: 5px;
   marker: var(--marker);
 }
-.line {
+.plot-line {
   fill: none;
   stroke: var(--color);
   stroke-width: 5px;
   marker: var(--marker);
 }
-.scatter {
+.plot-scatter {
   fill: none;
   stroke: none;
   stroke-width: 5px;

@@ -52,7 +52,7 @@ where
         num: usize,
         rect: Rect,
     ) -> fmt::Result {
-        write!(f, "<path id='plot-{}' class='area' d='", num)?;
+        write!(f, "<path id='plot-{}' class='plot-area' d='", num)?;
         let rx = rect.x as f32;
         let ry = rect.y as f32;
         let rw = f32::from(rect.width);
@@ -97,7 +97,7 @@ where
         num: usize,
         rect: Rect,
     ) -> fmt::Result {
-        write!(f, "<path id='plot-{}' class='line' d='", num)?;
+        write!(f, "<path id='plot-{}' class='plot-line' d='", num)?;
         let rx = rect.x as f32;
         let ry = rect.y as f32;
         let rw = f32::from(rect.width);
@@ -136,7 +136,7 @@ where
         num: usize,
         rect: Rect,
     ) -> fmt::Result {
-        write!(f, "<path id='plot-{}' class='scatter' d='", num)?;
+        write!(f, "<path id='plot-{}' class='plot-scatter' d='", num)?;
         let rx = rect.x as f32;
         let ry = rect.y as f32;
         let rw = f32::from(rect.width);
