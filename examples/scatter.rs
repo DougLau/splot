@@ -1,4 +1,4 @@
-use splot::{Chart, Domain, plot};
+use splot::{plot, Chart, Domain};
 
 fn main() {
     let data_a = vec![(13, 74), (111, 37), (125, 52), (190, 66)];

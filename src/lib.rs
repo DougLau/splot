@@ -1,12 +1,12 @@
 //! # splot
 //!
-//! Plot data with SVG
+//! Plot data in Rust
 //!
 //! A `Chart` can be turned into an SVG document using the `Display` trait.
 //! That is, using `println!`, or even `to_string()` is all that's needed.
 //!
 //! ## Example Line Plot
-//! 
+//!
 //! ```rust
 //! use splot::{Chart, Domain, plot};
 //!

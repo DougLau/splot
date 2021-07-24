@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2021  Douglas P Lau
 //
-//! Axis rendering for charts
+//! Axis rendering
 use crate::page::{Edge, Rect};
 use crate::private::SealedAxis;
 use crate::text::{Anchor, Label, Text, Tspan};
@@ -18,7 +18,7 @@ pub struct Tick {
 /// Axis renderer
 pub trait Axis: SealedAxis {}
 
-/// Horizontal axis
+/// Horizontal (X) axis
 #[derive(Debug, PartialEq)]
 pub struct Horizontal {
     edge: Edge,
@@ -27,7 +27,7 @@ pub struct Horizontal {
     label: Label,
 }
 
-/// Vertical axis
+/// Vertical (Y) axis
 #[derive(Debug, PartialEq)]
 pub struct Vertical {
     edge: Edge,

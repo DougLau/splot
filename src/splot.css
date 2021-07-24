@@ -12,7 +12,22 @@
 .tick {
   font-size: 32px;
 }
-
+.area {
+  fill: var(--color);
+  marker: var(--marker);
+}
+.line {
+  fill: none;
+  stroke: var(--color);
+  stroke-width: 5px;
+  marker: var(--marker);
+}
+.scatter {
+  fill: none;
+  stroke: none;
+  stroke-width: 5px;
+  marker: var(--marker);
+}
 #plot-0 {
   --color: #4E79A7;
   --marker: url(#marker-0);
@@ -82,21 +97,4 @@
 }
 #marker-9 {
   fill: #BAB0AB;
-}
-
-.area {
-  fill: var(--color);
-  marker: var(--marker);
-}
-.line {
-  fill: none;
-  stroke: var(--color);
-  stroke-width: 5px;
-  marker: var(--marker);
-}
-.scatter {
-  fill: none;
-  stroke: none;
-  stroke-width: 5px;
-  marker: var(--marker);
 }
