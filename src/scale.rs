@@ -1,15 +1,7 @@
 use crate::axis::Tick;
+use crate::private::SealedScale;
 
-pub trait Scale {
-    fn from_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
-    where
-        I: IntoIterator<Item = &'a P>,
-        P: 'a;
-    fn union(&self, rhs: Self) -> Self;
-    fn inverted(&self) -> Self;
-    fn normalize(&self, value: f32) -> f32;
-    fn ticks(&self) -> Vec<Tick>;
-}
+pub trait Scale: SealedScale {}
 
 #[derive(Clone, Debug)]
 pub struct Numeric {
@@ -66,7 +58,9 @@ impl Numeric {
     }
 }
 
-impl Scale for Numeric {
+impl Scale for Numeric {}
+
+impl SealedScale for Numeric {
     fn from_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
     where
         I: IntoIterator<Item = &'a P>,
@@ -76,7 +70,7 @@ impl Scale for Numeric {
         if let Some(pt) = it.next() {
             let mut min = get(pt);
             let mut max = min;
-            while let Some(pt) = it.next() {
+            for pt in it {
                 let x = get(pt);
                 if x < min {
                     min = x;

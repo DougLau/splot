@@ -7,7 +7,7 @@ use std::fmt;
 
 pub trait Plot: SealedPlot {}
 
-pub struct AreaPlot<'a, P>
+pub struct Area<'a, P>
 where
     P: Point + 'a,
 {
@@ -15,7 +15,7 @@ where
     data: &'a [P],
 }
 
-pub struct LinePlot<'a, P>
+pub struct Line<'a, P>
 where
     P: Point + 'a,
 {
@@ -23,7 +23,7 @@ where
     data: &'a [P],
 }
 
-pub struct ScatterPlot<'a, P>
+pub struct Scatter<'a, P>
 where
     P: Point + 'a,
 {
@@ -31,9 +31,9 @@ where
     data: &'a [P],
 }
 
-impl<'a, P> Plot for AreaPlot<'a, P> where P: Point {}
+impl<'a, P> Plot for Area<'a, P> where P: Point {}
 
-impl<'a, P> SealedPlot for AreaPlot<'a, P>
+impl<'a, P> SealedPlot for Area<'a, P>
 where
     P: Point,
 {
@@ -67,18 +67,18 @@ where
     }
 }
 
-impl<'a, P> AreaPlot<'a, P>
+impl<'a, P> Area<'a, P>
 where
     P: Point,
 {
     pub fn new(domain: &'a Domain<Numeric, Numeric>, data: &'a [P]) -> Self {
-        AreaPlot { domain, data }
+        Area { domain, data }
     }
 }
 
-impl<'a, P> Plot for LinePlot<'a, P> where P: Point {}
+impl<'a, P> Plot for Line<'a, P> where P: Point {}
 
-impl<'a, P> SealedPlot for LinePlot<'a, P>
+impl<'a, P> SealedPlot for Line<'a, P>
 where
     P: Point,
 {
@@ -106,18 +106,18 @@ where
     }
 }
 
-impl<'a, P> LinePlot<'a, P>
+impl<'a, P> Line<'a, P>
 where
     P: Point,
 {
     pub fn new(domain: &'a Domain<Numeric, Numeric>, data: &'a [P]) -> Self {
-        LinePlot { domain, data }
+        Line { domain, data }
     }
 }
 
-impl<'a, P> Plot for ScatterPlot<'a, P> where P: Point {}
+impl<'a, P> Plot for Scatter<'a, P> where P: Point {}
 
-impl<'a, P> SealedPlot for ScatterPlot<'a, P>
+impl<'a, P> SealedPlot for Scatter<'a, P>
 where
     P: Point,
 {
@@ -145,11 +145,11 @@ where
     }
 }
 
-impl<'a, P> ScatterPlot<'a, P>
+impl<'a, P> Scatter<'a, P>
 where
     P: Point,
 {
     pub fn new(domain: &'a Domain<Numeric, Numeric>, data: &'a [P]) -> Self {
-        ScatterPlot { domain, data }
+        Scatter { domain, data }
     }
 }
