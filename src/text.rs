@@ -1,3 +1,8 @@
+// text.rs
+//
+// Copyright (c) 2021  Douglas P Lau
+//
+
 use crate::page::{Edge, Rect};
 use std::fmt;
 

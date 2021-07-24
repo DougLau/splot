@@ -1,3 +1,9 @@
+// page.rs
+//
+// Copyright (c) 2021  Douglas P Lau
+//
+
+/// Page aspect ratio
 #[derive(Clone, Copy)]
 pub enum AspectRatio {
     Landscape,
@@ -5,6 +11,7 @@ pub enum AspectRatio {
     Portrait,
 }
 
+/// Edge of rendered item
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Edge {
     Top,
@@ -13,6 +20,7 @@ pub enum Edge {
     Right,
 }
 
+/// Rendering rectangle
 #[derive(Clone, Copy)]
 pub struct Rect {
     pub x: i32,

@@ -1,3 +1,9 @@
+// point.rs
+//
+// Copyright (c) 2021  Douglas P Lau
+//
+
+/// Data point
 pub trait Point {
     fn x(&self) -> f32;
     fn y(&self) -> f32;

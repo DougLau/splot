@@ -1,12 +1,39 @@
+// axis.rs
+//
+// Copyright (c) 2021  Douglas P Lau
+//
+//! Axis rendering for charts
 use crate::page::{Edge, Rect};
 use crate::private::SealedAxis;
 use crate::text::{Anchor, Label, Text, Tspan};
 use std::fmt;
 
+/// Tick marks for axis labels
 #[derive(Debug, PartialEq)]
 pub struct Tick {
     value: f32,
     text: String,
+}
+
+/// Axis renderer
+pub trait Axis: SealedAxis {}
+
+/// Horizontal axis
+#[derive(Debug, PartialEq)]
+pub struct Horizontal {
+    edge: Edge,
+    ticks: Vec<Tick>,
+    name: Option<String>,
+    label: Label,
+}
+
+/// Vertical axis
+#[derive(Debug, PartialEq)]
+pub struct Vertical {
+    edge: Edge,
+    ticks: Vec<Tick>,
+    name: Option<String>,
+    label: Label,
 }
 
 impl Tick {
@@ -34,24 +61,6 @@ impl Tick {
             _ => rect.y + (self.value * rect.height as f32).round() as i32,
         }
     }
-}
-
-pub trait Axis: SealedAxis {}
-
-#[derive(Debug, PartialEq)]
-pub struct Horizontal {
-    edge: Edge,
-    ticks: Vec<Tick>,
-    name: Option<String>,
-    label: Label,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Vertical {
-    edge: Edge,
-    ticks: Vec<Tick>,
-    name: Option<String>,
-    label: Label,
 }
 
 impl SealedAxis for Horizontal {

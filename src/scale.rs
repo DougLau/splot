@@ -1,8 +1,15 @@
+// scale.rs
+//
+// Copyright (c) 2021  Douglas P Lau
+//
+//! Scale items
 use crate::axis::Tick;
 use crate::private::SealedScale;
 
+/// Scale for a domain dimension
 pub trait Scale: SealedScale {}
 
+/// Numeric scale
 #[derive(Clone, Debug)]
 pub struct Numeric {
     start: f32,

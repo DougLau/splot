@@ -1,3 +1,8 @@
+// private.rs
+//
+// Copyright (c) 2021  Douglas P Lau
+//
+
 use crate::axis::Tick;
 use crate::page::Rect;
 use std::fmt;

@@ -1,8 +1,18 @@
+// domain.rs
+//
+// Copyright (c) 2021  Douglas P Lau
+//
 use crate::axis::{Horizontal, Vertical};
 use crate::point::Point;
 use crate::private::SealedScale;
 use crate::scale::Scale;
 
+/// Two-dimensional data domain
+///
+/// The two scales are:
+///
+/// - `X`, abscissa (horizontal)
+/// - `Y`, ordinate (vertical)
 #[derive(Default)]
 pub struct Domain<X, Y>
 where

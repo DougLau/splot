@@ -1,13 +1,34 @@
+// chart.rs
+//
+// Copyright (c) 2021  Douglas P Lau
+//
 use crate::axis::Axis;
 use crate::page::{AspectRatio, Edge, Rect};
 use crate::plot::Plot;
 use crate::text::{Anchor, Text};
 use std::fmt;
 
+/// Chart title
 pub struct Title {
     text: String,
     anchor: Anchor,
     edge: Edge,
+}
+
+/// Builder for charts
+pub struct ChartBuilder<'a> {
+    aspect_ratio: AspectRatio,
+    titles: Vec<Title>,
+    axes: Vec<Box<dyn Axis + 'a>>,
+    plots: Vec<&'a (dyn Plot + 'a)>,
+}
+
+/// Chart for plotting data
+pub struct Chart<'a> {
+    aspect_ratio: AspectRatio,
+    titles: Vec<Title>,
+    axes: Vec<Box<dyn Axis + 'a>>,
+    plots: Vec<&'a (dyn Plot + 'a)>,
 }
 
 impl<T> From<T> for Title
@@ -71,20 +92,6 @@ impl Title {
         writeln!(f, "{}", self.text)?;
         text.display_done(f)
     }
-}
-
-pub struct ChartBuilder<'a> {
-    aspect_ratio: AspectRatio,
-    titles: Vec<Title>,
-    axes: Vec<Box<dyn Axis + 'a>>,
-    plots: Vec<&'a (dyn Plot + 'a)>,
-}
-
-pub struct Chart<'a> {
-    aspect_ratio: AspectRatio,
-    titles: Vec<Title>,
-    axes: Vec<Box<dyn Axis + 'a>>,
-    plots: Vec<&'a (dyn Plot + 'a)>,
 }
 
 impl<'a> Default for ChartBuilder<'a> {

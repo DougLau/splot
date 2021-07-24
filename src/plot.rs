@@ -1,3 +1,8 @@
+// plot.rs
+//
+// Copyright (c) 2021  Douglas P Lau
+//
+//! Plot types
 use crate::domain::Domain;
 use crate::page::Rect;
 use crate::point::Point;
@@ -5,8 +10,10 @@ use crate::private::SealedPlot;
 use crate::scale::Numeric;
 use std::fmt;
 
+/// Plot for visualizing data
 pub trait Plot: SealedPlot {}
 
+/// Area plot
 pub struct Area<'a, P>
 where
     P: Point + 'a,
@@ -15,6 +22,7 @@ where
     data: &'a [P],
 }
 
+/// Line plot
 pub struct Line<'a, P>
 where
     P: Point + 'a,
@@ -23,6 +31,7 @@ where
     data: &'a [P],
 }
 
+/// Scatter plot
 pub struct Scatter<'a, P>
 where
     P: Point + 'a,
