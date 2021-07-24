@@ -163,9 +163,9 @@ impl<'a> Chart<'a> {
             "<svg xmlns='http://www.w3.org/2000/svg' viewBox='{} {} {} {}'>",
             rect.x, rect.y, rect.width, rect.height,
         )?;
-        writeln!(f, "<style>")?;
-        write!(f, "{}", include_str!("splot.css"))?;
-        writeln!(f, "</style>")?;
+        writeln!(f, "<link xmlns='http://www.w3.org/1999/xhtml'")?;
+        writeln!(f, "      href='./css/splot.css'")?;
+        writeln!(f, "      rel='stylesheet' type='text/css'/>")?;
         self.defs(f)
     }
 
