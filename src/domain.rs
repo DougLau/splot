@@ -4,7 +4,6 @@
 //
 use crate::axis::{Horizontal, Vertical};
 use crate::point::Point;
-use crate::private::SealedScale;
 use crate::scale::Scale;
 
 /// Two-dimensional data domain
