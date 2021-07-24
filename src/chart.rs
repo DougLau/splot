@@ -8,6 +8,18 @@ use crate::plot::Plot;
 use crate::text::{Anchor, Text};
 use std::fmt;
 
+/// Marker shapes
+const MARKERS: &[&str] = &[
+    "<circle r='1' />",
+    "<rect x='-1' y='-1' width='2' height='2' />",
+    "<path d='M0 -1 1 1 -1 1z' />",
+    "<path d='M1 0 -1 1 -1 -1z' />",
+    "<path d='M0 1 -1 -1 1 -1z' />",
+    "<path d='M-1 0 1 -1 1 1z' />",
+    "<path d='M0 -1 1 0 0 1 -1 0z' />",
+    "<path d='M-1 -1 0 -0.5 1 -1 0.5 0 1 1 0 0.5 -1 1 -0.5 0z' />",
+];
+
 /// Chart title
 pub struct Title {
     text: String,
@@ -154,12 +166,40 @@ impl<'a> Chart<'a> {
         writeln!(f, "<style>")?;
         write!(f, "{}", include_str!("splot.css"))?;
         writeln!(f, "</style>")?;
-        write!(f, "{}", include_str!("defs.svg"))?;
-        Ok(())
+        self.defs(f)
+    }
+
+    fn defs(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "<defs>")?;
+        for i in 0..self.plots.len() {
+            writeln!(f, "<marker id='marker-{}' viewBox='-1 -1 2 2' markerWidth='5' markerHeight='5'>", i)?;
+            writeln!(f, "  {}", MARKERS[i % MARKERS.len()])?;
+            writeln!(f, "</marker>")?;
+        }
+        let area = self.area();
+        writeln!(f, "<clipPath id='clip-chart'>")?;
+        writeln!(
+            f,
+            "<rect x='{}' y='{}' width='{}' height='{}' />",
+            area.x, area.y, area.width, area.height
+        )?;
+        writeln!(f, "</clipPath>")?;
+        writeln!(f, "</defs>")
     }
 
     fn footer(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "</svg>")
+    }
+
+    fn area(&self) -> Rect {
+        let mut area = self.aspect_ratio.rect().inset(40);
+        for title in &self.titles {
+            area.split(title.edge, 100);
+        }
+        for axis in &self.axes {
+            axis.split(&mut area);
+        }
+        area
     }
 }
 
@@ -178,9 +218,11 @@ impl<'a> fmt::Display for Chart<'a> {
         for (axis, rect) in self.axes.iter().zip(rects) {
             axis.display(f, rect, area)?;
         }
+        writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
         for (plot, num) in self.plots.iter().zip((0..10).cycle()) {
             plot.display(f, num, area)?;
         }
+        writeln!(f, "</g>")?;
         self.footer(f)?;
         Ok(())
     }
