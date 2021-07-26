@@ -29,6 +29,7 @@ pub struct Title {
 
 /// Builder for charts
 pub struct ChartBuilder<'a> {
+    stand_alone: bool,
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
     axes: Vec<Box<dyn Axis + 'a>>,
@@ -37,6 +38,7 @@ pub struct ChartBuilder<'a> {
 
 /// Chart for plotting data
 pub struct Chart<'a> {
+    stand_alone: bool,
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
     axes: Vec<Box<dyn Axis + 'a>>,
@@ -109,6 +111,7 @@ impl Title {
 impl<'a> Default for ChartBuilder<'a> {
     fn default() -> Self {
         Self {
+            stand_alone: false,
             aspect_ratio: AspectRatio::Landscape,
             titles: vec![],
             axes: vec![],
@@ -118,6 +121,11 @@ impl<'a> Default for ChartBuilder<'a> {
 }
 
 impl<'a> ChartBuilder<'a> {
+    pub fn stand_alone(mut self) -> Self {
+        self.stand_alone = true;
+        self
+    }
+
     pub fn aspect_ratio(mut self, aspect: AspectRatio) -> Self {
         self.aspect_ratio = aspect;
         self
@@ -143,6 +151,7 @@ impl<'a> ChartBuilder<'a> {
 
     pub fn build(self) -> Chart<'a> {
         Chart {
+            stand_alone: self.stand_alone,
             aspect_ratio: self.aspect_ratio,
             titles: self.titles,
             axes: self.axes,
@@ -156,33 +165,37 @@ impl<'a> Chart<'a> {
         ChartBuilder::default()
     }
 
-    fn header(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn svg(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let rect = self.aspect_ratio.rect();
-        writeln!(
-            f,
-            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='{} {} {} {}'>",
-            rect.x, rect.y, rect.width, rect.height,
-        )?;
-        writeln!(f, "<link xmlns='http://www.w3.org/1999/xhtml'")?;
-        writeln!(f, "      href='./css/splot.css'")?;
-        writeln!(f, "      rel='stylesheet' type='text/css'/>")?;
-        self.defs(f)
+        write!(f, "<svg")?;
+        if self.stand_alone {
+            write!(f, " xmlns='http://www.w3.org/2000/svg'")?;
+        }
+        write!(f, " viewBox='")?;
+        writeln!(f, "{} {} {} {}'>", rect.x, rect.y, rect.width, rect.height)
+    }
+
+    fn link(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "<link")?;
+        write!(f, " xmlns='http://www.w3.org/1999/xhtml'")?;
+        write!(f, " type='text/css'")?;
+        write!(f, " rel='stylesheet'")?;
+        writeln!(f, " href='./css/splot.css' />")
     }
 
     fn defs(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "<defs>")?;
         for i in 0..self.plots.len() {
-            writeln!(f, "<marker id='marker-{}' viewBox='-1 -1 2 2' markerWidth='5' markerHeight='5'>", i)?;
+            write!(f, "<marker id='marker-{}'", i)?;
+            write!(f, " viewBox='-1 -1 2 2'")?;
+            writeln!(f, " markerWidth='5' markerHeight='5'>")?;
             writeln!(f, "  {}", MARKERS[i % MARKERS.len()])?;
             writeln!(f, "</marker>")?;
         }
         let area = self.area();
         writeln!(f, "<clipPath id='clip-chart'>")?;
-        writeln!(
-            f,
-            "<rect x='{}' y='{}' width='{}' height='{}' />",
-            area.x, area.y, area.width, area.height
-        )?;
+        write!(f, "  <rect x='{}' y='{}'", area.x, area.y)?;
+        writeln!(f, " width='{}' height='{}' />", area.width, area.height)?;
         writeln!(f, "</clipPath>")?;
         writeln!(f, "</defs>")
     }
@@ -205,7 +218,11 @@ impl<'a> Chart<'a> {
 
 impl<'a> fmt::Display for Chart<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.header(f)?;
+        self.svg(f)?;
+        if self.stand_alone {
+            self.link(f)?;
+        }
+        self.defs(f)?;
         let mut area = self.aspect_ratio.rect().inset(40);
         for title in &self.titles {
             let rect = area.split(title.edge, 100);

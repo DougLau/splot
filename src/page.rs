@@ -2,6 +2,8 @@
 //
 // Copyright (c) 2021  Douglas P Lau
 //
+use crate::chart::Chart;
+use std::fmt;
 
 /// Page aspect ratio
 #[derive(Clone, Copy)]
@@ -27,6 +29,12 @@ pub struct Rect {
     pub y: i32,
     pub width: u16,
     pub height: u16,
+}
+
+/// Page of charts
+#[derive(Default)]
+pub struct Page<'a> {
+    charts: Vec<Chart<'a>>,
 }
 
 impl AspectRatio {
@@ -109,5 +117,26 @@ impl Rect {
         let y2 = self.bottom().min(rhs.bottom());
         self.y = y;
         self.height = (y2 - y) as u16;
+    }
+}
+
+impl<'a> Page<'a> {
+    pub fn add_chart(&mut self, chart: Chart<'a>) {
+        self.charts.push(chart);
+    }
+}
+
+impl<'a> fmt::Display for Page<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "<html>")?;
+        writeln!(f, "<head>")?;
+        writeln!(f, "  <link href='./css/splot.css' rel='stylesheet'/>")?;
+        writeln!(f, "</head>")?;
+        writeln!(f, "<body>")?;
+        for chart in &self.charts {
+            chart.fmt(f)?;
+        }
+        writeln!(f, "</body>")?;
+        Ok(())
     }
 }

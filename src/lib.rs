@@ -35,5 +35,5 @@ mod text;
 
 pub use chart::{Chart, ChartBuilder, Title};
 pub use domain::Domain;
-pub use page::AspectRatio;
+pub use page::{AspectRatio, Page};
 pub use point::Point;
