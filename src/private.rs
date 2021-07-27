@@ -18,12 +18,8 @@ pub trait SealedAxis {
 }
 
 pub trait SealedPlot {
-    fn display(
-        &self,
-        f: &mut fmt::Formatter,
-        num: usize,
-        rect: Rect,
-    ) -> fmt::Result;
+    fn name(&self) -> &str;
+    fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result;
 }
 
 pub trait SealedScale {

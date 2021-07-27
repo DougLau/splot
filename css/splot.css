@@ -1,3 +1,18 @@
+.page {
+  display: flex;
+  flex-direction: column;
+}
+.chart {
+  height: 96vh;
+  display: flex;
+  justify-content: center;
+}
+.legend {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 12px;
+}
 .title {
   font-size: 50px;
 }
@@ -18,11 +33,23 @@
   stroke-width: 5px;
   marker: var(--marker);
 }
+.legend-area {
+  fill: var(--color);
+  stroke: none;
+  stroke-width: 5px;
+  marker-mid: var(--marker);
+}
 .plot-line {
   fill: none;
   stroke: var(--color);
   stroke-width: 5px;
   marker: var(--marker);
+}
+.legend-line {
+  fill: none;
+  stroke: var(--color);
+  stroke-width: 5px;
+  marker-mid: var(--marker);
 }
 .plot-scatter {
   fill: none;
@@ -30,73 +57,52 @@
   stroke-width: 5px;
   marker: var(--marker);
 }
-#plot-0 {
+.legend-scatter {
+  fill: none;
+  stroke: none;
+  stroke-width: 5px;
+  marker-mid: var(--marker);
+}
+marker > * {
+  fill: var(--color);
+}
+.plot-0 > * {
   --color: #4E79A7;
   --marker: url(#marker-0);
 }
-#marker-0 {
-  fill: #4E79A7;
-}
-#plot-1 {
+.plot-1 > * {
   --color: #F28E2C;
   --marker: url(#marker-1);
 }
-#marker-1 {
-  fill: #F28E2C;
-}
-#plot-2 {
+.plot-2 {
   --color: #E15759;
   --marker: url(#marker-2);
 }
-#marker-2 {
-  fill: #E15759;
-}
-#plot-3 {
+.plot-3 {
   --color: #76B7B2;
   --marker: url(#marker-3);
 }
-#marker-3 {
-  fill: #76B7B2;
-}
-#plot-4 {
+.plot-4 {
   --color: #59A14F;
   --marker: url(#marker-4);
 }
-#marker-4 {
-  fill: #59A14F;
-}
-#plot-5 {
+.plot-5 {
   --color: #EDC949;
   --marker: url(#marker-5);
 }
-#marker-5 {
-  fill: #EDC949;
-}
-#plot-6 {
+.plot-6 {
   --color: #AF7AA1;
   --marker: url(#marker-6);
 }
-#marker-6 {
-  fill: #AF7AA1;
-}
-#plot-7 {
+.plot-7 {
   --color: #FF9DA7;
   --marker: url(#marker-7);
 }
-#marker-7 {
-  fill: #FF9DA7;
-}
-#plot-8 {
+.plot-8 {
   --color: #9C755F;
   --marker: url(#marker-8);
 }
-#marker-8 {
-  fill: #9C755F;
-}
-#plot-9 {
+.plot-9 {
   --color: #BAB0AB;
   --marker: url(#marker-9);
-}
-#marker-9 {
-  fill: #BAB0AB;
 }

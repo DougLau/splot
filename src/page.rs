@@ -133,9 +133,14 @@ impl<'a> fmt::Display for Page<'a> {
         writeln!(f, "  <link href='./css/splot.css' rel='stylesheet'/>")?;
         writeln!(f, "</head>")?;
         writeln!(f, "<body>")?;
+        writeln!(f, "<div class='page'>")?;
         for chart in &self.charts {
+            writeln!(f, "<div class='chart'>")?;
             chart.fmt(f)?;
+            chart.legend(f)?;
+            writeln!(f, "</div>")?;
         }
+        writeln!(f, "</div>")?;
         writeln!(f, "</body>")?;
         Ok(())
     }

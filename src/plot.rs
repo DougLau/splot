@@ -18,6 +18,7 @@ pub struct Area<'a, P>
 where
     P: Point + 'a,
 {
+    name: &'a str,
     domain: &'a Domain<Numeric, Numeric>,
     data: &'a [P],
 }
@@ -27,6 +28,7 @@ pub struct Line<'a, P>
 where
     P: Point + 'a,
 {
+    name: &'a str,
     domain: &'a Domain<Numeric, Numeric>,
     data: &'a [P],
 }
@@ -36,6 +38,7 @@ pub struct Scatter<'a, P>
 where
     P: Point + 'a,
 {
+    name: &'a str,
     domain: &'a Domain<Numeric, Numeric>,
     data: &'a [P],
 }
@@ -46,13 +49,11 @@ impl<'a, P> SealedPlot for Area<'a, P>
 where
     P: Point,
 {
-    fn display(
-        &self,
-        f: &mut fmt::Formatter,
-        num: usize,
-        rect: Rect,
-    ) -> fmt::Result {
-        write!(f, "<path id='plot-{}' class='plot-area' d='", num)?;
+    fn name(&self) -> &str {
+        self.name
+    }
+    fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
+        write!(f, "<path class='plot-area' d='")?;
         let rx = rect.x as f32;
         let ry = rect.y as f32;
         let rw = f32::from(rect.width);
@@ -80,8 +81,12 @@ impl<'a, P> Area<'a, P>
 where
     P: Point,
 {
-    pub fn new(domain: &'a Domain<Numeric, Numeric>, data: &'a [P]) -> Self {
-        Area { domain, data }
+    pub fn new(
+        name: &'a str,
+        domain: &'a Domain<Numeric, Numeric>,
+        data: &'a [P],
+    ) -> Self {
+        Area { name, domain, data }
     }
 }
 
@@ -91,13 +96,11 @@ impl<'a, P> SealedPlot for Line<'a, P>
 where
     P: Point,
 {
-    fn display(
-        &self,
-        f: &mut fmt::Formatter,
-        num: usize,
-        rect: Rect,
-    ) -> fmt::Result {
-        write!(f, "<path id='plot-{}' class='plot-line' d='", num)?;
+    fn name(&self) -> &str {
+        self.name
+    }
+    fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
+        write!(f, "<path class='plot-line' d='")?;
         let rx = rect.x as f32;
         let ry = rect.y as f32;
         let rw = f32::from(rect.width);
@@ -119,8 +122,12 @@ impl<'a, P> Line<'a, P>
 where
     P: Point,
 {
-    pub fn new(domain: &'a Domain<Numeric, Numeric>, data: &'a [P]) -> Self {
-        Line { domain, data }
+    pub fn new(
+        name: &'a str,
+        domain: &'a Domain<Numeric, Numeric>,
+        data: &'a [P],
+    ) -> Self {
+        Line { name, domain, data }
     }
 }
 
@@ -130,13 +137,11 @@ impl<'a, P> SealedPlot for Scatter<'a, P>
 where
     P: Point,
 {
-    fn display(
-        &self,
-        f: &mut fmt::Formatter,
-        num: usize,
-        rect: Rect,
-    ) -> fmt::Result {
-        write!(f, "<path id='plot-{}' class='plot-scatter' d='", num)?;
+    fn name(&self) -> &str {
+        self.name
+    }
+    fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
+        write!(f, "<path class='plot-scatter' d='")?;
         let rx = rect.x as f32;
         let ry = rect.y as f32;
         let rw = f32::from(rect.width);
@@ -158,7 +163,11 @@ impl<'a, P> Scatter<'a, P>
 where
     P: Point,
 {
-    pub fn new(domain: &'a Domain<Numeric, Numeric>, data: &'a [P]) -> Self {
-        Scatter { domain, data }
+    pub fn new(
+        name: &'a str,
+        domain: &'a Domain<Numeric, Numeric>,
+        data: &'a [P],
+    ) -> Self {
+        Scatter { name, domain, data }
     }
 }

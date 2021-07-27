@@ -81,6 +81,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::private::SealedScale;
     use crate::scale::Numeric;
 
     #[test]

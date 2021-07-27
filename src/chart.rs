@@ -187,6 +187,7 @@ impl<'a> Chart<'a> {
         writeln!(f, "<defs>")?;
         for i in 0..self.plots.len() {
             write!(f, "<marker id='marker-{}'", i)?;
+            write!(f, " class='plot-{}'", i)?;
             write!(f, " viewBox='-1 -1 2 2'")?;
             writeln!(f, " markerWidth='5' markerHeight='5'>")?;
             writeln!(f, "  {}", MARKERS[i % MARKERS.len()])?;
@@ -214,6 +215,21 @@ impl<'a> Chart<'a> {
         }
         area
     }
+
+    pub(crate) fn legend(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "<div class='legend'>")?;
+        for (i, plot) in self.plots.iter().enumerate() {
+            writeln!(f, "<div>")?;
+            writeln!(f, "<svg width='20' height='10' viewBox='0 0 60 30'>")?;
+            write!(f, "<g class='plot-{}'>", i)?;
+            write!(f, "<path class='legend-line' d='M0 15h30h30'/>")?;
+            writeln!(f, "</g>")?;
+            writeln!(f, "</svg>")?;
+            writeln!(f, "{}", plot.name())?;
+            writeln!(f, "</div>")?;
+        }
+        writeln!(f, "</div>")
+    }
 }
 
 impl<'a> fmt::Display for Chart<'a> {
@@ -237,7 +253,9 @@ impl<'a> fmt::Display for Chart<'a> {
         }
         writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
         for (plot, num) in self.plots.iter().zip((0..10).cycle()) {
-            plot.display(f, num, area)?;
+            writeln!(f, "<g class='plot-{}'>", num)?;
+            plot.display(f, area)?;
+            writeln!(f, "</g>")?;
         }
         writeln!(f, "</g>")?;
         self.footer(f)?;
