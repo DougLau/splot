@@ -3,8 +3,8 @@
 // Copyright (c) 2021  Douglas P Lau
 //
 //! Scale items
-use crate::axis::Tick;
 use crate::private::SealedScale;
+use crate::text::Tick;
 
 /// Scale for a domain dimension
 pub trait Scale: SealedScale {}
@@ -24,7 +24,7 @@ impl Default for Numeric {
 }
 
 impl Numeric {
-    pub fn new(min: f32, max: f32) -> Self {
+    pub(crate) fn new(min: f32, max: f32) -> Self {
         let tick_spacing = Self::spacing(min, max);
         let start = (min / tick_spacing).floor() * tick_spacing;
         let stop = (max / tick_spacing).ceil() * tick_spacing;
@@ -53,7 +53,7 @@ impl Numeric {
         }
     }
 
-    pub fn tick_spacing(&self) -> f32 {
+    fn tick_spacing(&self) -> f32 {
         self.tick_spacing
     }
 

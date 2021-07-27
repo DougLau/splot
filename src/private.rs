@@ -3,8 +3,8 @@
 // Copyright (c) 2021  Douglas P Lau
 //
 
-use crate::axis::Tick;
 use crate::page::Rect;
+use crate::text::Tick;
 use std::fmt;
 
 pub trait SealedAxis {
