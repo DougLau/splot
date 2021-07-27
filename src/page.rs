@@ -121,8 +121,9 @@ impl Rect {
 }
 
 impl<'a> Page<'a> {
-    pub fn add_chart(&mut self, chart: Chart<'a>) {
+    pub fn with_chart(mut self, chart: Chart<'a>) -> Self {
         self.charts.push(chart);
+        self
     }
 }
 

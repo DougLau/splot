@@ -6,16 +6,14 @@ fn main() {
     let domain = Domain::from_data(&data_a);
     let plot_a = plot::Scatter::new("Series A", &domain, &data_a);
     let plot_b = plot::Scatter::new("Series B", &domain, &data_b);
-    let mut page = Page::default();
-    page.add_chart(
-        Chart::builder()
+    let page = Page::default().with_chart(
+        Chart::default()
             .with_title("Scatter Plot")
             .with_axis(domain.x_axis().with_name("X Axis Name"))
             .with_axis(domain.y_axis().with_name("Y Axis Name"))
             .with_axis(domain.y_axis().on_right())
             .with_plot(&plot_a)
-            .with_plot(&plot_b)
-            .build(),
+            .with_plot(&plot_b),
     );
     print!("{}", page);
 }

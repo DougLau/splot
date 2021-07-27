@@ -13,14 +13,12 @@
 //! let data = vec![(13, 74), (111, 37), (125, 52), (190, 66)];
 //! let domain = Domain::from_data(&data).with_x(&[0.0, 200.0]);
 //! let plot = plot::Line::new("Series", &domain, &data);
-//! let mut page = Page::default();
-//! page.add_chart(
-//!     Chart::builder()
+//! let page = Page::default().with_chart(
+//!     Chart::default()
 //!         .with_title("Line Plot")
 //!         .with_axis(domain.x_axis().with_name("X Axis Name"))
 //!         .with_axis(domain.y_axis().with_name("Y Axis Name").on_right())
-//!         .with_plot(&plot)
-//!         .build(),
+//!         .with_plot(&plot),
 //! );
 //! println!("{}", page);
 //! ```
@@ -36,7 +34,7 @@ mod private;
 pub mod scale;
 mod text;
 
-pub use chart::{Chart, ChartBuilder, Title};
+pub use chart::{Chart, Title};
 pub use domain::Domain;
 pub use page::{AspectRatio, Page};
 pub use point::Point;

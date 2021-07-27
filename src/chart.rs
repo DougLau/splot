@@ -27,15 +27,6 @@ pub struct Title {
     edge: Edge,
 }
 
-/// Builder for charts
-pub struct ChartBuilder<'a> {
-    stand_alone: bool,
-    aspect_ratio: AspectRatio,
-    titles: Vec<Title>,
-    axes: Vec<Box<dyn Axis + 'a>>,
-    plots: Vec<&'a (dyn Plot + 'a)>,
-}
-
 /// Chart for plotting data
 pub struct Chart<'a> {
     stand_alone: bool,
@@ -108,7 +99,7 @@ impl Title {
     }
 }
 
-impl<'a> Default for ChartBuilder<'a> {
+impl<'a> Default for Chart<'a> {
     fn default() -> Self {
         Self {
             stand_alone: false,
@@ -120,13 +111,13 @@ impl<'a> Default for ChartBuilder<'a> {
     }
 }
 
-impl<'a> ChartBuilder<'a> {
+impl<'a> Chart<'a> {
     pub fn stand_alone(mut self) -> Self {
         self.stand_alone = true;
         self
     }
 
-    pub fn aspect_ratio(mut self, aspect: AspectRatio) -> Self {
+    pub fn with_aspect_ratio(mut self, aspect: AspectRatio) -> Self {
         self.aspect_ratio = aspect;
         self
     }
@@ -147,22 +138,6 @@ impl<'a> ChartBuilder<'a> {
     pub fn with_plot(mut self, plot: &'a dyn Plot) -> Self {
         self.plots.push(plot);
         self
-    }
-
-    pub fn build(self) -> Chart<'a> {
-        Chart {
-            stand_alone: self.stand_alone,
-            aspect_ratio: self.aspect_ratio,
-            titles: self.titles,
-            axes: self.axes,
-            plots: self.plots,
-        }
-    }
-}
-
-impl<'a> Chart<'a> {
-    pub fn builder() -> ChartBuilder<'a> {
-        ChartBuilder::default()
     }
 
     fn svg(&self, f: &mut fmt::Formatter) -> fmt::Result {
