@@ -29,7 +29,6 @@ pub struct Title {
 
 /// Chart for plotting data
 pub struct Chart<'a> {
-    stand_alone: bool,
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
     axes: Vec<Box<dyn Axis + 'a>>,
@@ -102,7 +101,6 @@ impl Title {
 impl<'a> Default for Chart<'a> {
     fn default() -> Self {
         Self {
-            stand_alone: false,
             aspect_ratio: AspectRatio::Landscape,
             titles: vec![],
             axes: vec![],
@@ -112,11 +110,6 @@ impl<'a> Default for Chart<'a> {
 }
 
 impl<'a> Chart<'a> {
-    pub fn stand_alone(mut self) -> Self {
-        self.stand_alone = true;
-        self
-    }
-
     pub fn with_aspect_ratio(mut self, aspect: AspectRatio) -> Self {
         self.aspect_ratio = aspect;
         self
@@ -140,10 +133,17 @@ impl<'a> Chart<'a> {
         self
     }
 
-    fn svg(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    pub(crate) fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.svg(f, false)?;
+        self.link(f)?;
+        self.defs(f)?;
+        self.body(f)
+    }
+
+    fn svg(&self, f: &mut fmt::Formatter, stand_alone: bool) -> fmt::Result {
         let rect = self.aspect_ratio.rect();
         write!(f, "<svg")?;
-        if self.stand_alone {
+        if stand_alone {
             write!(f, " xmlns='http://www.w3.org/2000/svg'")?;
         }
         write!(f, " viewBox='")?;
@@ -176,7 +176,26 @@ impl<'a> Chart<'a> {
         writeln!(f, "</defs>")
     }
 
-    fn footer(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn body(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut area = self.aspect_ratio.rect().inset(40);
+        for title in &self.titles {
+            let rect = area.split(title.edge, 100);
+            title.display(f, rect)?;
+        }
+        let mut rects = vec![];
+        for axis in &self.axes {
+            rects.push(axis.split(&mut area));
+        }
+        for (axis, rect) in self.axes.iter().zip(rects) {
+            axis.display(f, rect, area)?;
+        }
+        writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
+        for (plot, num) in self.plots.iter().zip((0..10).cycle()) {
+            writeln!(f, "<g class='plot-{}'>", num)?;
+            plot.display(f, area)?;
+            writeln!(f, "</g>")?;
+        }
+        writeln!(f, "</g>")?;
         writeln!(f, "</svg>")
     }
 
@@ -209,31 +228,9 @@ impl<'a> Chart<'a> {
 
 impl<'a> fmt::Display for Chart<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.svg(f)?;
-        if self.stand_alone {
-            self.link(f)?;
-        }
+        self.svg(f, true)?;
+        self.link(f)?;
         self.defs(f)?;
-        let mut area = self.aspect_ratio.rect().inset(40);
-        for title in &self.titles {
-            let rect = area.split(title.edge, 100);
-            title.display(f, rect)?;
-        }
-        let mut rects = vec![];
-        for axis in &self.axes {
-            rects.push(axis.split(&mut area));
-        }
-        for (axis, rect) in self.axes.iter().zip(rects) {
-            axis.display(f, rect, area)?;
-        }
-        writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
-        for (plot, num) in self.plots.iter().zip((0..10).cycle()) {
-            writeln!(f, "<g class='plot-{}'>", num)?;
-            plot.display(f, area)?;
-            writeln!(f, "</g>")?;
-        }
-        writeln!(f, "</g>")?;
-        self.footer(f)?;
-        Ok(())
+        self.body(f)
     }
 }

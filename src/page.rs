@@ -137,7 +137,7 @@ impl<'a> fmt::Display for Page<'a> {
         writeln!(f, "<div class='page'>")?;
         for chart in &self.charts {
             writeln!(f, "<div class='chart'>")?;
-            chart.fmt(f)?;
+            chart.display(f)?;
             chart.legend(f)?;
             writeln!(f, "</div>")?;
         }
