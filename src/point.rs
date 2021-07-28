@@ -5,126 +5,78 @@
 
 /// Data point
 pub trait Point {
+    /// Get the `X` value
     fn x(&self) -> f32;
+
+    /// Get the `Y` value
     fn y(&self) -> f32;
 }
 
-impl Point for f32 {
-    fn x(&self) -> f32 {
-        *self
-    }
+macro_rules! impl_point_as {
+    ($pt:ty) => {
+        impl Point for $pt {
+            fn x(&self) -> f32 {
+                *self as f32
+            }
 
-    fn y(&self) -> f32 {
-        *self
-    }
+            fn y(&self) -> f32 {
+                *self as f32
+            }
+        }
+    };
 }
 
-impl Point for f64 {
-    fn x(&self) -> f32 {
-        *self as f32
-    }
+impl_point_as!(f32);
+impl_point_as!(f64);
+impl_point_as!(isize);
+impl_point_as!(i8);
+impl_point_as!(i16);
+impl_point_as!(i32);
+impl_point_as!(i64);
+impl_point_as!(i128);
 
-    fn y(&self) -> f32 {
-        *self as f32
-    }
+macro_rules! impl_point2_as {
+    ($pt:ty) => {
+        impl Point for ($pt, $pt) {
+            fn x(&self) -> f32 {
+                self.0 as f32
+            }
+
+            fn y(&self) -> f32 {
+                self.1 as f32
+            }
+        }
+    };
 }
 
-impl Point for isize {
-    fn x(&self) -> f32 {
-        *self as f32
-    }
+impl_point2_as!(f32);
+impl_point2_as!(f64);
+impl_point2_as!(isize);
+impl_point2_as!(i8);
+impl_point2_as!(i16);
+impl_point2_as!(i32);
+impl_point2_as!(i64);
+impl_point2_as!(i128);
 
-    fn y(&self) -> f32 {
-        *self as f32
-    }
+macro_rules! impl_point_arr_as {
+    ($pt:ty) => {
+        impl Point for [$pt; 2] {
+            fn x(&self) -> f32 {
+                self[0] as f32
+            }
+
+            fn y(&self) -> f32 {
+                self[1] as f32
+            }
+        }
+    };
 }
 
-impl Point for i32 {
-    fn x(&self) -> f32 {
-        *self as f32
-    }
-
-    fn y(&self) -> f32 {
-        *self as f32
-    }
-}
-
-impl Point for (f32, f32) {
-    fn x(&self) -> f32 {
-        self.0
-    }
-
-    fn y(&self) -> f32 {
-        self.1
-    }
-}
-
-impl Point for (f64, f64) {
-    fn x(&self) -> f32 {
-        self.0 as f32
-    }
-
-    fn y(&self) -> f32 {
-        self.1 as f32
-    }
-}
-
-impl Point for (isize, isize) {
-    fn x(&self) -> f32 {
-        self.0 as f32
-    }
-
-    fn y(&self) -> f32 {
-        self.1 as f32
-    }
-}
-
-impl Point for (i8, i8) {
-    fn x(&self) -> f32 {
-        self.0.into()
-    }
-
-    fn y(&self) -> f32 {
-        self.1.into()
-    }
-}
-
-impl Point for (i16, i16) {
-    fn x(&self) -> f32 {
-        self.0.into()
-    }
-
-    fn y(&self) -> f32 {
-        self.1.into()
-    }
-}
-
-impl Point for (i32, i32) {
-    fn x(&self) -> f32 {
-        self.0 as f32
-    }
-
-    fn y(&self) -> f32 {
-        self.1 as f32
-    }
-}
-
-impl Point for (i64, i64) {
-    fn x(&self) -> f32 {
-        self.0 as f32
-    }
-
-    fn y(&self) -> f32 {
-        self.1 as f32
-    }
-}
-
-impl Point for (i128, i128) {
-    fn x(&self) -> f32 {
-        self.0 as f32
-    }
-
-    fn y(&self) -> f32 {
-        self.1 as f32
-    }
-}
+impl_point_arr_as!(f32);
+impl_point_arr_as!(f64);
+impl_point_arr_as!(isize);
+impl_point_arr_as!(i8);
+impl_point_arr_as!(i16);
+impl_point_arr_as!(i32);
+impl_point_arr_as!(i64);
+impl_point_arr_as!(i128);
