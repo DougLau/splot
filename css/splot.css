@@ -1,3 +1,19 @@
+@media (prefers-color-scheme: light) {
+  * {
+    --bg: #eee;
+    --fg: #333;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  * {
+    --bg: #333;
+    --fg: #eee;
+  }
+}
+:root {
+  background: var(--bg);
+  color: var(--fg);
+}
 .page {
   display: flex;
   flex-direction: column;
@@ -14,17 +30,20 @@
   font-size: 12px;
 }
 .title {
+  fill: var(--fg);
   font-size: 50px;
 }
 .axis {
+  fill: var(--fg);
   font-size: 40px;
 }
 .axis-line {
-  stroke: black;
+  stroke: var(--fg);
   stroke-width: 1px;
   vector-effect: non-scaling-stroke;
 }
 .tick {
+  fill: var(--fg);
   font-size: 32px;
 }
 .grid-x {
