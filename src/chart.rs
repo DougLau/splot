@@ -10,14 +10,14 @@ use std::fmt;
 
 /// Marker shapes
 const MARKERS: &[&str] = &[
-    "<circle r='1' />",
-    "<rect x='-1' y='-1' width='2' height='2' />",
-    "<path d='M0 -1 1 1 -1 1z' />",
-    "<path d='M1 0 -1 1 -1 -1z' />",
-    "<path d='M0 1 -1 -1 1 -1z' />",
-    "<path d='M-1 0 1 -1 1 1z' />",
-    "<path d='M0 -1 1 0 0 1 -1 0z' />",
-    "<path d='M-1 -1 0 -0.5 1 -1 0.5 0 1 1 0 0.5 -1 1 -0.5 0z' />",
+    "<circle r='1'/>",
+    "<rect x='-1' y='-1' width='2' height='2'/>",
+    "<path d='M0 -1 1 1 -1 1z'/>",
+    "<path d='M1 0 -1 1 -1 -1z'/>",
+    "<path d='M0 1 -1 -1 1 -1z'/>",
+    "<path d='M-1 0 1 -1 1 1z'/>",
+    "<path d='M0 -1 1 0 0 1 -1 0z'/>",
+    "<path d='M-1 -1 0 -0.5 1 -1 0.5 0 1 1 0 0.5 -1 1 -0.5 0z'/>",
 ];
 
 /// Chart title
@@ -176,13 +176,13 @@ impl<'a> Chart<'a> {
             write!(f, " class='plot-{}'", i)?;
             write!(f, " viewBox='-1 -1 2 2'")?;
             writeln!(f, " markerWidth='5' markerHeight='5'>")?;
-            writeln!(f, "  {}", MARKERS[i % MARKERS.len()])?;
+            writeln!(f, "{}", MARKERS[i % MARKERS.len()])?;
             writeln!(f, "</marker>")?;
         }
         let area = self.area();
         writeln!(f, "<clipPath id='clip-chart'>")?;
-        write!(f, "  <rect x='{}' y='{}'", area.x, area.y)?;
-        writeln!(f, " width='{}' height='{}' />", area.width, area.height)?;
+        write!(f, "<rect x='{}' y='{}'", area.x, area.y)?;
+        writeln!(f, " width='{}' height='{}'/>", area.width, area.height)?;
         writeln!(f, "</clipPath>")?;
         writeln!(f, "</defs>")
     }

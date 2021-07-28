@@ -134,7 +134,7 @@ where
                 write!(f, " {} {}", x, y)?;
             }
         }
-        writeln!(f, "' />")
+        writeln!(f, "'/>")
     }
 }
 

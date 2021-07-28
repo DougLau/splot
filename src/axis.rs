@@ -141,13 +141,13 @@ impl Horizontal {
             Edge::Bottom => (rect.y, -Tick::LEN),
             _ => unreachable!(),
         };
-        write!(f, "<path class='axis-line' d='M{} {} h{}", x, y, rect.width)?;
+        write!(f, "<path class='axis-line' d='M{} {}h{}", x, y, rect.width)?;
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
-            write!(f, " M{} {} v{}", x, y, height)?;
+            write!(f, " M{} {}v{}", x, y, height)?;
         }
-        writeln!(f, "' />")
+        writeln!(f, "'/>")
     }
 
     fn display_tick_labels(
@@ -251,13 +251,13 @@ impl Vertical {
             _ => unreachable!(),
         };
         write!(f, "<path class='axis-line'")?;
-        write!(f, " d='M{} {} v{}", x, rect.y, rect.height)?;
+        write!(f, " d='M{} {}v{}", x, rect.y, rect.height)?;
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
-            write!(f, " M{} {} h{}", x, y, width)?;
+            write!(f, " M{} {}h{}", x, y, width)?;
         }
-        writeln!(f, "' />")
+        writeln!(f, "'/>")
     }
 
     fn display_tick_labels(

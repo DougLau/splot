@@ -135,7 +135,7 @@ impl<'a> fmt::Display for Page<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "<html>")?;
         writeln!(f, "<head>")?;
-        writeln!(f, "  <link href='./css/splot.css' rel='stylesheet'/>")?;
+        writeln!(f, "<link href='./css/splot.css' rel='stylesheet'/>")?;
         writeln!(f, "</head>")?;
         writeln!(f, "<body>")?;
         writeln!(f, "<div class='page'>")?;
