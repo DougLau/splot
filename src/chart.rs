@@ -144,10 +144,9 @@ impl<'a> Chart<'a> {
         self
     }
 
-    /// Display the chart as SVG
+    /// Display the chart embedded in HTML
     pub(crate) fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.svg(f, false)?;
-        self.link(f)?;
         self.defs(f)?;
         self.body(f)
     }
