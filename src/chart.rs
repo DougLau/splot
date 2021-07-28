@@ -45,6 +45,7 @@ where
 }
 
 impl Title {
+    /// Create a new title
     pub(crate) fn new_with_edge<T>(text: T, edge: Edge) -> Self
     where
         T: Into<String>,
@@ -56,6 +57,7 @@ impl Title {
         }
     }
 
+    /// Create a new title
     pub fn new<T>(text: T) -> Self
     where
         T: Into<String>,
@@ -63,26 +65,31 @@ impl Title {
         Self::new_with_edge(text, Edge::Top)
     }
 
+    /// Anchor title text at start
     pub fn at_start(mut self) -> Self {
         self.anchor = Anchor::Start;
         self
     }
 
+    /// Anchor title text at end
     pub fn at_end(mut self) -> Self {
         self.anchor = Anchor::End;
         self
     }
 
+    /// Put title on bottom of chart
     pub fn on_bottom(mut self) -> Self {
         self.edge = Edge::Bottom;
         self
     }
 
+    /// Put title on left side of chart
     pub fn on_left(mut self) -> Self {
         self.edge = Edge::Left;
         self
     }
 
+    /// Put title on right side of chart
     pub fn on_right(mut self) -> Self {
         self.edge = Edge::Right;
         self
@@ -110,11 +117,13 @@ impl<'a> Default for Chart<'a> {
 }
 
 impl<'a> Chart<'a> {
+    /// Adjust the aspect ratio
     pub fn with_aspect_ratio(mut self, aspect: AspectRatio) -> Self {
         self.aspect_ratio = aspect;
         self
     }
 
+    /// Add a chart title
     pub fn with_title<T>(mut self, title: T) -> Self
     where
         T: Into<Title>,
@@ -123,16 +132,19 @@ impl<'a> Chart<'a> {
         self
     }
 
+    /// Add an `Axis`
     pub fn with_axis<A: Axis + 'a>(mut self, axis: A) -> Self {
         self.axes.push(Box::new(axis));
         self
     }
 
+    /// Add a `Plot`
     pub fn with_plot(mut self, plot: &'a dyn Plot) -> Self {
         self.plots.push(plot);
         self
     }
 
+    /// Display the chart as SVG
     pub(crate) fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.svg(f, false)?;
         self.link(f)?;
@@ -210,6 +222,7 @@ impl<'a> Chart<'a> {
         area
     }
 
+    /// Render the legend as an HTML fragment
     pub(crate) fn legend(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "<div class='legend'>")?;
         for (i, plot) in self.plots.iter().enumerate() {

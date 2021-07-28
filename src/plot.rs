@@ -3,17 +3,32 @@
 // Copyright (c) 2021  Douglas P Lau
 //
 //! Plot types
+//!
 use crate::domain::Domain;
 use crate::page::Rect;
 use crate::point::Point;
-use crate::private::SealedPlot;
 use crate::scale::Numeric;
 use std::fmt;
 
-/// Plot for visualizing data
-pub trait Plot: SealedPlot {}
+/// Private module for sealed Plot trait
+mod sealed {
+    use crate::page::Rect;
+    use std::fmt;
 
-/// Area plot
+    pub trait Plot {
+        fn name(&self) -> &str;
+        fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result;
+    }
+}
+
+/// Plot for rendering data
+///
+/// This trait is *sealed* to hide details.
+pub trait Plot: sealed::Plot {}
+
+/// Stacked area plot
+///
+/// Data is drawn as filled-in areas, stacked vertically.
 pub struct Area<'a, P>
 where
     P: Point + 'a,
@@ -24,6 +39,8 @@ where
 }
 
 /// Line plot
+///
+/// Data is drawn as a series of points connected by line segments.
 pub struct Line<'a, P>
 where
     P: Point + 'a,
@@ -34,6 +51,8 @@ where
 }
 
 /// Scatter plot
+///
+/// Data is drawn as unconnected points.
 pub struct Scatter<'a, P>
 where
     P: Point + 'a,
@@ -45,7 +64,7 @@ where
 
 impl<'a, P> Plot for Area<'a, P> where P: Point {}
 
-impl<'a, P> SealedPlot for Area<'a, P>
+impl<'a, P> sealed::Plot for Area<'a, P>
 where
     P: Point,
 {
@@ -81,6 +100,7 @@ impl<'a, P> Area<'a, P>
 where
     P: Point,
 {
+    /// Create a new stacked area plot
     pub fn new(
         name: &'a str,
         domain: &'a Domain<Numeric, Numeric>,
@@ -92,7 +112,7 @@ where
 
 impl<'a, P> Plot for Line<'a, P> where P: Point {}
 
-impl<'a, P> SealedPlot for Line<'a, P>
+impl<'a, P> sealed::Plot for Line<'a, P>
 where
     P: Point,
 {
@@ -122,6 +142,7 @@ impl<'a, P> Line<'a, P>
 where
     P: Point,
 {
+    /// Create a new line plot
     pub fn new(
         name: &'a str,
         domain: &'a Domain<Numeric, Numeric>,
@@ -133,7 +154,7 @@ where
 
 impl<'a, P> Plot for Scatter<'a, P> where P: Point {}
 
-impl<'a, P> SealedPlot for Scatter<'a, P>
+impl<'a, P> sealed::Plot for Scatter<'a, P>
 where
     P: Point,
 {
@@ -163,6 +184,7 @@ impl<'a, P> Scatter<'a, P>
 where
     P: Point,
 {
+    /// Create a new scatter plot
     pub fn new(
         name: &'a str,
         domain: &'a Domain<Numeric, Numeric>,

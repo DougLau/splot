@@ -2,8 +2,9 @@
 //!
 //! Plot data in Rust
 //!
-//! A `Chart` can be turned into an SVG document using the `Display` trait.
-//! That is, using `println!`, or even `to_string()` is all that's needed.
+//! A `Page` containing one or more `Chart`s can be rendered as HTML using the
+//! `Display` trait.  That is, using `println!`, or even `to_string()` is all
+//! that's needed.
 //!
 //! ## Example Line Plot
 //!
@@ -30,7 +31,6 @@ mod domain;
 mod page;
 pub mod plot;
 mod point;
-mod private;
 pub mod scale;
 mod text;
 

@@ -8,8 +8,11 @@ use std::fmt;
 /// Page aspect ratio
 #[derive(Clone, Copy)]
 pub enum AspectRatio {
+    /// Wide rectangular aspect
     Landscape,
+    /// Square aspect
     Square,
+    /// Tall rectangular aspect
     Portrait,
 }
 
@@ -31,7 +34,7 @@ pub struct Rect {
     pub height: u16,
 }
 
-/// Page of charts
+/// Page of one or more charts
 #[derive(Default)]
 pub struct Page<'a> {
     charts: Vec<Chart<'a>>,
@@ -121,6 +124,7 @@ impl Rect {
 }
 
 impl<'a> Page<'a> {
+    /// Add a `Chart` to `Page`
     pub fn with_chart(mut self, chart: Chart<'a>) -> Self {
         self.charts.push(chart);
         self

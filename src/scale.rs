@@ -3,11 +3,30 @@
 // Copyright (c) 2021  Douglas P Lau
 //
 //! Scale items
-use crate::private::SealedScale;
+//!
+use crate::scale::sealed::Scale as _;
 use crate::text::Tick;
 
+/// Private module for sealed Scale trait
+pub(crate) mod sealed {
+    use crate::text::Tick;
+
+    pub trait Scale {
+        fn from_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
+        where
+            I: IntoIterator<Item = &'a P>,
+            P: 'a;
+        fn union(&self, rhs: Self) -> Self;
+        fn inverted(&self) -> Self;
+        fn normalize(&self, value: f32) -> f32;
+        fn ticks(&self) -> Vec<Tick>;
+    }
+}
+
 /// Scale for a domain dimension
-pub trait Scale: SealedScale {}
+///
+/// This trait is *sealed* to hide details.
+pub trait Scale: sealed::Scale {}
 
 /// Numeric scale
 #[derive(Clone, Debug)]
@@ -24,6 +43,7 @@ impl Default for Numeric {
 }
 
 impl Numeric {
+    /// Create a new numeric scale
     pub(crate) fn new(min: f32, max: f32) -> Self {
         let tick_spacing = Self::spacing(min, max);
         let start = (min / tick_spacing).floor() * tick_spacing;
@@ -67,7 +87,7 @@ impl Numeric {
 
 impl Scale for Numeric {}
 
-impl SealedScale for Numeric {
+impl sealed::Scale for Numeric {
     fn from_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
     where
         I: IntoIterator<Item = &'a P>,

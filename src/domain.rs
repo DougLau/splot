@@ -6,9 +6,9 @@ use crate::axis::{Horizontal, Vertical};
 use crate::point::Point;
 use crate::scale::Scale;
 
-/// Two-dimensional data domain
+/// Data domain in two dimensions
 ///
-/// The two scales are:
+/// The scales are:
 ///
 /// - `X`, abscissa (horizontal)
 /// - `Y`, ordinate (vertical)
@@ -27,6 +27,7 @@ where
     X: Scale + Default,
     Y: Scale + Default,
 {
+    /// Create a domain from a set of points
     pub fn from_data<P>(data: &[P]) -> Self
     where
         P: Point,
@@ -36,6 +37,7 @@ where
         Domain { x_scale, y_scale }
     }
 
+    /// Adjust domain to include a set of points
     pub fn with_data<P>(mut self, data: &[P]) -> Self
     where
         P: Point,
@@ -45,6 +47,7 @@ where
         self
     }
 
+    /// Set `X` domain to a set of points
     pub fn with_x<P>(mut self, data: &[P]) -> Self
     where
         P: Point,
@@ -53,6 +56,7 @@ where
         self
     }
 
+    /// Set `Y` domain to a set of points
     pub fn with_y<P>(mut self, data: &[P]) -> Self
     where
         P: Point,
@@ -61,18 +65,22 @@ where
         self
     }
 
+    /// Get horizontal `X` axis
     pub fn x_axis(&self) -> Horizontal {
         Horizontal::new(self.x_scale.ticks())
     }
 
+    /// Get vertical `Y` axis
     pub fn y_axis(&self) -> Vertical {
         Vertical::new(self.y_scale.inverted().ticks())
     }
 
+    /// Normalize an `X` value
     pub(crate) fn x_norm(&self, x: f32) -> f32 {
         self.x_scale.normalize(x)
     }
 
+    /// Normalize a `Y` value
     pub(crate) fn y_norm(&self, y: f32) -> f32 {
         self.y_scale.inverted().normalize(y)
     }
@@ -81,7 +89,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::private::SealedScale;
+    use crate::scale::sealed::Scale;
     use crate::scale::Numeric;
 
     #[test]

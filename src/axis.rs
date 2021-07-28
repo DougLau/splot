@@ -2,16 +2,36 @@
 //
 // Copyright (c) 2021  Douglas P Lau
 //
-//! Axis rendering
+//! Axis for charts
+//!
 use crate::page::{Edge, Rect};
-use crate::private::SealedAxis;
 use crate::text::{Anchor, Label, Text, Tick};
 use std::fmt;
 
-/// Axis renderer
-pub trait Axis: SealedAxis {}
+/// Private module for sealed Axis trait
+mod sealed {
+    use crate::page::Rect;
+    use std::fmt;
 
-/// Horizontal (X) axis
+    pub trait Axis {
+        fn split(&self, area: &mut Rect) -> Rect;
+        fn display(
+            &self,
+            f: &mut fmt::Formatter,
+            rect: Rect,
+            area: Rect,
+        ) -> fmt::Result;
+    }
+}
+
+/// Axis for drawing labels on a `Chart`
+///
+/// This trait is *sealed* to hide details.  There are two implementors:
+/// - `axis::Horizontal`
+/// - `axis::Vertical`
+pub trait Axis: sealed::Axis {}
+
+/// Horizontal `X` axis
 #[derive(Debug, PartialEq)]
 pub struct Horizontal {
     edge: Edge,
@@ -20,7 +40,7 @@ pub struct Horizontal {
     label: Label,
 }
 
-/// Vertical (Y) axis
+/// Vertical `Y` axis
 #[derive(Debug, PartialEq)]
 pub struct Vertical {
     edge: Edge,
@@ -29,7 +49,7 @@ pub struct Vertical {
     label: Label,
 }
 
-impl SealedAxis for Horizontal {
+impl sealed::Axis for Horizontal {
     fn split(&self, area: &mut Rect) -> Rect {
         area.split(self.edge, self.space())
     }
@@ -58,6 +78,7 @@ impl SealedAxis for Horizontal {
 impl Axis for Horizontal {}
 
 impl Horizontal {
+    /// Create a new horizontal axis
     pub(crate) fn new(ticks: Vec<Tick>) -> Self {
         Self {
             edge: Edge::Bottom,
@@ -67,6 +88,7 @@ impl Horizontal {
         }
     }
 
+    /// Set the name of the axis
     pub fn with_name<N>(mut self, name: N) -> Self
     where
         N: Into<String>,
@@ -75,6 +97,9 @@ impl Horizontal {
         self
     }
 
+    /// Attach to the top of a `Chart`
+    ///
+    /// By default, a `Horizontal` axis is attached to the bottom of a `Chart`.
     pub fn on_top(mut self) -> Self {
         self.edge = Edge::Top;
         self
@@ -121,7 +146,7 @@ impl Horizontal {
     }
 }
 
-impl SealedAxis for Vertical {
+impl sealed::Axis for Vertical {
     fn split(&self, area: &mut Rect) -> Rect {
         area.split(self.edge, self.space())
     }
@@ -150,6 +175,7 @@ impl SealedAxis for Vertical {
 impl Axis for Vertical {}
 
 impl Vertical {
+    /// Create a new vertical axis
     pub(crate) fn new(ticks: Vec<Tick>) -> Self {
         Self {
             edge: Edge::Left,
@@ -159,6 +185,7 @@ impl Vertical {
         }
     }
 
+    /// Set the name of the axis
     pub fn with_name<N>(mut self, name: N) -> Self
     where
         N: Into<String>,
@@ -167,6 +194,9 @@ impl Vertical {
         self
     }
 
+    /// Attach to the right side of a `Chart`
+    ///
+    /// By default, a `Vertical` axis is attached to the left side of a `Chart`.
     pub fn on_right(mut self) -> Self {
         self.edge = Edge::Right;
         self
