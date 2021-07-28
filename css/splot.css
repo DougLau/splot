@@ -27,6 +27,20 @@
 .tick {
   font-size: 32px;
 }
+.grid-x {
+  stroke: gray;
+  stroke-opacity: 50%;
+  stroke-width: 1px;
+  stroke-dasharray: 1 3;
+  vector-effect: non-scaling-stroke;
+}
+.grid-y {
+  stroke: gray;
+  stroke-opacity: 50%;
+  stroke-width: 1px;
+  stroke-dasharray: 1 3;
+  vector-effect: non-scaling-stroke;
+}
 .plot-area {
   fill: var(--color);
   stroke: none;

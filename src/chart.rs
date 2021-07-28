@@ -194,11 +194,14 @@ impl<'a> Chart<'a> {
             let rect = area.split(title.edge, 100);
             title.display(f, rect)?;
         }
-        let mut rects = vec![];
+        let mut axis_rects = vec![];
         for axis in &self.axes {
-            rects.push(axis.split(&mut area));
+            axis_rects.push(axis.split(&mut area));
         }
-        for (axis, rect) in self.axes.iter().zip(rects) {
+        for axis in self.axes.iter() {
+            axis.display_grid(f, area)?;
+        }
+        for (axis, rect) in self.axes.iter().zip(axis_rects) {
             axis.display(f, rect, area)?;
         }
         writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
