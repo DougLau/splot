@@ -42,8 +42,8 @@ pub enum Anchor {
 pub struct Label {
     point: LabelPoint,
     offset: VerticalOffset,
-    pub anchor: Anchor,
-    pub rounding_precision: Option<usize>,
+    anchor: Anchor,
+    rounding_precision: Option<usize>,
 }
 
 pub struct Text<'a> {
@@ -94,7 +94,7 @@ impl Label {
         Self::default()
     }
 
-    pub fn point(&self) -> LabelPoint {
+    pub fn label_point(&self) -> LabelPoint {
         self.point
     }
 
@@ -145,27 +145,32 @@ impl Label {
 }
 
 impl<'a> Text<'a> {
-    pub fn new(edge: Edge, anchor: Anchor) -> Self {
+    pub fn new(edge: Edge) -> Self {
         Text {
             edge,
-            anchor,
+            anchor: Anchor::Middle,
             rect: None,
             dy: None,
             class_name: None,
         }
     }
 
-    pub fn dy(mut self, dy: f32) -> Self {
+    pub fn with_anchor(mut self, anchor: Anchor) -> Self {
+        self.anchor = anchor;
+        self
+    }
+
+    pub fn with_dy(mut self, dy: f32) -> Self {
         self.dy = Some(dy);
         self
     }
 
-    pub fn rect(mut self, rect: Rect) -> Self {
+    pub fn with_rect(mut self, rect: Rect) -> Self {
         self.rect = Some(rect);
         self
     }
 
-    pub fn class_name(mut self, class_name: &'a str) -> Self {
+    pub fn with_class_name(mut self, class_name: &'a str) -> Self {
         self.class_name = Some(class_name);
         self
     }
@@ -175,7 +180,7 @@ impl<'a> Text<'a> {
         if let Some(class_name) = self.class_name {
             write!(f, " class='{}'", class_name)?;
         }
-        if let Some(rect) = &self.rect {
+        if let Some(rect) = self.rect {
             self.transform(f, rect)?;
         }
         if let Some(dy) = self.dy {
@@ -188,20 +193,20 @@ impl<'a> Text<'a> {
         writeln!(f, "</text>")
     }
 
-    fn transform(&self, f: &mut fmt::Formatter, rect: &Rect) -> fmt::Result {
+    fn transform(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
         let x = match (self.edge, self.anchor) {
             (Edge::Top, Anchor::Start) | (Edge::Bottom, Anchor::Start) => {
                 rect.x
             }
             (Edge::Top, Anchor::End) | (Edge::Bottom, Anchor::End) => {
-                rect.x + i32::from(rect.width)
+                rect.right()
             }
             _ => rect.x + i32::from(rect.width) / 2,
         };
         let y = match (self.edge, self.anchor) {
             (Edge::Left, Anchor::End) | (Edge::Right, Anchor::Start) => rect.y,
             (Edge::Left, Anchor::Start) | (Edge::Right, Anchor::End) => {
-                rect.y + i32::from(rect.height)
+                rect.bottom()
             }
             _ => rect.y + i32::from(rect.height) / 2,
         };

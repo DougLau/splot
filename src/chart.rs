@@ -49,23 +49,15 @@ where
 
 impl Title {
     /// Create a new title
-    pub(crate) fn new_with_edge<T>(text: T, edge: Edge) -> Self
+    pub fn new<T>(text: T) -> Self
     where
         T: Into<String>,
     {
         Title {
             text: text.into(),
             anchor: Anchor::Middle,
-            edge,
+            edge: Edge::Top,
         }
-    }
-
-    /// Create a new title
-    pub fn new<T>(text: T) -> Self
-    where
-        T: Into<String>,
-    {
-        Self::new_with_edge(text, Edge::Top)
     }
 
     /// Anchor title text at start
@@ -99,9 +91,10 @@ impl Title {
     }
 
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
-        let text = Text::new(self.edge, self.anchor)
-            .rect(rect)
-            .class_name("title");
+        let text = Text::new(self.edge)
+            .with_rect(rect)
+            .with_anchor(self.anchor)
+            .with_class_name("title");
         text.display(f)?;
         writeln!(f, "{}", self.text)?;
         text.display_done(f)

@@ -68,9 +68,8 @@ impl sealed::Axis for Horizontal {
         rect.intersect_horiz(&area);
         if let Some(name) = &self.name {
             let r = rect.split(self.edge, self.space() / 2);
-            let text = Text::new(self.edge, Anchor::Middle)
-                .rect(r)
-                .class_name("axis");
+            let text =
+                Text::new(self.edge).with_rect(r).with_class_name("axis");
             text.display(f)?;
             writeln!(f, "{}", name)?;
             text.display_done(f)?;
@@ -151,7 +150,7 @@ impl Horizontal {
         f: &mut fmt::Formatter,
         rect: Rect,
     ) -> fmt::Result {
-        let text = Text::new(Edge::Top, Anchor::Middle).class_name("tick");
+        let text = Text::new(Edge::Top).with_class_name("tick");
         text.display(f)?;
         for tick in &self.ticks {
             tick.tspan(self.edge, rect).display(f)?;
@@ -174,9 +173,8 @@ impl sealed::Axis for Vertical {
         rect.intersect_vert(&area);
         if let Some(name) = &self.name {
             let r = rect.split(self.edge, self.space() / 2);
-            let text = Text::new(self.edge, Anchor::Middle)
-                .rect(r)
-                .class_name("axis");
+            let text =
+                Text::new(self.edge).with_rect(r).with_class_name("axis");
             text.display(f)?;
             writeln!(f, "{}", name)?;
             text.display_done(f)?;
@@ -262,7 +260,9 @@ impl Vertical {
             Edge::Right => Anchor::Start,
             _ => unreachable!(),
         };
-        let text = Text::new(Edge::Top, anchor).class_name("tick");
+        let text = Text::new(Edge::Top)
+            .with_anchor(anchor)
+            .with_class_name("tick");
         text.display(f)?;
         for tick in &self.ticks {
             tick.tspan(self.edge, rect).display(f)?;
