@@ -140,7 +140,9 @@ impl Horizontal {
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
-            write!(f, " M{} {}v{}", x, y, height)?;
+            let y0 = y.min(y + height);
+            let h = y.max(y + height) - y0;
+            write!(f, "M{} {}v{}", x, y0, h)?;
         }
         writeln!(f, "'/>")
     }
@@ -245,7 +247,9 @@ impl Vertical {
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
-            write!(f, " M{} {}h{}", x, y, width)?;
+            let x0 = x.min(x + width);
+            let w = x.max(x + width) - x0;
+            write!(f, " M{} {}h{}", x0, y, w)?;
         }
         writeln!(f, "'/>")
     }
