@@ -28,6 +28,9 @@ pub struct Title {
 }
 
 /// Chart for plotting data
+///
+/// Multiple `Plot`s can be rendered in a single Chart, even with unrelated
+/// domains and axes.
 pub struct Chart<'a> {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,

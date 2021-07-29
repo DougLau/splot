@@ -1,10 +1,6 @@
 //! # splot
 //!
-//! Plot data in Rust
-//!
-//! A `Page` containing one or more `Chart`s can be rendered as HTML using the
-//! `Display` trait.  That is, using `println!`, or even `to_string()` is all
-//! that's needed.
+//! Plot data to HTML
 //!
 //! ## Example Line Plot
 //!

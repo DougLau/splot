@@ -1,6 +1,6 @@
 # splot
 
-Plot data in Rust
+Plot data to HTML
 
 [Documentation](https://docs.rs/splot)
 

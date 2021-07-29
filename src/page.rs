@@ -34,7 +34,11 @@ pub struct Rect {
     pub height: u16,
 }
 
-/// Page of one or more charts
+/// Page to render charts
+///
+/// A `Page` containing one or more `Chart`s can be rendered as HTML using the
+/// `Display` trait.  That is, using `println!`, or even `to_string()` is all
+/// that's needed.
 #[derive(Default)]
 pub struct Page<'a> {
     charts: Vec<Chart<'a>>,
