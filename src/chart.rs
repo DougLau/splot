@@ -201,9 +201,7 @@ impl<'a> Chart<'a> {
         }
         writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
         for (plot, num) in self.plots.iter().zip((0..10).cycle()) {
-            writeln!(f, "<g class='plot-{}'>", num)?;
-            plot.display(f, area)?;
-            writeln!(f, "</g>")?;
+            plot.display(f, num, area)?;
         }
         writeln!(f, "</g>")?;
         writeln!(f, "</svg>")
@@ -226,9 +224,8 @@ impl<'a> Chart<'a> {
         for (i, plot) in self.plots.iter().enumerate() {
             writeln!(f, "<div>")?;
             writeln!(f, "<svg width='20' height='10' viewBox='0 0 60 30'>")?;
-            write!(f, "<g class='plot-{}'>", i)?;
-            write!(f, "<path class='legend-line' d='M0 15h30h30'/>")?;
-            writeln!(f, "</g>")?;
+            write!(f, "<path class='plot-{} legend-line'", i)?;
+            writeln!(f, " d='M0 15h30h30'/>")?;
             writeln!(f, "</svg>")?;
             writeln!(f, "{}", plot.name())?;
             writeln!(f, "</div>")?;

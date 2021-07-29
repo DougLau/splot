@@ -99,11 +99,11 @@
 marker > * {
   fill: var(--color);
 }
-.plot-0 > * {
+.plot-0 {
   --color: #4E79A7;
   --marker: url(#marker-0);
 }
-.plot-1 > * {
+.plot-1 {
   --color: #F28E2C;
   --marker: url(#marker-1);
 }

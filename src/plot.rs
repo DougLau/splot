@@ -17,7 +17,12 @@ mod sealed {
 
     pub trait Plot {
         fn name(&self) -> &str;
-        fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result;
+        fn display(
+            &self,
+            f: &mut fmt::Formatter,
+            num: usize,
+            rect: Rect,
+        ) -> fmt::Result;
     }
 }
 
@@ -71,8 +76,13 @@ where
     fn name(&self) -> &str {
         self.name
     }
-    fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
-        write!(f, "<path class='plot-area' d='")?;
+    fn display(
+        &self,
+        f: &mut fmt::Formatter,
+        num: usize,
+        rect: Rect,
+    ) -> fmt::Result {
+        write!(f, "<path class='plot-{} plot-area' d='", num)?;
         if let Some(pt) = self.data.first() {
             let x = self.domain.x_map(pt.x(), rect);
             let y = self.domain.y_map(0.0, rect);
@@ -115,8 +125,13 @@ where
     fn name(&self) -> &str {
         self.name
     }
-    fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
-        write!(f, "<path class='plot-line' d='")?;
+    fn display(
+        &self,
+        f: &mut fmt::Formatter,
+        num: usize,
+        rect: Rect,
+    ) -> fmt::Result {
+        write!(f, "<path class='plot-{} plot-line' d='", num)?;
         for (i, pt) in self.data.iter().enumerate() {
             let x = self.domain.x_map(pt.x(), rect);
             let y = self.domain.y_map(pt.y(), rect);
@@ -153,8 +168,13 @@ where
     fn name(&self) -> &str {
         self.name
     }
-    fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
-        write!(f, "<path class='plot-scatter' d='")?;
+    fn display(
+        &self,
+        f: &mut fmt::Formatter,
+        num: usize,
+        rect: Rect,
+    ) -> fmt::Result {
+        write!(f, "<path class='plot-{} plot-scatter' d='", num)?;
         for (i, pt) in self.data.iter().enumerate() {
             let x = self.domain.x_map(pt.x(), rect);
             let y = self.domain.y_map(pt.y(), rect);
