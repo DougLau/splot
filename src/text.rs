@@ -288,6 +288,6 @@ impl Tick {
     pub fn tspan(&self, edge: Edge, rect: Rect) -> Tspan {
         let x = self.x(edge, rect, Tick::HLEN);
         let y = self.y(edge, rect, Tick::VLEN);
-        Tspan::new(&self.text()).x(x).y(y).dy(0.33)
+        Tspan::new(self.text()).x(x).y(y).dy(0.33)
     }
 }

@@ -79,11 +79,7 @@ impl sealed::Axis for Horizontal {
         self.display_tick_labels(f, rect)
     }
 
-    fn display_grid(
-        &self,
-        f: &mut fmt::Formatter,
-        area: Rect,
-    ) -> fmt::Result {
+    fn display_grid(&self, f: &mut fmt::Formatter, area: Rect) -> fmt::Result {
         write!(f, "<path class='grid-x' d='")?;
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, area, 0);
@@ -189,11 +185,7 @@ impl sealed::Axis for Vertical {
         self.display_tick_labels(f, rect)
     }
 
-    fn display_grid(
-        &self,
-        f: &mut fmt::Formatter,
-        area: Rect,
-    ) -> fmt::Result {
+    fn display_grid(&self, f: &mut fmt::Formatter, area: Rect) -> fmt::Result {
         write!(f, "<path class='grid-y' d='")?;
         for tick in self.ticks.iter() {
             let y = tick.y(self.edge, area, 0);
