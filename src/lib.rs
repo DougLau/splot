@@ -2,6 +2,12 @@
 //!
 //! Plot data to HTML
 //!
+//! Project goals:
+//!
+//! - Simple but powerful API
+//! - Styling using CSS
+//! - Usable in WebAssembly
+//!
 //! ## Example Line Plot
 //!
 //! ```rust
