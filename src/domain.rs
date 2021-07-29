@@ -3,6 +3,7 @@
 // Copyright (c) 2021  Douglas P Lau
 //
 use crate::axis::{Horizontal, Vertical};
+use crate::page::Rect;
 use crate::point::Point;
 use crate::scale::Scale;
 
@@ -76,13 +77,27 @@ where
     }
 
     /// Normalize an `X` value
-    pub(crate) fn x_norm(&self, x: f32) -> f32 {
+    fn x_norm(&self, x: f32) -> f32 {
         self.x_scale.normalize(x)
     }
 
     /// Normalize a `Y` value
-    pub(crate) fn y_norm(&self, y: f32) -> f32 {
+    fn y_norm(&self, y: f32) -> f32 {
         self.y_scale.inverted().normalize(y)
+    }
+
+    /// Map an `X` value to a rectangle
+    pub(crate) fn x_map(&self, x: f32, rect: Rect) -> f32 {
+        let rx = rect.x as f32;
+        let rw = f32::from(rect.width);
+        rx + rw * self.x_norm(x)
+    }
+
+    /// Map a `Y` value to a rectangle
+    pub(crate) fn y_map(&self, y: f32, rect: Rect) -> f32 {
+        let ry = rect.y as f32;
+        let rh = f32::from(rect.height);
+        ry + rh * self.y_norm(y)
     }
 }
 

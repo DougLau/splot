@@ -73,23 +73,19 @@ where
     }
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
         write!(f, "<path class='plot-area' d='")?;
-        let rx = rect.x as f32;
-        let ry = rect.y as f32;
-        let rw = f32::from(rect.width);
-        let rh = f32::from(rect.height);
         if let Some(pt) = self.data.first() {
-            let x = rx + rw * self.domain.x_norm(pt.x());
-            let y = ry + rh * self.domain.y_norm(0.0);
+            let x = self.domain.x_map(pt.x(), rect);
+            let y = self.domain.y_map(0.0, rect);
             write!(f, "M{} {}", x, y)?;
         }
         for pt in self.data.iter() {
-            let x = rx + rw * self.domain.x_norm(pt.x());
-            let y = ry + rh * self.domain.y_norm(pt.y());
+            let x = self.domain.x_map(pt.x(), rect);
+            let y = self.domain.y_map(pt.y(), rect);
             write!(f, " {} {}", x, y)?;
         }
         if let Some(pt) = self.data.last() {
-            let x = rx + rw * self.domain.x_norm(pt.x());
-            let y = ry + rh * self.domain.y_norm(0.0);
+            let x = self.domain.x_map(pt.x(), rect);
+            let y = self.domain.y_map(0.0, rect);
             write!(f, " {} {}", x, y)?;
         }
         writeln!(f, "' />")
@@ -121,13 +117,9 @@ where
     }
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
         write!(f, "<path class='plot-line' d='")?;
-        let rx = rect.x as f32;
-        let ry = rect.y as f32;
-        let rw = f32::from(rect.width);
-        let rh = f32::from(rect.height);
         for (i, pt) in self.data.iter().enumerate() {
-            let x = rx + rw * self.domain.x_norm(pt.x());
-            let y = ry + rh * self.domain.y_norm(pt.y());
+            let x = self.domain.x_map(pt.x(), rect);
+            let y = self.domain.y_map(pt.y(), rect);
             if i == 0 {
                 write!(f, "M{} {}", x, y)?;
             } else {
@@ -163,13 +155,9 @@ where
     }
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
         write!(f, "<path class='plot-scatter' d='")?;
-        let rx = rect.x as f32;
-        let ry = rect.y as f32;
-        let rw = f32::from(rect.width);
-        let rh = f32::from(rect.height);
         for (i, pt) in self.data.iter().enumerate() {
-            let x = rx + rw * self.domain.x_norm(pt.x());
-            let y = ry + rh * self.domain.y_norm(pt.y());
+            let x = self.domain.x_map(pt.x(), rect);
+            let y = self.domain.y_map(pt.y(), rect);
             if i == 0 {
                 write!(f, "M{} {}", x, y)?;
             } else {
