@@ -87,17 +87,19 @@ where
     }
 
     /// Map an `X` value to a rectangle
-    pub(crate) fn x_map(&self, x: f32, rect: Rect) -> f32 {
+    pub(crate) fn x_map(&self, x: f32, rect: Rect) -> i32 {
         let rx = rect.x as f32;
         let rw = f32::from(rect.width);
-        rx + rw * self.x_norm(x)
+        let mx = rx + rw * self.x_norm(x);
+        mx.round() as i32
     }
 
     /// Map a `Y` value to a rectangle
-    pub(crate) fn y_map(&self, y: f32, rect: Rect) -> f32 {
+    pub(crate) fn y_map(&self, y: f32, rect: Rect) -> i32 {
         let ry = rect.y as f32;
         let rh = f32::from(rect.height);
-        ry + rh * self.y_norm(y)
+        let my = ry + rh * self.y_norm(y);
+        my.round() as i32
     }
 }
 

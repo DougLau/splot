@@ -135,12 +135,10 @@ where
         for (i, pt) in self.data.iter().enumerate() {
             let x = self.domain.x_map(pt.x(), rect);
             let y = self.domain.y_map(pt.y(), rect);
-            // Stripping trailing zeros, since rectangle size
-            // should provide enough precision
             if i == 0 {
-                write!(f, "M{:.0} {:.0}", x, y)?;
+                write!(f, "M{} {}", x, y)?;
             } else {
-                write!(f, " {:.0} {:.0}", x, y)?;
+                write!(f, " {} {}", x, y)?;
             }
         }
         writeln!(f, "'/>")
