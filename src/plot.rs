@@ -49,7 +49,6 @@ where
     name: &'a str,
     domain: &'a Domain<Numeric, Numeric>,
     data: &'a [P],
-    label: Option<Label>,
 }
 
 /// Line plot
@@ -132,12 +131,7 @@ where
         domain: &'a Domain<Numeric, Numeric>,
         data: &'a [P],
     ) -> Self {
-        Area {
-            name,
-            domain,
-            data,
-            label: None,
-        }
+        Area { name, domain, data }
     }
 }
 

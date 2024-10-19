@@ -8,6 +8,7 @@ use std::fmt;
 
 /// Text label point
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[allow(dead_code)]
 pub enum LabelPoint {
     /// Minimum point (start of bar/column)
     Minimum,
@@ -19,6 +20,7 @@ pub enum LabelPoint {
 
 /// Vertical offset relative to point
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[allow(dead_code)]
 pub enum VerticalOffset {
     /// Label below point
     Below,
@@ -90,6 +92,7 @@ impl Default for Label {
     }
 }
 
+#[allow(dead_code)]
 impl Label {
     pub fn new() -> Self {
         Self::default()
@@ -173,6 +176,7 @@ impl<'a> Text<'a> {
         self
     }
 
+    #[allow(dead_code)]
     pub fn dy(mut self, dy: f32) -> Self {
         self.dy = Some(dy);
         self
