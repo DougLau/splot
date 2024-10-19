@@ -176,7 +176,7 @@ where
         rect: Rect,
     ) -> fmt::Result {
         if let Some(label) = &self.label {
-            let text = Text::new(Edge::Top).with_class_name("plot-label");
+            let text = Text::new(Edge::Top).class_name("plot-label");
             text.display(f)?;
             for pt in self.data.iter() {
                 let x = self.domain.x_map(pt.x(), rect);
@@ -249,7 +249,7 @@ where
         rect: Rect,
     ) -> fmt::Result {
         if let Some(label) = &self.label {
-            let text = Text::new(Edge::Top).with_class_name("plot-label");
+            let text = Text::new(Edge::Top).class_name("plot-label");
             text.display(f)?;
             for pt in self.data.iter() {
                 let x = self.domain.x_map(pt.x(), rect);

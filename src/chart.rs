@@ -1,6 +1,6 @@
 // chart.rs
 //
-// Copyright (c) 2021  Douglas P Lau
+// Copyright (c) 2021-2024  Douglas P Lau
 //
 use crate::axis::Axis;
 use crate::page::{AspectRatio, Edge, Rect};
@@ -92,9 +92,9 @@ impl Title {
 
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
         let text = Text::new(self.edge)
-            .with_rect(rect)
-            .with_anchor(self.anchor)
-            .with_class_name("title");
+            .rect(rect)
+            .anchor(self.anchor)
+            .class_name("title");
         text.display(f)?;
         writeln!(f, "{}", self.text)?;
         text.display_done(f)
@@ -114,13 +114,13 @@ impl<'a> Default for Chart<'a> {
 
 impl<'a> Chart<'a> {
     /// Adjust the aspect ratio
-    pub fn with_aspect_ratio(mut self, aspect: AspectRatio) -> Self {
+    pub fn aspect_ratio(mut self, aspect: AspectRatio) -> Self {
         self.aspect_ratio = aspect;
         self
     }
 
     /// Add a chart title
-    pub fn with_title<T>(mut self, title: T) -> Self
+    pub fn title<T>(mut self, title: T) -> Self
     where
         T: Into<Title>,
     {
@@ -129,13 +129,13 @@ impl<'a> Chart<'a> {
     }
 
     /// Add an `Axis`
-    pub fn with_axis<A: Axis + 'a>(mut self, axis: A) -> Self {
+    pub fn axis<A: Axis + 'a>(mut self, axis: A) -> Self {
         self.axes.push(Box::new(axis));
         self
     }
 
     /// Add a `Plot`
-    pub fn with_plot(mut self, plot: &'a dyn Plot) -> Self {
+    pub fn plot(mut self, plot: &'a dyn Plot) -> Self {
         self.plots.push(plot);
         self
     }
@@ -225,7 +225,7 @@ impl<'a> Chart<'a> {
         for (i, plot) in self.plots.iter().enumerate() {
             writeln!(f, "<div>")?;
             writeln!(f, "<svg width='20' height='10' viewBox='0 0 60 30'>")?;
-            write!(f, "<path class='plot-{} legend-line'", i)?;
+            write!(f, "<path class='plot-{i} legend-line'")?;
             writeln!(f, " d='M0 15h30h30'/>")?;
             writeln!(f, "</svg>")?;
             writeln!(f, "{}", plot.name())?;

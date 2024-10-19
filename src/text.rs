@@ -168,7 +168,7 @@ impl<'a> Text<'a> {
         }
     }
 
-    pub fn with_anchor(mut self, anchor: Anchor) -> Self {
+    pub fn anchor(mut self, anchor: Anchor) -> Self {
         self.anchor = anchor;
         self
     }
@@ -178,12 +178,12 @@ impl<'a> Text<'a> {
         self
     }
 
-    pub fn with_rect(mut self, rect: Rect) -> Self {
+    pub fn rect(mut self, rect: Rect) -> Self {
         self.rect = Some(rect);
         self
     }
 
-    pub fn with_class_name(mut self, class_name: &'a str) -> Self {
+    pub fn class_name(mut self, class_name: &'a str) -> Self {
         self.class_name = Some(class_name);
         self
     }

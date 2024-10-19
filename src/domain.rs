@@ -1,6 +1,6 @@
 // domain.rs
 //
-// Copyright (c) 2021  Douglas P Lau
+// Copyright (c) 2021-2024  Douglas P Lau
 //
 use crate::axis::{Horizontal, Vertical};
 use crate::page::Rect;
@@ -39,7 +39,7 @@ where
     }
 
     /// Adjust domain to include a set of points
-    pub fn with_data<P>(mut self, data: &[P]) -> Self
+    pub fn including<P>(mut self, data: &[P]) -> Self
     where
         P: Point,
     {
@@ -49,7 +49,7 @@ where
     }
 
     /// Set `X` domain to a set of points
-    pub fn with_x<P>(mut self, data: &[P]) -> Self
+    pub fn set_x<P>(mut self, data: &[P]) -> Self
     where
         P: Point,
     {
@@ -58,7 +58,7 @@ where
     }
 
     /// Set `Y` domain to a set of points
-    pub fn with_y<P>(mut self, data: &[P]) -> Self
+    pub fn set_y<P>(mut self, data: &[P]) -> Self
     where
         P: Point,
     {
