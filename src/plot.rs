@@ -94,21 +94,21 @@ where
         num: usize,
         rect: Rect,
     ) -> fmt::Result {
-        write!(f, "<path class='plot-{} plot-area' d='", num)?;
+        write!(f, "<path class='plot-{num} plot-area' d='")?;
         if let Some(pt) = self.data.first() {
             let x = self.domain.x_map(pt.x(), rect);
             let y = self.domain.y_map(0.0, rect);
-            write!(f, "M{} {}", x, y)?;
+            write!(f, "M{x} {y}")?;
         }
         for pt in self.data.iter() {
             let x = self.domain.x_map(pt.x(), rect);
             let y = self.domain.y_map(pt.y(), rect);
-            write!(f, " {} {}", x, y)?;
+            write!(f, " {x} {y}")?;
         }
         if let Some(pt) = self.data.last() {
             let x = self.domain.x_map(pt.x(), rect);
             let y = self.domain.y_map(0.0, rect);
-            write!(f, " {} {}", x, y)?;
+            write!(f, " {x} {y}")?;
         }
         writeln!(f, "' />")
     }
@@ -157,14 +157,14 @@ where
         num: usize,
         rect: Rect,
     ) -> fmt::Result {
-        write!(f, "<path class='plot-{} plot-line' d='", num)?;
+        write!(f, "<path class='plot-{num} plot-line' d='")?;
         for (i, pt) in self.data.iter().enumerate() {
             let x = self.domain.x_map(pt.x(), rect);
             let y = self.domain.y_map(pt.y(), rect);
             if i == 0 {
-                write!(f, "M{} {}", x, y)?;
+                write!(f, "M{x} {y}")?;
             } else {
-                write!(f, " {} {}", x, y)?;
+                write!(f, " {x} {y}")?;
             }
         }
         writeln!(f, "'/>")
@@ -230,14 +230,14 @@ where
         num: usize,
         rect: Rect,
     ) -> fmt::Result {
-        write!(f, "<path class='plot-{} plot-scatter' d='", num)?;
+        write!(f, "<path class='plot-{num} plot-scatter' d='")?;
         for (i, pt) in self.data.iter().enumerate() {
             let x = self.domain.x_map(pt.x(), rect);
             let y = self.domain.y_map(pt.y(), rect);
             if i == 0 {
-                write!(f, "M{} {}", x, y)?;
+                write!(f, "M{x} {y}")?;
             } else {
-                write!(f, " {} {}", x, y)?;
+                write!(f, " {x} {y}")?;
             }
         }
         writeln!(f, "' />")

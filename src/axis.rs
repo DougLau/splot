@@ -70,7 +70,7 @@ impl sealed::Axis for Horizontal {
             let r = rect.split(self.edge, self.space() / 2);
             let text = Text::new(self.edge).rect(r).class_name("axis");
             text.display(f)?;
-            writeln!(f, "{}", name)?;
+            writeln!(f, "{name}")?;
             text.display_done(f)?;
         }
         self.display_tick_lines(f, rect)?;
@@ -81,7 +81,7 @@ impl sealed::Axis for Horizontal {
         write!(f, "<path class='grid-x' d='")?;
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, area, 0);
-            write!(f, "M{} {}v{}", x, area.y, area.height)?;
+            write!(f, "M{x} {}v{}", area.y, area.height)?;
         }
         writeln!(f, "'/>")
     }
@@ -135,13 +135,13 @@ impl Horizontal {
             Edge::Bottom => (rect.y, -Tick::LEN),
             _ => unreachable!(),
         };
-        write!(f, "<path class='axis-line' d='M{} {}h{}", x, y, rect.width)?;
+        write!(f, "<path class='axis-line' d='M{x} {y}h{}", rect.width)?;
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
             let y0 = y.min(y + height);
             let h = y.max(y + height) - y0;
-            write!(f, "M{} {}v{}", x, y0, h)?;
+            write!(f, "M{x} {y0}v{h}")?;
         }
         writeln!(f, "'/>")
     }
@@ -176,7 +176,7 @@ impl sealed::Axis for Vertical {
             let r = rect.split(self.edge, self.space() / 2);
             let text = Text::new(self.edge).rect(r).class_name("axis");
             text.display(f)?;
-            writeln!(f, "{}", name)?;
+            writeln!(f, "{name}")?;
             text.display_done(f)?;
         }
         self.display_tick_lines(f, rect)?;
@@ -187,7 +187,7 @@ impl sealed::Axis for Vertical {
         write!(f, "<path class='grid-y' d='")?;
         for tick in self.ticks.iter() {
             let y = tick.y(self.edge, area, 0);
-            write!(f, "M{} {}h{}", area.x, y, area.width)?;
+            write!(f, "M{} {y}h{}", area.x, area.width)?;
         }
         writeln!(f, "'/>")
     }
@@ -241,13 +241,13 @@ impl Vertical {
             _ => unreachable!(),
         };
         write!(f, "<path class='axis-line'")?;
-        write!(f, " d='M{} {}v{}", x, rect.y, rect.height)?;
+        write!(f, " d='M{x} {}v{}", rect.y, rect.height)?;
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
             let x0 = x.min(x + width);
             let w = x.max(x + width) - x0;
-            write!(f, " M{} {}h{}", x0, y, w)?;
+            write!(f, " M{x0} {y}h{w}")?;
         }
         writeln!(f, "'/>")
     }

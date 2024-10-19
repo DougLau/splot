@@ -23,7 +23,7 @@
 //!         .axis(domain.y_axis().with_name("Y Axis Name").on_right())
 //!         .plot(&plot),
 //! );
-//! println!("{}", page);
+//! println!("{page}");
 //! ```
 #![forbid(unsafe_code)]
 

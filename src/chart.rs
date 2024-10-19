@@ -168,8 +168,8 @@ impl<'a> Chart<'a> {
     fn defs(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "<defs>")?;
         for i in 0..self.plots.len() {
-            write!(f, "<marker id='marker-{}'", i)?;
-            write!(f, " class='plot-{}'", i)?;
+            write!(f, "<marker id='marker-{i}'")?;
+            write!(f, " class='plot-{i}'")?;
             write!(f, " viewBox='-1 -1 2 2'")?;
             writeln!(f, " markerWidth='5' markerHeight='5'>")?;
             writeln!(f, "{}", MARKERS[i % MARKERS.len()])?;

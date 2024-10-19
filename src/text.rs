@@ -197,7 +197,7 @@ impl<'a> Text<'a> {
             self.transform(f, rect)?;
         }
         if let Some(dy) = self.dy {
-            write!(f, " dy='{}em'", dy)?;
+            write!(f, " dy='{dy}em'")?;
         }
         writeln!(f, "{}>", self.anchor)
     }
@@ -223,7 +223,7 @@ impl<'a> Text<'a> {
             }
             _ => rect.y + i32::from(rect.height) / 2,
         };
-        write!(f, " transform='translate({} {})", x, y)?;
+        write!(f, " transform='translate({x} {y})")?;
         match self.edge {
             Edge::Left => write!(f, " rotate(-90)")?,
             Edge::Right => write!(f, " rotate(90)")?,
@@ -261,13 +261,13 @@ impl<'a> Tspan<'a> {
     pub fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "<tspan")?;
         if let Some(x) = self.x {
-            write!(f, " x='{}'", x)?;
+            write!(f, " x='{x}'")?;
         }
         if let Some(y) = self.y {
-            write!(f, " y='{}'", y)?;
+            write!(f, " y='{y}'")?;
         }
         if let Some(dy) = self.dy {
-            write!(f, " dy='{}em'", dy)?;
+            write!(f, " dy='{dy}em'")?;
         }
         write!(f, ">{}", &self.text)?;
         writeln!(f, "</tspan>")
