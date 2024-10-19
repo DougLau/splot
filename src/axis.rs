@@ -41,7 +41,7 @@ pub trait Axis: sealed::Axis {}
 pub struct Horizontal {
     edge: Edge,
     ticks: Vec<Tick>,
-    name: Option<String>,
+    name: String,
     label: Label,
 }
 
@@ -50,7 +50,7 @@ pub struct Horizontal {
 pub struct Vertical {
     edge: Edge,
     ticks: Vec<Tick>,
-    name: Option<String>,
+    name: String,
     label: Label,
 }
 
@@ -66,11 +66,11 @@ impl sealed::Axis for Horizontal {
         area: Rect,
     ) -> fmt::Result {
         rect.intersect_horiz(&area);
-        if let Some(name) = &self.name {
+        if !self.name.is_empty() {
             let r = rect.split(self.edge, self.space() / 2);
             let text = Text::new(self.edge).rect(r).class_name("axis");
             text.display(f)?;
-            writeln!(f, "{name}")?;
+            writeln!(f, "{}", &self.name)?;
             text.display_done(f)?;
         }
         self.display_tick_lines(f, rect)?;
@@ -91,22 +91,16 @@ impl Axis for Horizontal {}
 
 impl Horizontal {
     /// Create a new horizontal axis
-    pub(crate) fn new(ticks: Vec<Tick>) -> Self {
-        Self {
-            edge: Edge::Bottom,
-            ticks,
-            name: None,
-            label: Label::new(),
-        }
-    }
-
-    /// Set the name of the axis
-    pub fn with_name<N>(mut self, name: N) -> Self
+    pub(crate) fn new<N>(name: N, ticks: Vec<Tick>) -> Self
     where
         N: Into<String>,
     {
-        self.name = Some(name.into());
-        self
+        Self {
+            edge: Edge::Bottom,
+            ticks,
+            name: name.into(),
+            label: Label::new(),
+        }
     }
 
     /// Attach to the top of a `Chart`
@@ -118,9 +112,10 @@ impl Horizontal {
     }
 
     fn space(&self) -> u16 {
-        match self.name {
-            Some(_) => 160,
-            None => 80,
+        if self.name.is_empty() {
+            80
+        } else {
+            160
         }
     }
 
@@ -172,11 +167,11 @@ impl sealed::Axis for Vertical {
         area: Rect,
     ) -> fmt::Result {
         rect.intersect_vert(&area);
-        if let Some(name) = &self.name {
+        if !&self.name.is_empty() {
             let r = rect.split(self.edge, self.space() / 2);
             let text = Text::new(self.edge).rect(r).class_name("axis");
             text.display(f)?;
-            writeln!(f, "{name}")?;
+            writeln!(f, "{}", &self.name)?;
             text.display_done(f)?;
         }
         self.display_tick_lines(f, rect)?;
@@ -197,22 +192,16 @@ impl Axis for Vertical {}
 
 impl Vertical {
     /// Create a new vertical axis
-    pub(crate) fn new(ticks: Vec<Tick>) -> Self {
-        Self {
-            edge: Edge::Left,
-            ticks,
-            name: None,
-            label: Label::new(),
-        }
-    }
-
-    /// Set the name of the axis
-    pub fn with_name<N>(mut self, name: N) -> Self
+    pub(crate) fn new<N>(name: N, ticks: Vec<Tick>) -> Self
     where
         N: Into<String>,
     {
-        self.name = Some(name.into());
-        self
+        Self {
+            edge: Edge::Left,
+            ticks,
+            name: name.into(),
+            label: Label::new(),
+        }
     }
 
     /// Attach to the right side of a `Chart`
@@ -224,9 +213,10 @@ impl Vertical {
     }
 
     fn space(&self) -> u16 {
-        match self.name {
-            Some(_) => 160,
-            None => 80,
+        if self.name.is_empty() {
+            80
+        } else {
+            160
         }
     }
 

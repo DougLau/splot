@@ -67,13 +67,19 @@ where
     }
 
     /// Get horizontal `X` axis
-    pub fn x_axis(&self) -> Horizontal {
-        Horizontal::new(self.x_scale.ticks())
+    pub fn x_axis<N>(&self, name: N) -> Horizontal
+    where
+        N: Into<String>,
+    {
+        Horizontal::new(name, self.x_scale.ticks())
     }
 
     /// Get vertical `Y` axis
-    pub fn y_axis(&self) -> Vertical {
-        Vertical::new(self.y_scale.inverted().ticks())
+    pub fn y_axis<N>(&self, name: N) -> Vertical
+    where
+        N: Into<String>,
+    {
+        Vertical::new(name, self.y_scale.inverted().ticks())
     }
 
     /// Normalize an `X` value
@@ -114,6 +120,6 @@ mod tests {
         let data = [(45.0, 150.0), (90.0, 200.0)];
         let domain = Domain::<Numeric, Numeric>::from_data(&data);
         let ticks = Numeric::new(45.0, 90.0).ticks();
-        assert_eq!(domain.x_axis(), Horizontal::new(ticks));
+        assert_eq!(domain.x_axis(""), Horizontal::new("", ticks));
     }
 }

@@ -9,9 +9,9 @@ fn main() {
     let page = Page::default().chart(
         Chart::default()
             .title("Line Plot")
-            .axis(domain.x_axis().with_name("X Axis Name"))
-            .axis(domain.y_axis().with_name("Y Axis Name"))
-            .axis(domain.y_axis().on_right())
+            .axis(domain.x_axis("X Axis Name"))
+            .axis(domain.y_axis("Y Axis Name"))
+            .axis(domain.y_axis("").on_right())
             .plot(&plot_a)
             .plot(&plot_b),
     );
