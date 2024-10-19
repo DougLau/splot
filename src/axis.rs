@@ -9,6 +9,15 @@ use crate::text::{Anchor, Label, Text, Tick};
 use std::fmt;
 
 /// Axis for drawing labels on a `Chart`
+///
+/// Created from a `Domain`:
+/// ```rust
+/// use splot::{Domain, Numeric};
+///
+/// let data = vec![(0, 0), (10, 20)];
+/// let domain = Domain::<Numeric, Numeric>::from_data(&data);
+/// let x_axis = domain.bottom("X Axis");
+/// ```
 #[derive(Debug, PartialEq)]
 pub struct Axis {
     edge: Edge,

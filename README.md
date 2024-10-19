@@ -19,8 +19,8 @@ let plot = plot::Line::new("Series", &domain, &data);
 let page = Page::default().chart(
     Chart::default()
         .title("Line Plot")
-        .axis(domain.bottom("X Axis Name"))
-        .axis(domain.right("Y Axis Name"))
+        .axis(domain.bottom("X Axis"))
+        .axis(domain.right("Y Axis"))
         .plot(&plot),
 );
 println!("{page}");
