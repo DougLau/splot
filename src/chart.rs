@@ -202,6 +202,7 @@ impl<'a> Chart<'a> {
         writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
         for (plot, num) in self.plots.iter().zip((0..10).cycle()) {
             plot.display(f, num, area)?;
+            plot.display_labels(f, area)?;
         }
         writeln!(f, "</g>")?;
         writeln!(f, "</svg>")

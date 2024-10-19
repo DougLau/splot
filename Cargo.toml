@@ -1,10 +1,10 @@
 [package]
 name = "splot"
 version = "0.1.0"
-edition = "2018"
 license = "MIT OR Apache-2.0"
 description = "Plot data to HTML"
 keywords = ["chart", "graph", "plot", "visualization"]
 categories = ["science", "visualization"]
 repository = "https://github.com/DougLau/splot"
 readme = "README.md"
+edition = "2021"

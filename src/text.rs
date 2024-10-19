@@ -1,8 +1,9 @@
 // text.rs
 //
-// Copyright (c) 2021  Douglas P Lau
+// Copyright (c) 2021-2024  Douglas P Lau
 //
 use crate::page::{Edge, Rect};
+use crate::point::Point;
 use std::fmt;
 
 /// Text label point
@@ -142,6 +143,18 @@ impl Label {
             Some(digits) => format!("{:.1$}", value, digits),
         }
     }
+
+    pub fn display<P: Point>(
+        &self,
+        f: &mut fmt::Formatter,
+        x: i32,
+        y: i32,
+        pt: &P,
+    ) -> fmt::Result {
+        let lbl = format!("({} {})", pt.x(), pt.y());
+        let tspan = Tspan::new(&lbl).x(x).y(y).dy(-0.66);
+        tspan.display(f)
+    }
 }
 
 impl<'a> Text<'a> {
@@ -160,7 +173,7 @@ impl<'a> Text<'a> {
         self
     }
 
-    pub fn with_dy(mut self, dy: f32) -> Self {
+    pub fn dy(mut self, dy: f32) -> Self {
         self.dy = Some(dy);
         self
     }

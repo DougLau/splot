@@ -46,6 +46,10 @@
   fill: var(--fg);
   font-size: 32px;
 }
+.plot-label {
+  fill: var(--fg);
+  font-size: 32px;
+}
 .grid-x {
   stroke: gray;
   stroke-opacity: 50%;
