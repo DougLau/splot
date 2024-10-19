@@ -44,7 +44,8 @@ impl Axis {
         }
     }
 
-    pub(crate) fn display(&self,
+    pub(crate) fn display(
+        &self,
         f: &mut fmt::Formatter,
         rect: Rect,
         area: Rect,
@@ -91,7 +92,8 @@ impl Axis {
         self.display_tick_labels(f, rect)
     }
 
-    pub(crate) fn display_grid(&self,
+    pub(crate) fn display_grid(
+        &self,
         f: &mut fmt::Formatter,
         area: Rect,
     ) -> fmt::Result {
@@ -101,7 +103,11 @@ impl Axis {
         }
     }
 
-    fn display_grid_horizontal(&self, f: &mut fmt::Formatter, area: Rect) -> fmt::Result {
+    fn display_grid_horizontal(
+        &self,
+        f: &mut fmt::Formatter,
+        area: Rect,
+    ) -> fmt::Result {
         write!(f, "<path class='grid-x' d='")?;
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, area, 0);
@@ -110,7 +116,11 @@ impl Axis {
         writeln!(f, "'/>")
     }
 
-    fn display_grid_vertical(&self, f: &mut fmt::Formatter, area: Rect) -> fmt::Result {
+    fn display_grid_vertical(
+        &self,
+        f: &mut fmt::Formatter,
+        area: Rect,
+    ) -> fmt::Result {
         write!(f, "<path class='grid-y' d='")?;
         for tick in self.ticks.iter() {
             let y = tick.y(self.edge, area, 0);
@@ -119,13 +129,18 @@ impl Axis {
         writeln!(f, "'/>")
     }
 
-    fn display_tick_lines(&self,
+    fn display_tick_lines(
+        &self,
         f: &mut fmt::Formatter,
         rect: Rect,
     ) -> fmt::Result {
         match self.edge {
-            Edge::Bottom | Edge::Top => self.display_tick_lines_horizontal(f, rect),
-            Edge::Left | Edge::Right => self.display_tick_lines_vertical(f, rect),
+            Edge::Bottom | Edge::Top => {
+                self.display_tick_lines_horizontal(f, rect)
+            }
+            Edge::Left | Edge::Right => {
+                self.display_tick_lines_vertical(f, rect)
+            }
         }
     }
 
@@ -173,13 +188,18 @@ impl Axis {
         writeln!(f, "'/>")
     }
 
-    fn display_tick_labels(&self,
+    fn display_tick_labels(
+        &self,
         f: &mut fmt::Formatter,
         rect: Rect,
     ) -> fmt::Result {
         match self.edge {
-            Edge::Bottom | Edge::Top => self.display_tick_labels_horizontal(f, rect),
-            Edge::Left | Edge::Right => self.display_tick_labels_vertical(f, rect),
+            Edge::Bottom | Edge::Top => {
+                self.display_tick_labels_horizontal(f, rect)
+            }
+            Edge::Left | Edge::Right => {
+                self.display_tick_labels_vertical(f, rect)
+            }
         }
     }
 

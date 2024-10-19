@@ -1,20 +1,9 @@
 // page.rs
 //
-// Copyright (c) 2021  Douglas P Lau
+// Copyright (c) 2021-2024  Douglas P Lau
 //
 use crate::chart::Chart;
 use std::fmt;
-
-/// Page aspect ratio
-#[derive(Clone, Copy)]
-pub enum AspectRatio {
-    /// Wide rectangular aspect
-    Landscape,
-    /// Square aspect
-    Square,
-    /// Tall rectangular aspect
-    Portrait,
-}
 
 /// Edge of rendered item
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -44,16 +33,6 @@ pub struct Page<'a> {
     charts: Vec<Chart<'a>>,
 }
 
-impl AspectRatio {
-    pub(crate) fn rect(self) -> Rect {
-        match self {
-            AspectRatio::Landscape => Rect::new(0, 0, 2000, 1500),
-            AspectRatio::Square => Rect::new(0, 0, 2000, 2000),
-            AspectRatio::Portrait => Rect::new(0, 0, 1500, 2000),
-        }
-    }
-}
-
 impl Rect {
     pub fn new(x: i32, y: i32, width: u16, height: u16) -> Self {
         Self {
@@ -63,12 +42,15 @@ impl Rect {
             height,
         }
     }
+
     pub fn right(&self) -> i32 {
         self.x + i32::from(self.width)
     }
+
     pub fn bottom(&self) -> i32 {
         self.y + i32::from(self.height)
     }
+
     pub fn inset(mut self, value: u16) -> Self {
         let vi = i32::from(value);
         self.x += vi;
@@ -113,12 +95,14 @@ impl Rect {
             }
         }
     }
+
     pub fn intersect_horiz(&mut self, rhs: &Rect) {
         let x = self.x.max(rhs.x);
         let x2 = self.right().min(rhs.right());
         self.x = x;
         self.width = (x2 - x) as u16;
     }
+
     pub fn intersect_vert(&mut self, rhs: &Rect) {
         let y = self.y.max(rhs.y);
         let y2 = self.bottom().min(rhs.bottom());

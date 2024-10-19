@@ -3,7 +3,7 @@
 // Copyright (c) 2021-2024  Douglas P Lau
 //
 use crate::axis::Axis;
-use crate::page::{AspectRatio, Edge, Rect};
+use crate::page::{Edge, Rect};
 use crate::plot::Plot;
 use crate::text::{Anchor, Text};
 use std::fmt;
@@ -25,6 +25,17 @@ pub struct Title {
     text: String,
     anchor: Anchor,
     edge: Edge,
+}
+
+/// Chart aspect ratio
+#[derive(Clone, Copy)]
+pub enum AspectRatio {
+    /// Wide rectangular aspect
+    Landscape,
+    /// Square aspect
+    Square,
+    /// Tall rectangular aspect
+    Portrait,
 }
 
 /// Chart for plotting data
@@ -98,6 +109,16 @@ impl Title {
         text.display(f)?;
         writeln!(f, "{}", self.text)?;
         text.display_done(f)
+    }
+}
+
+impl AspectRatio {
+    pub(crate) fn rect(self) -> Rect {
+        match self {
+            AspectRatio::Landscape => Rect::new(0, 0, 2000, 1500),
+            AspectRatio::Square => Rect::new(0, 0, 2000, 2000),
+            AspectRatio::Portrait => Rect::new(0, 0, 1500, 2000),
+        }
     }
 }
 
