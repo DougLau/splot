@@ -27,7 +27,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
-pub mod axis;
+mod axis;
 mod chart;
 mod domain;
 mod page;
@@ -36,6 +36,7 @@ mod point;
 pub mod scale;
 mod text;
 
+pub use axis::Axis;
 pub use chart::{Chart, Title};
 pub use domain::Domain;
 pub use page::{AspectRatio, Page};

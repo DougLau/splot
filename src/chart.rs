@@ -34,8 +34,8 @@ pub struct Title {
 pub struct Chart<'a> {
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
-    axes: Vec<Box<dyn Axis + 'a>>,
     plots: Vec<&'a (dyn Plot + 'a)>,
+    axes: Vec<Axis>,
 }
 
 impl<T> From<T> for Title
@@ -129,8 +129,8 @@ impl<'a> Chart<'a> {
     }
 
     /// Add an `Axis`
-    pub fn axis<A: Axis + 'a>(mut self, axis: A) -> Self {
-        self.axes.push(Box::new(axis));
+    pub fn axis(mut self, axis: Axis) -> Self {
+        self.axes.push(axis);
         self
     }
 

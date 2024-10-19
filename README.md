@@ -1,6 +1,6 @@
 # splot
 
-Plot data to HTML
+Plot data to HTML / SVG
 
 [Documentation](https://docs.rs/splot)
 

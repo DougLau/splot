@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2021-2024  Douglas P Lau
 //
-use crate::axis::{Horizontal, Vertical};
-use crate::page::Rect;
+use crate::axis::Axis;
+use crate::page::{Edge, Rect};
 use crate::point::Point;
 use crate::scale::Scale;
 
@@ -13,7 +13,7 @@ use crate::scale::Scale;
 ///
 /// - `X`, abscissa (horizontal)
 /// - `Y`, ordinate (vertical)
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct Domain<X, Y>
 where
     X: Scale + Default,
@@ -67,19 +67,19 @@ where
     }
 
     /// Get horizontal `X` axis
-    pub fn x_axis<N>(&self, name: N) -> Horizontal
+    pub fn x_axis<N>(&self, name: N) -> Axis
     where
         N: Into<String>,
     {
-        Horizontal::new(name, self.x_scale.ticks())
+        Axis::new(name, Edge::Bottom, self.x_scale.ticks())
     }
 
     /// Get vertical `Y` axis
-    pub fn y_axis<N>(&self, name: N) -> Vertical
+    pub fn y_axis<N>(&self, name: N) -> Axis
     where
         N: Into<String>,
     {
-        Vertical::new(name, self.y_scale.inverted().ticks())
+        Axis::new(name, Edge::Left, self.y_scale.inverted().ticks())
     }
 
     /// Normalize an `X` value
@@ -120,6 +120,6 @@ mod tests {
         let data = [(45.0, 150.0), (90.0, 200.0)];
         let domain = Domain::<Numeric, Numeric>::from_data(&data);
         let ticks = Numeric::new(45.0, 90.0).ticks();
-        assert_eq!(domain.x_axis(""), Horizontal::new("", ticks));
+        assert_eq!(domain.x_axis(""), Axis::new("", Edge::Bottom, ticks));
     }
 }
