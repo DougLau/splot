@@ -291,15 +291,15 @@ impl Tick {
     }
     pub fn x(&self, edge: Edge, rect: Rect, len: i32) -> i32 {
         match edge {
-            Edge::Left => (rect.right() - len),
-            Edge::Right => (rect.x + len),
+            Edge::Left => rect.right() - len,
+            Edge::Right => rect.x + len,
             _ => rect.x + (self.value * rect.width as f32).round() as i32,
         }
     }
     pub fn y(&self, edge: Edge, rect: Rect, len: i32) -> i32 {
         match edge {
-            Edge::Top => (rect.bottom() - len),
-            Edge::Bottom => (rect.y + len),
+            Edge::Top => rect.bottom() - len,
+            Edge::Bottom => rect.y + len,
             _ => rect.y + (self.value * rect.height as f32).round() as i32,
         }
     }

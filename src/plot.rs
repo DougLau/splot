@@ -115,8 +115,8 @@ where
 
     fn display_labels(
         &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
+        _f: &mut fmt::Formatter,
+        _rect: Rect,
     ) -> fmt::Result {
         Ok(())
     }
