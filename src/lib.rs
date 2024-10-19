@@ -19,8 +19,8 @@
 //! let page = Page::default().chart(
 //!     Chart::default()
 //!         .title("Line Plot")
-//!         .axis(domain.x_axis("X Axis Name"))
-//!         .axis(domain.y_axis("Y Axis Name").on_right())
+//!         .axis(domain.bottom("X Axis Name"))
+//!         .axis(domain.right("Y Axis Name"))
 //!         .plot(&plot),
 //! );
 //! println!("{page}");

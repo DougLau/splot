@@ -31,22 +31,6 @@ impl Axis {
         }
     }
 
-    /// Attach to the top of a `Chart`
-    ///
-    /// By default, a `Horizontal` axis is attached to the bottom of a `Chart`.
-    pub fn on_top(mut self) -> Self {
-        self.edge = Edge::Top;
-        self
-    }
-
-    /// Attach to the right side of a `Chart`
-    ///
-    /// By default, a vertical axis is attached to the left side of a `Chart`.
-    pub fn on_right(mut self) -> Self {
-        self.edge = Edge::Right;
-        self
-    }
-
     /// Split axis area from rectangle
     pub(crate) fn split(&self, area: &mut Rect) -> Rect {
         area.split(self.edge, self.space())

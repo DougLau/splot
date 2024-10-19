@@ -66,20 +66,36 @@ where
         self
     }
 
-    /// Get horizontal `X` axis
-    pub fn x_axis<N>(&self, name: N) -> Axis
+    /// Get horizontal axis (bottom edge)
+    pub fn bottom<N>(&self, name: N) -> Axis
     where
         N: Into<String>,
     {
         Axis::new(name, Edge::Bottom, self.x_scale.ticks())
     }
 
-    /// Get vertical `Y` axis
-    pub fn y_axis<N>(&self, name: N) -> Axis
+    /// Get horizontal axis (top edge)
+    pub fn top<N>(&self, name: N) -> Axis
+    where
+        N: Into<String>,
+    {
+        Axis::new(name, Edge::Top, self.x_scale.ticks())
+    }
+
+    /// Get vertical axis (left edge)
+    pub fn left<N>(&self, name: N) -> Axis
     where
         N: Into<String>,
     {
         Axis::new(name, Edge::Left, self.y_scale.inverted().ticks())
+    }
+
+    /// Get vertical axis (right edge)
+    pub fn right<N>(&self, name: N) -> Axis
+    where
+        N: Into<String>,
+    {
+        Axis::new(name, Edge::Right, self.y_scale.inverted().ticks())
     }
 
     /// Normalize an `X` value
@@ -120,6 +136,6 @@ mod tests {
         let data = [(45.0, 150.0), (90.0, 200.0)];
         let domain = Domain::<Numeric, Numeric>::from_data(&data);
         let ticks = Numeric::new(45.0, 90.0).ticks();
-        assert_eq!(domain.x_axis(""), Axis::new("", Edge::Bottom, ticks));
+        assert_eq!(domain.bottom(""), Axis::new("", Edge::Bottom, ticks));
     }
 }
