@@ -3,7 +3,7 @@
 // Copyright (c) 2021-2024  Douglas P Lau
 //
 use crate::axis::Axis;
-use crate::page::{Edge, Rect};
+use crate::page::{Edge, Rect, ViewBox};
 use crate::plot::Plot;
 use crate::text::{Anchor, Text};
 use std::fmt;
@@ -169,13 +169,12 @@ impl<'a> Chart<'a> {
     }
 
     fn svg(&self, f: &mut fmt::Formatter, stand_alone: bool) -> fmt::Result {
-        let rect = self.aspect_ratio.rect();
+        let view_box = ViewBox(self.aspect_ratio.rect());
         write!(f, "<svg")?;
         if stand_alone {
             write!(f, " xmlns='http://www.w3.org/2000/svg'")?;
         }
-        write!(f, " viewBox='")?;
-        writeln!(f, "{} {} {} {}'>", rect.x, rect.y, rect.width, rect.height)
+        writeln!(f, " {view_box}>")
     }
 
     fn link(&self, f: &mut fmt::Formatter) -> fmt::Result {

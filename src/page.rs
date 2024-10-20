@@ -15,13 +15,17 @@ pub enum Edge {
 }
 
 /// Rendering rectangle
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Rect {
     pub x: i32,
     pub y: i32,
     pub width: u16,
     pub height: u16,
 }
+
+/// SVG view box
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ViewBox(pub Rect);
 
 /// Page to render charts
 ///
@@ -34,6 +38,7 @@ pub struct Page<'a> {
 }
 
 impl Rect {
+    /// Create a new rectangle
     pub fn new(x: i32, y: i32, width: u16, height: u16) -> Self {
         Self {
             x,
@@ -51,16 +56,18 @@ impl Rect {
         self.y + i32::from(self.height)
     }
 
-    pub fn inset(mut self, value: u16) -> Self {
+    /// Make a new rectangle inset on all edges
+    pub fn inset(&self, value: u16) -> Self {
         let vi = i32::from(value);
-        self.x += vi;
-        self.y += vi;
+        let x = self.x + vi;
+        let y = self.y + vi;
         let v2 = 2 * value;
-        self.width = self.width.saturating_sub(v2);
-        self.height = self.height.saturating_sub(v2);
-        self
+        let width = self.width.saturating_sub(v2);
+        let height = self.height.saturating_sub(v2);
+        Rect::new(x, y, width, height)
     }
 
+    /// Split off rectangle from an edge
     pub fn split(&mut self, edge: Edge, value: u16) -> Self {
         match edge {
             Edge::Top => {
@@ -108,6 +115,16 @@ impl Rect {
         let y2 = self.bottom().min(rhs.bottom());
         self.y = y;
         self.height = (y2 - y) as u16;
+    }
+}
+
+impl fmt::Display for ViewBox {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "viewBox='{} {} {} {}'",
+            self.0.x, self.0.y, self.0.width, self.0.height
+        )
     }
 }
 
