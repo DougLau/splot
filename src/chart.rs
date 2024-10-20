@@ -197,8 +197,7 @@ impl<'a> Chart<'a> {
         }
         let area = self.area();
         writeln!(f, "<clipPath id='clip-chart'>")?;
-        write!(f, "<rect x='{}' y='{}'", area.x, area.y)?;
-        writeln!(f, " width='{}' height='{}'/>", area.width, area.height)?;
+        writeln!(f, "{area}")?;
         writeln!(f, "</clipPath>")?;
         writeln!(f, "</defs>")
     }

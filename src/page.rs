@@ -118,6 +118,16 @@ impl Rect {
     }
 }
 
+impl fmt::Display for Rect {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "<rect x='{}' y='{}' width='{}' height='{}'/>",
+            self.x, self.y, self.width, self.height
+        )
+    }
+}
+
 impl fmt::Display for ViewBox {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
