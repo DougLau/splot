@@ -161,11 +161,24 @@ impl<'a> Chart<'a> {
         self
     }
 
+    /// Get area of plots
+    fn plot_area(&self) -> Rect {
+        let mut area = self.aspect_ratio.rect().inset(40);
+        for title in &self.titles {
+            area.split(title.edge, 100);
+        }
+        for axis in &self.axes {
+            axis.split(&mut area);
+        }
+        area
+    }
+
     /// Display the chart embedded in HTML
     pub(crate) fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.svg(f, false)?;
         self.defs(f)?;
-        self.body(f)
+        self.body(f)?;
+        writeln!(f, "</svg>")
     }
 
     fn svg(&self, f: &mut fmt::Formatter, stand_alone: bool) -> fmt::Result {
@@ -195,9 +208,8 @@ impl<'a> Chart<'a> {
             writeln!(f, "{}", MARKERS[i % MARKERS.len()])?;
             writeln!(f, "</marker>")?;
         }
-        let area = self.area();
         writeln!(f, "<clipPath id='clip-chart'>")?;
-        writeln!(f, "{area}")?;
+        writeln!(f, "{}", self.plot_area())?;
         writeln!(f, "</clipPath>")?;
         writeln!(f, "</defs>")
     }
@@ -223,19 +235,7 @@ impl<'a> Chart<'a> {
             plot.display(f, num, area)?;
             plot.display_labels(f, area)?;
         }
-        writeln!(f, "</g>")?;
-        writeln!(f, "</svg>")
-    }
-
-    fn area(&self) -> Rect {
-        let mut area = self.aspect_ratio.rect().inset(40);
-        for title in &self.titles {
-            area.split(title.edge, 100);
-        }
-        for axis in &self.axes {
-            axis.split(&mut area);
-        }
-        area
+        writeln!(f, "</g>")
     }
 
     /// Render the legend as an HTML fragment
@@ -259,6 +259,7 @@ impl<'a> fmt::Display for Chart<'a> {
         self.svg(f, true)?;
         self.link(f)?;
         self.defs(f)?;
-        self.body(f)
+        self.body(f)?;
+        writeln!(f, "</svg>")
     }
 }

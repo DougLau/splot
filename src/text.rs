@@ -290,9 +290,11 @@ impl Tick {
         let text = text.into();
         Tick { value, text }
     }
+
     pub fn text(&self) -> &str {
         &self.text
     }
+
     pub fn x(&self, edge: Edge, rect: Rect, len: i32) -> i32 {
         match edge {
             Edge::Left => rect.right() - len,
@@ -300,6 +302,7 @@ impl Tick {
             _ => rect.x + (self.value * rect.width as f32).round() as i32,
         }
     }
+
     pub fn y(&self, edge: Edge, rect: Rect, len: i32) -> i32 {
         match edge {
             Edge::Top => rect.bottom() - len,
@@ -307,6 +310,7 @@ impl Tick {
             _ => rect.y + (self.value * rect.height as f32).round() as i32,
         }
     }
+
     pub fn tspan(&self, edge: Edge, rect: Rect) -> Tspan {
         let x = self.x(edge, rect, Tick::HLEN);
         let y = self.y(edge, rect, Tick::VLEN);
