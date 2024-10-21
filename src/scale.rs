@@ -1,32 +1,11 @@
 // scale.rs
 //
-// Copyright (c) 2021  Douglas P Lau
+// Copyright (c) 2021-2024  Douglas P Lau
 //
 //! Scale items
 //!
-use crate::scale::sealed::Scale as _;
+use crate::point::{IntoPoint, Point};
 use crate::text::Tick;
-
-/// Private module for sealed Scale trait
-pub(crate) mod sealed {
-    use crate::text::Tick;
-
-    pub trait Scale {
-        fn from_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
-        where
-            I: IntoIterator<Item = &'a P>,
-            P: 'a;
-        fn union(&self, rhs: Self) -> Self;
-        fn inverted(&self) -> Self;
-        fn normalize(&self, value: f32) -> f32;
-        fn ticks(&self) -> Vec<Tick>;
-    }
-}
-
-/// Scale for a domain dimension
-///
-/// This trait is *sealed* to hide details.
-pub trait Scale: sealed::Scale {}
 
 /// Numeric scale
 #[derive(Clone, Debug)]
@@ -36,10 +15,10 @@ pub struct Numeric {
     tick_spacing: f32,
 }
 
-impl Default for Numeric {
-    fn default() -> Self {
-        Self::new(0.0, 1.0)
-    }
+/// Scale
+#[derive(Clone, Debug)]
+pub enum Scale {
+    Numeric(Numeric),
 }
 
 impl Numeric {
@@ -52,6 +31,20 @@ impl Numeric {
             start,
             stop,
             tick_spacing,
+        }
+    }
+
+    fn union(&self, rhs: Self) -> Self {
+        let min = self.start.min(rhs.start);
+        let max = self.stop.max(rhs.stop);
+        Numeric::new(min, max)
+    }
+
+    fn inverted(&self) -> Self {
+        Numeric {
+            start: self.start,
+            stop: self.stop,
+            tick_spacing: -self.tick_spacing,
         }
     }
 
@@ -73,59 +66,6 @@ impl Numeric {
         }
     }
 
-    fn tick_spacing(&self) -> f32 {
-        self.tick_spacing
-    }
-
-    fn add_tick(&self, val: f32, ticks: &mut Vec<Tick>) {
-        let value = self.normalize(val);
-        let text = format!("{}", val);
-        let tick = Tick::new(value, text);
-        ticks.push(tick);
-    }
-}
-
-impl Scale for Numeric {}
-
-impl sealed::Scale for Numeric {
-    fn from_data<'a, I, P>(data: I, get: fn(&P) -> f32) -> Self
-    where
-        I: IntoIterator<Item = &'a P>,
-        P: 'a,
-    {
-        let mut it = data.into_iter();
-        if let Some(pt) = it.next() {
-            let mut min = get(pt);
-            let mut max = min;
-            for pt in it {
-                let x = get(pt);
-                if x < min {
-                    min = x;
-                }
-                if x > max {
-                    max = x;
-                }
-            }
-            Numeric::new(min, max)
-        } else {
-            Numeric::default()
-        }
-    }
-
-    fn union(&self, rhs: Self) -> Self {
-        let min = self.start.min(rhs.start);
-        let max = self.stop.max(rhs.stop);
-        Numeric::new(min, max)
-    }
-
-    fn inverted(&self) -> Self {
-        Numeric {
-            start: self.start,
-            stop: self.stop,
-            tick_spacing: -self.tick_spacing,
-        }
-    }
-
     fn normalize(&self, value: f32) -> f32 {
         let a = self.start;
         let b = self.stop;
@@ -140,7 +80,18 @@ impl sealed::Scale for Numeric {
         }
     }
 
-    fn ticks(&self) -> Vec<Tick> {
+    fn tick_spacing(&self) -> f32 {
+        self.tick_spacing
+    }
+
+    fn add_tick(&self, val: f32, ticks: &mut Vec<Tick>) {
+        let value = self.normalize(val);
+        let text = format!("{val}");
+        let tick = Tick::new(value, text);
+        ticks.push(tick);
+    }
+
+    pub(crate) fn ticks(&self) -> Vec<Tick> {
         let mut ticks = vec![];
         let spacing = self.tick_spacing();
         if spacing > 0.0 {
@@ -157,6 +108,65 @@ impl sealed::Scale for Numeric {
             }
         };
         ticks
+    }
+}
+
+impl Default for Scale {
+    fn default() -> Self {
+        Scale::Numeric(Numeric::new(0.0, 1.0))
+    }
+}
+
+impl Scale {
+    /// Create a scale from data points
+    pub fn from_data<'a, I, P>(data: I, get: fn(Point) -> f32) -> Self
+    where
+        I: IntoIterator<Item = &'a P>,
+        P: IntoPoint + 'a,
+    {
+        let mut it = data.into_iter();
+        if let Some(pt) = it.next() {
+            let mut min = get((*pt).into());
+            let mut max = min;
+            for pt in it {
+                let x = get((*pt).into());
+                if x < min {
+                    min = x;
+                }
+                if x > max {
+                    max = x;
+                }
+            }
+            Scale::Numeric(Numeric::new(min, max))
+        } else {
+            Scale::Numeric(Numeric::new(0.0, 1.0))
+        }
+    }
+
+    pub fn union(&self, rhs: Self) -> Self {
+        match (self, rhs) {
+            (Scale::Numeric(num), Scale::Numeric(rhs)) => {
+                Scale::Numeric(num.union(rhs))
+            }
+        }
+    }
+
+    pub fn inverted(&self) -> Self {
+        match self {
+            Scale::Numeric(num) => Scale::Numeric(num.inverted()),
+        }
+    }
+
+    pub fn normalize(&self, value: f32) -> f32 {
+        match self {
+            Scale::Numeric(num) => num.normalize(value),
+        }
+    }
+
+    pub fn ticks(&self) -> Vec<Tick> {
+        match self {
+            Scale::Numeric(num) => num.ticks(),
+        }
     }
 }
 

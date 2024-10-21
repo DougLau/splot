@@ -4,7 +4,7 @@
 //
 use crate::axis::Axis;
 use crate::page::{Edge, Rect};
-use crate::point::Point;
+use crate::point::IntoPoint;
 use crate::scale::Scale;
 
 /// Data domain in two dimensions
@@ -14,88 +14,69 @@ use crate::scale::Scale;
 /// - `X`, abscissa (horizontal)
 /// - `Y`, ordinate (vertical)
 #[derive(Clone, Default)]
-pub struct Domain<X, Y>
-where
-    X: Scale + Default,
-    Y: Scale + Default,
-{
-    x_scale: X,
-    y_scale: Y,
+pub struct Domain {
+    x_scale: Scale,
+    y_scale: Scale,
 }
 
-impl<X, Y> Domain<X, Y>
-where
-    X: Scale + Default,
-    Y: Scale + Default,
-{
+#[derive(Clone, Default)]
+pub struct BoundDomain {
+    domain: Domain,
+    rect: Rect,
+}
+
+impl Domain {
     /// Create a domain from a set of points
     pub fn from_data<P>(data: &[P]) -> Self
     where
-        P: Point,
+        P: IntoPoint,
     {
-        let x_scale = X::from_data(data, |pt| pt.x());
-        let y_scale = Y::from_data(data, |pt| pt.y());
+        let x_scale = Scale::from_data(data, |pt| pt.x);
+        let y_scale = Scale::from_data(data, |pt| pt.y);
         Domain { x_scale, y_scale }
     }
 
     /// Adjust domain to include a set of points
     pub fn including<P>(mut self, data: &[P]) -> Self
     where
-        P: Point,
+        P: IntoPoint,
     {
-        self.x_scale = self.x_scale.union(X::from_data(data, |pt| pt.x()));
-        self.y_scale = self.y_scale.union(Y::from_data(data, |pt| pt.y()));
+        self.x_scale = self.x_scale.union(Scale::from_data(data, |pt| pt.x));
+        self.y_scale = self.y_scale.union(Scale::from_data(data, |pt| pt.y));
         self
     }
 
     /// Set `X` domain to a set of points
     pub fn set_x<P>(mut self, data: &[P]) -> Self
     where
-        P: Point,
+        P: IntoPoint,
     {
-        self.x_scale = X::from_data(data, |pt| pt.x());
+        self.x_scale = Scale::from_data(data, |pt| pt.x);
         self
     }
 
     /// Set `Y` domain to a set of points
     pub fn set_y<P>(mut self, data: &[P]) -> Self
     where
-        P: Point,
+        P: IntoPoint,
     {
-        self.y_scale = Y::from_data(data, |pt| pt.y());
+        self.y_scale = Scale::from_data(data, |pt| pt.y);
         self
     }
 
-    /// Get horizontal axis (bottom edge)
-    pub fn bottom<N>(&self, name: N) -> Axis
+    /// Get axis on one edge
+    pub(crate) fn axis<N>(&self, name: N, edge: Edge) -> Axis
     where
         N: Into<String>,
     {
-        Axis::new(name, Edge::Bottom, self.x_scale.ticks())
-    }
-
-    /// Get horizontal axis (top edge)
-    pub fn top<N>(&self, name: N) -> Axis
-    where
-        N: Into<String>,
-    {
-        Axis::new(name, Edge::Top, self.x_scale.ticks())
-    }
-
-    /// Get vertical axis (left edge)
-    pub fn left<N>(&self, name: N) -> Axis
-    where
-        N: Into<String>,
-    {
-        Axis::new(name, Edge::Left, self.y_scale.inverted().ticks())
-    }
-
-    /// Get vertical axis (right edge)
-    pub fn right<N>(&self, name: N) -> Axis
-    where
-        N: Into<String>,
-    {
-        Axis::new(name, Edge::Right, self.y_scale.inverted().ticks())
+        match edge {
+            Edge::Bottom | Edge::Top => {
+                Axis::new(name, edge, self.x_scale.ticks())
+            }
+            Edge::Left | Edge::Right => {
+                Axis::new(name, edge, self.y_scale.inverted().ticks())
+            }
+        }
     }
 
     /// Normalize an `X` value
@@ -108,19 +89,28 @@ where
         self.y_scale.inverted().normalize(y)
     }
 
-    /// Map an `X` value to a rectangle
-    pub(crate) fn x_map(&self, x: f32, rect: Rect) -> i32 {
-        let rx = rect.x as f32;
-        let rw = f32::from(rect.width);
-        let mx = rx + rw * self.x_norm(x);
+    pub(crate) fn bind(&self, rect: Rect) -> BoundDomain {
+        BoundDomain {
+            domain: self.clone(),
+            rect,
+        }
+    }
+}
+
+impl BoundDomain {
+    /// Map an `X` value
+    pub fn x_map(&self, x: f32) -> i32 {
+        let rx = self.rect.x as f32;
+        let rw = f32::from(self.rect.width);
+        let mx = rx + rw * self.domain.x_norm(x);
         mx.round() as i32
     }
 
-    /// Map a `Y` value to a rectangle
-    pub(crate) fn y_map(&self, y: f32, rect: Rect) -> i32 {
-        let ry = rect.y as f32;
-        let rh = f32::from(rect.height);
-        let my = ry + rh * self.y_norm(y);
+    /// Map a `Y` value
+    pub fn y_map(&self, y: f32) -> i32 {
+        let ry = self.rect.y as f32;
+        let rh = f32::from(self.rect.height);
+        let my = ry + rh * self.domain.y_norm(y);
         my.round() as i32
     }
 }
@@ -128,14 +118,16 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::scale::sealed::Scale;
     use crate::scale::Numeric;
 
     #[test]
     fn test() {
         let data = [(45.0, 150.0), (90.0, 200.0)];
-        let domain = Domain::<Numeric, Numeric>::from_data(&data);
+        let domain = Domain::from_data(&data);
         let ticks = Numeric::new(45.0, 90.0).ticks();
-        assert_eq!(domain.bottom(""), Axis::new("", Edge::Bottom, ticks));
+        assert_eq!(
+            domain.axis("", Edge::Bottom),
+            Axis::new("", Edge::Bottom, ticks)
+        );
     }
 }

@@ -3,7 +3,7 @@
 // Copyright (c) 2021-2024  Douglas P Lau
 //
 use crate::page::{Edge, Rect};
-use crate::point::Point;
+use crate::point::{IntoPoint, Point};
 use std::fmt;
 
 /// Text label point
@@ -147,14 +147,18 @@ impl Label {
         }
     }
 
-    pub fn display<P: Point>(
+    pub fn display<P>(
         &self,
         f: &mut fmt::Formatter,
         x: i32,
         y: i32,
-        pt: &P,
-    ) -> fmt::Result {
-        let lbl = format!("({} {})", pt.x(), pt.y());
+        pt: P,
+    ) -> fmt::Result
+    where
+        P: IntoPoint,
+    {
+        let pt: Point = pt.into();
+        let lbl = format!("({} {})", pt.x, pt.y);
         let tspan = Tspan::new(&lbl).x(x).y(y).dy(-0.66);
         tspan.display(f)
     }

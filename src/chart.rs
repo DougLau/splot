@@ -3,8 +3,10 @@
 // Copyright (c) 2021-2024  Douglas P Lau
 //
 use crate::axis::Axis;
+use crate::domain::Domain;
 use crate::page::{Edge, Rect, ViewBox};
 use crate::plot::Plot;
+use crate::point::IntoPoint;
 use crate::text::{Anchor, Text};
 use std::fmt;
 
@@ -42,11 +44,17 @@ pub enum AspectRatio {
 ///
 /// Multiple `Plot`s can be rendered in a single Chart, even with unrelated
 /// domains and axes.
-pub struct Chart<'a> {
+pub struct Chart<'a, P>
+where
+    P: IntoPoint,
+{
+    stand_alone: bool,
     aspect_ratio: AspectRatio,
     titles: Vec<Title>,
-    plots: Vec<&'a (dyn Plot + 'a)>,
+    domain: Domain,
     axes: Vec<Axis>,
+    plots: Vec<Plot<'a, P>>,
+    num: u32,
 }
 
 impl<T> From<T> for Title
@@ -122,18 +130,38 @@ impl AspectRatio {
     }
 }
 
-impl<'a> Default for Chart<'a> {
+impl<'a, P> Default for Chart<'a, P>
+where
+    P: IntoPoint,
+{
     fn default() -> Self {
         Self {
+            stand_alone: false,
             aspect_ratio: AspectRatio::Landscape,
             titles: vec![],
+            domain: Domain::default(),
             axes: vec![],
             plots: vec![],
+            num: 0,
         }
     }
 }
 
-impl<'a> Chart<'a> {
+impl<'a, P> Chart<'a, P>
+where
+    P: IntoPoint,
+{
+    /// Create a new chart
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Make the chart stand-alone
+    pub fn stand_alone(mut self, stand_alone: bool) -> Self {
+        self.stand_alone = stand_alone;
+        self
+    }
+
     /// Adjust the aspect ratio
     pub fn aspect_ratio(mut self, aspect: AspectRatio) -> Self {
         self.aspect_ratio = aspect;
@@ -149,14 +177,36 @@ impl<'a> Chart<'a> {
         self
     }
 
+    /// Set the domain
+    pub fn domain(mut self, domain: Domain) -> Self {
+        assert!(self.axes.is_empty());
+        assert!(self.plots.is_empty());
+        self.domain = domain;
+        // FIXME: bind domain to all plots
+        self
+    }
+
     /// Add an `Axis`
-    pub fn axis(mut self, axis: Axis) -> Self {
+    pub fn axis<N>(mut self, name: N, edge: Edge) -> Self
+    where
+        N: Into<String>,
+    {
+        assert!(self.plots.is_empty());
+        let axis = self.domain.axis(name, edge);
         self.axes.push(axis);
         self
     }
 
     /// Add a `Plot`
-    pub fn plot(mut self, plot: &'a dyn Plot) -> Self {
+    pub fn plot<T>(mut self, plot: T) -> Self
+    where
+        T: Into<Plot<'a, P>>,
+    {
+        let mut plot = plot.into();
+        plot.num(self.num);
+        self.num = if self.num < 10 { self.num + 1 } else { 0 };
+        let area = self.plot_area();
+        plot.bind_domain(self.domain.bind(area));
         self.plots.push(plot);
         self
     }
@@ -173,18 +223,10 @@ impl<'a> Chart<'a> {
         area
     }
 
-    /// Display the chart embedded in HTML
-    pub(crate) fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.svg(f, false)?;
-        self.defs(f)?;
-        self.body(f)?;
-        writeln!(f, "</svg>")
-    }
-
-    fn svg(&self, f: &mut fmt::Formatter, stand_alone: bool) -> fmt::Result {
+    fn svg(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let view_box = ViewBox(self.aspect_ratio.rect());
         write!(f, "<svg")?;
-        if stand_alone {
+        if self.stand_alone {
             write!(f, " xmlns='http://www.w3.org/2000/svg'")?;
         }
         writeln!(f, " {view_box}>")
@@ -231,15 +273,14 @@ impl<'a> Chart<'a> {
             axis.display(f, rect, area)?;
         }
         writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
-        for (plot, num) in self.plots.iter().zip((0..10).cycle()) {
-            plot.display(f, num, area)?;
-            plot.display_labels(f, area)?;
+        for plot in self.plots.iter() {
+            writeln!(f, "{plot}")?;
         }
         writeln!(f, "</g>")
     }
 
     /// Render the legend as an HTML fragment
-    pub(crate) fn legend(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn legend(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "<div class='legend'>")?;
         for (i, plot) in self.plots.iter().enumerate() {
             writeln!(f, "<div>")?;
@@ -254,12 +295,18 @@ impl<'a> Chart<'a> {
     }
 }
 
-impl<'a> fmt::Display for Chart<'a> {
+impl<'a, P> fmt::Display for Chart<'a, P>
+where
+    P: IntoPoint,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.svg(f, true)?;
-        self.link(f)?;
+        self.svg(f)?;
+        if self.stand_alone {
+            self.link(f)?;
+        }
         self.defs(f)?;
         self.body(f)?;
-        writeln!(f, "</svg>")
+        writeln!(f, "</svg>")?;
+        self.legend(f)
     }
 }

@@ -13,6 +13,5 @@ mod text;
 pub use axis::Axis;
 pub use chart::{AspectRatio, Chart, Title};
 pub use domain::Domain;
-pub use page::Page;
-pub use point::Point;
-pub use scale::Numeric;
+pub use page::{Edge, Page};
+pub use point::{IntoPoint, Point};

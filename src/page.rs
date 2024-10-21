@@ -3,6 +3,7 @@
 // Copyright (c) 2021-2024  Douglas P Lau
 //
 use crate::chart::Chart;
+use crate::point::IntoPoint;
 use std::fmt;
 
 /// Edge of rendered item
@@ -15,7 +16,7 @@ pub enum Edge {
 }
 
 /// Rendering rectangle
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Rect {
     pub x: i32,
     pub y: i32,
@@ -32,9 +33,11 @@ pub struct ViewBox(pub Rect);
 /// A `Page` containing one or more `Chart`s can be rendered as HTML using the
 /// `Display` trait.  That is, using `println!`, or even `to_string()` is all
 /// that's needed.
-#[derive(Default)]
-pub struct Page<'a> {
-    charts: Vec<Chart<'a>>,
+pub struct Page<'a, P>
+where
+    P: IntoPoint,
+{
+    charts: Vec<Chart<'a, P>>,
 }
 
 impl Rect {
@@ -138,15 +141,35 @@ impl fmt::Display for ViewBox {
     }
 }
 
-impl<'a> Page<'a> {
+impl<'a, P> Default for Page<'a, P>
+where
+    P: IntoPoint,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<'a, P> Page<'a, P>
+where
+    P: IntoPoint,
+{
+    /// Create a new page
+    pub fn new() -> Self {
+        Page { charts: Vec::new() }
+    }
+
     /// Add a `Chart` to `Page`
-    pub fn chart(mut self, chart: Chart<'a>) -> Self {
+    pub fn chart(mut self, chart: Chart<'a, P>) -> Self {
         self.charts.push(chart);
         self
     }
 }
 
-impl<'a> fmt::Display for Page<'a> {
+impl<'a, P> fmt::Display for Page<'a, P>
+where
+    P: IntoPoint,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "<html>")?;
         writeln!(f, "<head>")?;
@@ -157,8 +180,7 @@ impl<'a> fmt::Display for Page<'a> {
         writeln!(f, "<div class='page'>")?;
         for chart in &self.charts {
             writeln!(f, "<div class='chart'>")?;
-            chart.display(f)?;
-            chart.legend(f)?;
+            writeln!(f, "{chart}")?;
             writeln!(f, "</div>")?;
         }
         writeln!(f, "</div>")?;

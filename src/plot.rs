@@ -4,50 +4,22 @@
 //
 //! Plot types
 //!
-use crate::domain::Domain;
-use crate::page::{Edge, Rect};
-use crate::point::Point;
-use crate::scale::Numeric;
+use crate::domain::BoundDomain;
+use crate::page::Edge;
+use crate::point::{IntoPoint, Point};
 use crate::text::{Label, Text};
 use std::fmt;
-
-/// Private module for sealed Plot trait
-mod sealed {
-    use crate::page::Rect;
-    use std::fmt;
-
-    pub trait Plot {
-        fn name(&self) -> &str;
-
-        fn display(
-            &self,
-            f: &mut fmt::Formatter,
-            num: usize,
-            rect: Rect,
-        ) -> fmt::Result;
-
-        fn display_labels(
-            &self,
-            f: &mut fmt::Formatter,
-            rect: Rect,
-        ) -> fmt::Result;
-    }
-}
-
-/// Plot for rendering data
-///
-/// This trait is *sealed* to hide details.
-pub trait Plot: sealed::Plot {}
 
 /// Stacked area plot
 ///
 /// Data is drawn as filled-in areas, stacked vertically.
 pub struct Area<'a, P>
 where
-    P: Point + 'a,
+    P: IntoPoint,
 {
     name: &'a str,
-    domain: &'a Domain<Numeric, Numeric>,
+    num: u32,
+    domain: BoundDomain,
     data: &'a [P],
 }
 
@@ -56,10 +28,11 @@ where
 /// Data is drawn as a series of points connected by line segments.
 pub struct Line<'a, P>
 where
-    P: Point + 'a,
+    P: IntoPoint,
 {
     name: &'a str,
-    domain: &'a Domain<Numeric, Numeric>,
+    num: u32,
+    domain: BoundDomain,
     data: &'a [P],
     label: Option<Label>,
 }
@@ -69,133 +42,99 @@ where
 /// Data is drawn as unconnected points.
 pub struct Scatter<'a, P>
 where
-    P: Point + 'a,
+    P: IntoPoint,
 {
     name: &'a str,
-    domain: &'a Domain<Numeric, Numeric>,
+    num: u32,
+    domain: BoundDomain,
     data: &'a [P],
     label: Option<Label>,
 }
 
-impl<'a, P> Plot for Area<'a, P> where P: Point {}
-
-impl<'a, P> sealed::Plot for Area<'a, P>
+/// Plot for rendering data
+pub enum Plot<'a, P>
 where
-    P: Point,
+    P: IntoPoint,
 {
-    fn name(&self) -> &str {
-        self.name
-    }
+    Area(Area<'a, P>),
+    Line(Line<'a, P>),
+    Scatter(Scatter<'a, P>),
+}
 
-    fn display(
-        &self,
-        f: &mut fmt::Formatter,
-        num: usize,
-        rect: Rect,
-    ) -> fmt::Result {
-        write!(f, "<path class='plot-{num} plot-area' d='")?;
+impl<'a, P> fmt::Display for Area<'a, P>
+where
+    P: IntoPoint,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "<path class='plot-{} plot-area' d='", self.num)?;
         if let Some(pt) = self.data.first() {
-            let x = self.domain.x_map(pt.x(), rect);
-            let y = self.domain.y_map(0.0, rect);
+            let pt: Point = (*pt).into();
+            let x = self.domain.x_map(pt.x);
+            let y = self.domain.y_map(0.0);
             write!(f, "M{x} {y}")?;
         }
         for pt in self.data.iter() {
-            let x = self.domain.x_map(pt.x(), rect);
-            let y = self.domain.y_map(pt.y(), rect);
+            let pt: Point = (*pt).into();
+            let x = self.domain.x_map(pt.x);
+            let y = self.domain.y_map(pt.y);
             write!(f, " {x} {y}")?;
         }
         if let Some(pt) = self.data.last() {
-            let x = self.domain.x_map(pt.x(), rect);
-            let y = self.domain.y_map(0.0, rect);
+            let pt: Point = (*pt).into();
+            let x = self.domain.x_map(pt.x);
+            let y = self.domain.y_map(0.0);
             write!(f, " {x} {y}")?;
         }
         writeln!(f, "' />")
-    }
-
-    fn display_labels(
-        &self,
-        _f: &mut fmt::Formatter,
-        _rect: Rect,
-    ) -> fmt::Result {
-        Ok(())
     }
 }
 
 impl<'a, P> Area<'a, P>
 where
-    P: Point,
+    P: IntoPoint,
 {
     /// Create a new stacked area plot
-    pub fn new(
-        name: &'a str,
-        domain: &'a Domain<Numeric, Numeric>,
-        data: &'a [P],
-    ) -> Self {
-        Area { name, domain, data }
+    pub fn new(name: &'a str, data: &'a [P]) -> Self {
+        Area {
+            name,
+            num: 0,
+            domain: BoundDomain::default(),
+            data,
+        }
     }
 }
 
-impl<'a, P> Plot for Line<'a, P> where P: Point {}
-
-impl<'a, P> sealed::Plot for Line<'a, P>
+impl<'a, P> fmt::Display for Line<'a, P>
 where
-    P: Point,
+    P: IntoPoint,
 {
-    fn name(&self) -> &str {
-        self.name
-    }
-
-    fn display(
-        &self,
-        f: &mut fmt::Formatter,
-        num: usize,
-        rect: Rect,
-    ) -> fmt::Result {
-        write!(f, "<path class='plot-{num} plot-line' d='")?;
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "<path class='plot-{} plot-line' d='", self.num)?;
         for (i, pt) in self.data.iter().enumerate() {
-            let x = self.domain.x_map(pt.x(), rect);
-            let y = self.domain.y_map(pt.y(), rect);
+            let pt = (*pt).into();
+            let x = self.domain.x_map(pt.x);
+            let y = self.domain.y_map(pt.y);
             if i == 0 {
                 write!(f, "M{x} {y}")?;
             } else {
                 write!(f, " {x} {y}")?;
             }
         }
-        writeln!(f, "'/>")
-    }
-
-    fn display_labels(
-        &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
-    ) -> fmt::Result {
-        if let Some(label) = &self.label {
-            let text = Text::new(Edge::Top).class_name("plot-label");
-            text.display(f)?;
-            for pt in self.data.iter() {
-                let x = self.domain.x_map(pt.x(), rect);
-                let y = self.domain.y_map(pt.y(), rect);
-                label.display(f, x, y, pt)?;
-            }
-            text.display_done(f)?;
-        }
-        Ok(())
+        writeln!(f, "'/>")?;
+        self.display_labels(f)
     }
 }
 
 impl<'a, P> Line<'a, P>
 where
-    P: Point,
+    P: IntoPoint,
 {
     /// Create a new line plot
-    pub fn new(
-        name: &'a str,
-        domain: &'a Domain<Numeric, Numeric>,
-        data: &'a [P],
-    ) -> Self {
+    pub fn new(name: &'a str, data: &'a [P]) -> Self {
         Line {
             name,
-            domain,
+            num: 0,
+            domain: BoundDomain::default(),
             data,
             label: None,
         }
@@ -206,48 +145,15 @@ where
         self.label = Some(Label::new());
         self
     }
-}
 
-impl<'a, P> Plot for Scatter<'a, P> where P: Point {}
-
-impl<'a, P> sealed::Plot for Scatter<'a, P>
-where
-    P: Point,
-{
-    fn name(&self) -> &str {
-        self.name
-    }
-
-    fn display(
-        &self,
-        f: &mut fmt::Formatter,
-        num: usize,
-        rect: Rect,
-    ) -> fmt::Result {
-        write!(f, "<path class='plot-{num} plot-scatter' d='")?;
-        for (i, pt) in self.data.iter().enumerate() {
-            let x = self.domain.x_map(pt.x(), rect);
-            let y = self.domain.y_map(pt.y(), rect);
-            if i == 0 {
-                write!(f, "M{x} {y}")?;
-            } else {
-                write!(f, " {x} {y}")?;
-            }
-        }
-        writeln!(f, "' />")
-    }
-
-    fn display_labels(
-        &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
-    ) -> fmt::Result {
+    fn display_labels(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(label) = &self.label {
             let text = Text::new(Edge::Top).class_name("plot-label");
             text.display(f)?;
             for pt in self.data.iter() {
-                let x = self.domain.x_map(pt.x(), rect);
-                let y = self.domain.y_map(pt.y(), rect);
+                let pt = (*pt).into();
+                let x = self.domain.x_map(pt.x);
+                let y = self.domain.y_map(pt.y);
                 label.display(f, x, y, pt)?;
             }
             text.display_done(f)?;
@@ -256,19 +162,37 @@ where
     }
 }
 
+impl<'a, P> fmt::Display for Scatter<'a, P>
+where
+    P: IntoPoint,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "<path class='plot-{} plot-scatter' d='", self.num)?;
+        for (i, pt) in self.data.iter().enumerate() {
+            let pt = (*pt).into();
+            let x = self.domain.x_map(pt.x);
+            let y = self.domain.y_map(pt.y);
+            if i == 0 {
+                write!(f, "M{x} {y}")?;
+            } else {
+                write!(f, " {x} {y}")?;
+            }
+        }
+        writeln!(f, "' />")?;
+        self.display_labels(f)
+    }
+}
+
 impl<'a, P> Scatter<'a, P>
 where
-    P: Point,
+    P: IntoPoint,
 {
     /// Create a new scatter plot
-    pub fn new(
-        name: &'a str,
-        domain: &'a Domain<Numeric, Numeric>,
-        data: &'a [P],
-    ) -> Self {
+    pub fn new(name: &'a str, data: &'a [P]) -> Self {
         Scatter {
             name,
-            domain,
+            num: 0,
+            domain: BoundDomain::default(),
             data,
             label: None,
         }
@@ -278,5 +202,90 @@ where
     pub fn label(mut self) -> Self {
         self.label = Some(Label::new());
         self
+    }
+
+    fn display_labels(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(label) = &self.label {
+            let text = Text::new(Edge::Top).class_name("plot-label");
+            text.display(f)?;
+            for pt in self.data.iter() {
+                let pt: Point = (*pt).into();
+                let x = self.domain.x_map(pt.x);
+                let y = self.domain.y_map(pt.y);
+                label.display(f, x, y, pt)?;
+            }
+            text.display_done(f)?;
+        }
+        Ok(())
+    }
+}
+
+impl<'a, P> From<Area<'a, P>> for Plot<'a, P>
+where
+    P: IntoPoint,
+{
+    fn from(area: Area<'a, P>) -> Self {
+        Plot::Area(area)
+    }
+}
+
+impl<'a, P> From<Line<'a, P>> for Plot<'a, P>
+where
+    P: IntoPoint,
+{
+    fn from(line: Line<'a, P>) -> Self {
+        Plot::Line(line)
+    }
+}
+
+impl<'a, P> From<Scatter<'a, P>> for Plot<'a, P>
+where
+    P: IntoPoint,
+{
+    fn from(scatter: Scatter<'a, P>) -> Self {
+        Plot::Scatter(scatter)
+    }
+}
+
+impl<'a, P> fmt::Display for Plot<'a, P>
+where
+    P: IntoPoint,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Plot::Area(p) => write!(f, "{p}"),
+            Plot::Line(p) => write!(f, "{p}"),
+            Plot::Scatter(p) => write!(f, "{p}"),
+        }
+    }
+}
+
+impl<'a, P> Plot<'a, P>
+where
+    P: IntoPoint,
+{
+    /// Get plot name
+    pub fn name(&self) -> &str {
+        match self {
+            Plot::Area(p) => p.name,
+            Plot::Line(p) => p.name,
+            Plot::Scatter(p) => p.name,
+        }
+    }
+
+    pub fn num(&mut self, num: u32) {
+        match self {
+            Plot::Area(p) => p.num = num,
+            Plot::Line(p) => p.num = num,
+            Plot::Scatter(p) => p.num = num,
+        }
+    }
+
+    pub fn bind_domain(&mut self, domain: BoundDomain) {
+        match self {
+            Plot::Area(p) => p.domain = domain,
+            Plot::Line(p) => p.domain = domain,
+            Plot::Scatter(p) => p.domain = domain,
+        }
     }
 }
