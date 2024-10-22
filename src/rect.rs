@@ -37,10 +37,12 @@ impl Rect {
         }
     }
 
+    /// Get value at right edge
     pub fn right(&self) -> i32 {
         self.x + i32::from(self.width)
     }
 
+    /// Get value at bottom edge
     pub fn bottom(&self) -> i32 {
         self.y + i32::from(self.height)
     }
@@ -92,6 +94,7 @@ impl Rect {
         }
     }
 
+    /// Intersect horizontally
     pub fn intersect_horiz(&mut self, rhs: &Rect) {
         let x = self.x.max(rhs.x);
         let x2 = self.right().min(rhs.right());
@@ -99,6 +102,7 @@ impl Rect {
         self.width = (x2 - x) as u16;
     }
 
+    /// Intersect vertically
     pub fn intersect_vert(&mut self, rhs: &Rect) {
         let y = self.y.max(rhs.y);
         let y2 = self.bottom().min(rhs.bottom());

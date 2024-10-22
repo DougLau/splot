@@ -109,6 +109,7 @@ impl Title {
         self
     }
 
+    /// Display title
     fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
         let text = Text::new(self.edge)
             .rect(rect)
@@ -121,6 +122,7 @@ impl Title {
 }
 
 impl AspectRatio {
+    /// Get rectangle
     pub(crate) fn rect(self) -> Rect {
         match self {
             AspectRatio::Landscape => Rect::new(0, 0, 2000, 1500),
@@ -164,6 +166,8 @@ where
 
     /// Adjust the aspect ratio
     pub fn aspect_ratio(mut self, aspect: AspectRatio) -> Self {
+        assert!(self.axes.is_empty());
+        assert!(self.plots.is_empty());
         self.aspect_ratio = aspect;
         self
     }

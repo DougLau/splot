@@ -19,7 +19,7 @@ pub struct Axis {
 
 impl Axis {
     /// Create a new axis
-    pub(crate) fn new<N>(name: N, edge: Edge, ticks: Vec<Tick>) -> Self
+    pub fn new<N>(name: N, edge: Edge, ticks: Vec<Tick>) -> Self
     where
         N: Into<String>,
     {
@@ -32,7 +32,7 @@ impl Axis {
     }
 
     /// Split axis area from rectangle
-    pub(crate) fn split(&self, area: &mut Rect) -> Rect {
+    pub fn split(&self, area: &mut Rect) -> Rect {
         area.split(self.edge, self.space())
     }
 
@@ -46,7 +46,7 @@ impl Axis {
     }
 
     /// Render the axis
-    pub(crate) fn display(
+    pub fn display(
         &self,
         f: &mut fmt::Formatter,
         rect: Rect,
@@ -97,7 +97,7 @@ impl Axis {
     }
 
     /// Render grid lines
-    pub(crate) fn display_grid(
+    pub fn display_grid(
         &self,
         f: &mut fmt::Formatter,
         area: Rect,

@@ -44,6 +44,7 @@ impl<'a, P> PlotSettings<'a, P>
 where
     P: IntoPoint,
 {
+    /// Create new plot settings
     fn new(name: &'a str, data: &'a [P]) -> Self {
         PlotSettings {
             name,
@@ -54,6 +55,7 @@ where
         }
     }
 
+    /// Format an area plot
     fn area_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "<path class='plot-{} plot-area' d='", self.num)?;
         if let Some(pt) = self.data.first() {
@@ -77,6 +79,7 @@ where
         writeln!(f, "' />")
     }
 
+    /// Format a line plot
     fn line_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "<path class='plot-{} plot-line' d='", self.num)?;
         for (i, pt) in self.data.iter().enumerate() {
@@ -93,6 +96,7 @@ where
         self.labels_fmt(f)
     }
 
+    /// Format a scatter plot
     fn scatter_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "<path class='plot-{} plot-scatter' d='", self.num)?;
         for (i, pt) in self.data.iter().enumerate() {
@@ -109,6 +113,7 @@ where
         self.labels_fmt(f)
     }
 
+    /// Format plot labels
     fn labels_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(label) = &self.label {
             let text = Text::new(Edge::Top).class_name("plot-label");
@@ -157,6 +162,7 @@ where
         Plot::Scatter(PlotSettings::new(name, data))
     }
 
+    /// Get plot settings
     fn settings(&self) -> &PlotSettings<'a, P> {
         match self {
             Plot::Area(p) => p,
@@ -165,6 +171,7 @@ where
         }
     }
 
+    /// Get plot settings mutably
     fn settings_mut(&mut self) -> &mut PlotSettings<'a, P> {
         match self {
             Plot::Area(p) => p,
@@ -178,10 +185,12 @@ where
         self.settings().name
     }
 
+    /// Set plot number
     pub fn num(&mut self, num: u32) {
         self.settings_mut().num = num;
     }
 
+    /// Bind with domain
     pub fn bind_domain(&mut self, domain: BoundDomain) {
         self.settings_mut().domain = domain;
     }

@@ -19,6 +19,7 @@ pub struct Domain {
     y_scale: Scale,
 }
 
+/// Domain bound to a rectangle
 #[derive(Clone, Default)]
 pub struct BoundDomain {
     domain: Domain,
@@ -89,6 +90,7 @@ impl Domain {
         self.y_scale.inverted().normalize(y)
     }
 
+    /// Bind domain to a rectangle
     pub(crate) fn bind(&self, rect: Rect) -> BoundDomain {
         BoundDomain {
             domain: self.clone(),

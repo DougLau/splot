@@ -6,7 +6,7 @@ use crate::chart::Chart;
 use crate::point::IntoPoint;
 use std::fmt;
 
-/// Page to render charts
+/// Page to render charts as HTML
 ///
 /// A `Page` containing one or more `Chart`s can be rendered as HTML using the
 /// `Display` trait.  That is, using `println!`, or even `to_string()` is all
@@ -36,7 +36,7 @@ where
         Page { charts: Vec::new() }
     }
 
-    /// Add a `Chart` to `Page`
+    /// Add a `Chart`
     pub fn chart(mut self, chart: Chart<'a, P>) -> Self {
         self.charts.push(chart.stand_alone(false));
         self
