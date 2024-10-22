@@ -136,7 +136,7 @@ where
 {
     fn default() -> Self {
         Self {
-            stand_alone: false,
+            stand_alone: true,
             aspect_ratio: AspectRatio::Landscape,
             titles: vec![],
             domain: Domain::default(),
@@ -156,8 +156,8 @@ where
         Self::default()
     }
 
-    /// Make the chart stand-alone
-    pub fn stand_alone(mut self, stand_alone: bool) -> Self {
+    /// Set stand-alone flag
+    pub(crate) fn stand_alone(mut self, stand_alone: bool) -> Self {
         self.stand_alone = stand_alone;
         self
     }

@@ -38,7 +38,7 @@ where
 
     /// Add a `Chart` to `Page`
     pub fn chart(mut self, chart: Chart<'a, P>) -> Self {
-        self.charts.push(chart);
+        self.charts.push(chart.stand_alone(false));
         self
     }
 }
