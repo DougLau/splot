@@ -168,25 +168,32 @@ where
         self
     }
 
-    /// Add a chart title
-    pub fn title<T>(mut self, title: T) -> Self
-    where
-        T: Into<Title>,
-    {
-        self.titles.push(title.into());
-        self
-    }
-
     /// Set the domain
+    ///
+    /// Panics if called after `axis` or `plot`.
     pub fn domain(mut self, domain: Domain) -> Self {
         assert!(self.axes.is_empty());
         assert!(self.plots.is_empty());
         self.domain = domain;
-        // FIXME: bind domain to all plots
+        self
+    }
+
+    /// Add a chart title
+    ///
+    /// Panics if called after `axis` or `plot`.
+    pub fn title<T>(mut self, title: T) -> Self
+    where
+        T: Into<Title>,
+    {
+        assert!(self.axes.is_empty());
+        assert!(self.plots.is_empty());
+        self.titles.push(title.into());
         self
     }
 
     /// Add an `Axis`
+    ///
+    /// Panics if called after `plot`.
     pub fn axis<N>(mut self, name: N, edge: Edge) -> Self
     where
         N: Into<String>,
@@ -223,6 +230,7 @@ where
         area
     }
 
+    /// Render SVG element start
     fn svg(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let view_box = ViewBox(self.aspect_ratio.rect());
         write!(f, "<svg")?;
@@ -232,6 +240,7 @@ where
         writeln!(f, " {view_box}>")
     }
 
+    /// Render link to CSS
     fn link(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "<link")?;
         write!(f, " xmlns='http://www.w3.org/1999/xhtml'")?;
@@ -240,6 +249,7 @@ where
         writeln!(f, " href='./css/splot.css' />")
     }
 
+    /// Render defs element
     fn defs(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "<defs>")?;
         for i in 0..self.plots.len() {
@@ -256,6 +266,7 @@ where
         writeln!(f, "</defs>")
     }
 
+    /// Render the chart "body"
     fn body(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut area = self.aspect_ratio.rect().inset(40);
         for title in &self.titles {

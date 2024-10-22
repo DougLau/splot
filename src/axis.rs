@@ -36,6 +36,7 @@ impl Axis {
         area.split(self.edge, self.space())
     }
 
+    /// Get the space required
     fn space(&self) -> u16 {
         if self.name.is_empty() {
             80
@@ -44,6 +45,7 @@ impl Axis {
         }
     }
 
+    /// Render the axis
     pub(crate) fn display(
         &self,
         f: &mut fmt::Formatter,
@@ -56,6 +58,7 @@ impl Axis {
         }
     }
 
+    /// Render horizontal axis
     fn display_horizontal(
         &self,
         f: &mut fmt::Formatter,
@@ -74,6 +77,7 @@ impl Axis {
         self.display_tick_labels(f, rect)
     }
 
+    /// Render vertical axis
     fn display_vertical(
         &self,
         f: &mut fmt::Formatter,
@@ -92,6 +96,7 @@ impl Axis {
         self.display_tick_labels(f, rect)
     }
 
+    /// Render grid lines
     pub(crate) fn display_grid(
         &self,
         f: &mut fmt::Formatter,
@@ -103,6 +108,7 @@ impl Axis {
         }
     }
 
+    /// Render horizontal grid lines
     fn display_grid_horizontal(
         &self,
         f: &mut fmt::Formatter,
@@ -116,6 +122,7 @@ impl Axis {
         writeln!(f, "'/>")
     }
 
+    /// Render vertical grid lines
     fn display_grid_vertical(
         &self,
         f: &mut fmt::Formatter,
@@ -129,6 +136,7 @@ impl Axis {
         writeln!(f, "'/>")
     }
 
+    /// Render tick lines
     fn display_tick_lines(
         &self,
         f: &mut fmt::Formatter,
@@ -144,6 +152,7 @@ impl Axis {
         }
     }
 
+    /// Render horizontal tick lines
     fn display_tick_lines_horizontal(
         &self,
         f: &mut fmt::Formatter,
@@ -166,6 +175,7 @@ impl Axis {
         writeln!(f, "'/>")
     }
 
+    /// Render vertical tick lines
     fn display_tick_lines_vertical(
         &self,
         f: &mut fmt::Formatter,
@@ -188,6 +198,7 @@ impl Axis {
         writeln!(f, "'/>")
     }
 
+    /// Render tick labels
     fn display_tick_labels(
         &self,
         f: &mut fmt::Formatter,
@@ -203,6 +214,7 @@ impl Axis {
         }
     }
 
+    /// Render horizontal tick labels
     fn display_tick_labels_horizontal(
         &self,
         f: &mut fmt::Formatter,
@@ -216,6 +228,7 @@ impl Axis {
         text.display_done(f)
     }
 
+    /// Render vertical tick labels
     fn display_tick_labels_vertical(
         &self,
         f: &mut fmt::Formatter,
