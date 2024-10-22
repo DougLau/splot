@@ -7,7 +7,7 @@ use crate::domain::Domain;
 use crate::plot::Plot;
 use crate::point::IntoPoint;
 use crate::rect::{Edge, Rect, ViewBox};
-use crate::text::{Anchor, Text};
+use crate::title::Title;
 use std::fmt;
 
 /// Marker shapes
@@ -21,13 +21,6 @@ const MARKERS: &[&str] = &[
     "<path d='M0 -1 1 0 0 1 -1 0z'/>",
     "<path d='M-1 -1 0 -0.5 1 -1 0.5 0 1 1 0 0.5 -1 1 -0.5 0z'/>",
 ];
-
-/// Chart title
-pub struct Title {
-    text: String,
-    anchor: Anchor,
-    edge: Edge,
-}
 
 /// Chart aspect ratio
 #[derive(Clone, Copy)]
@@ -55,70 +48,6 @@ where
     axes: Vec<Axis>,
     plots: Vec<Plot<'a, P>>,
     num: u32,
-}
-
-impl<T> From<T> for Title
-where
-    T: Into<String>,
-{
-    fn from(text: T) -> Self {
-        Title::new(text.into())
-    }
-}
-
-impl Title {
-    /// Create a new title
-    pub fn new<T>(text: T) -> Self
-    where
-        T: Into<String>,
-    {
-        Title {
-            text: text.into(),
-            anchor: Anchor::Middle,
-            edge: Edge::Top,
-        }
-    }
-
-    /// Anchor title text at start
-    pub fn at_start(mut self) -> Self {
-        self.anchor = Anchor::Start;
-        self
-    }
-
-    /// Anchor title text at end
-    pub fn at_end(mut self) -> Self {
-        self.anchor = Anchor::End;
-        self
-    }
-
-    /// Put title on bottom of chart
-    pub fn on_bottom(mut self) -> Self {
-        self.edge = Edge::Bottom;
-        self
-    }
-
-    /// Put title on left side of chart
-    pub fn on_left(mut self) -> Self {
-        self.edge = Edge::Left;
-        self
-    }
-
-    /// Put title on right side of chart
-    pub fn on_right(mut self) -> Self {
-        self.edge = Edge::Right;
-        self
-    }
-
-    /// Display title
-    fn display(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
-        let text = Text::new(self.edge)
-            .rect(rect)
-            .anchor(self.anchor)
-            .class_name("title");
-        text.display(f)?;
-        writeln!(f, "{}", self.text)?;
-        text.display_done(f)
-    }
 }
 
 impl AspectRatio {

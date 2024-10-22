@@ -190,7 +190,7 @@ mod tests {
         assert_eq!(Numeric::new(0.0, 50.0).tick_spacing, 10.0);
         assert_eq!(Numeric::new(0.0, 75.0).tick_spacing, 10.0);
         assert_eq!(Numeric::new(0.0, 100.0).tick_spacing, 10.0);
-        //assert_eq!(Numeric::new(-50.0, 50.0).tick_spacing(), 10.0);
+        //assert_eq!(Numeric::new(-50.0, 50.0).tick_spacing, 10.0);
         assert_eq!(Numeric::new(0.0, 1.0).tick_spacing, 0.1);
         assert_eq!(Numeric::new(0.0, 1.5).tick_spacing, 0.25);
         assert_eq!(Numeric::new(0.0, 2.0).tick_spacing, 0.25);
