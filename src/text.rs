@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2021-2024  Douglas P Lau
 //
-use crate::page::{Edge, Rect};
 use crate::point::{IntoPoint, Point};
+use crate::rect::{Edge, Rect};
 use std::fmt;
 
 /// Text label point

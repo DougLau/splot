@@ -4,9 +4,9 @@
 //
 use crate::axis::Axis;
 use crate::domain::Domain;
-use crate::page::{Edge, Rect, ViewBox};
 use crate::plot::Plot;
 use crate::point::IntoPoint;
+use crate::rect::{Edge, Rect, ViewBox};
 use crate::text::{Anchor, Text};
 use std::fmt;
 

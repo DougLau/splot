@@ -5,8 +5,8 @@
 //! Plot types
 //!
 use crate::domain::BoundDomain;
-use crate::page::Edge;
 use crate::point::{IntoPoint, Point};
+use crate::rect::Edge;
 use crate::text::{Label, Text};
 use std::fmt;
 

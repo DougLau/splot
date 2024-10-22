@@ -7,12 +7,14 @@ mod domain;
 mod page;
 mod plot;
 mod point;
+mod rect;
 mod scale;
 mod text;
 
 pub use axis::Axis;
 pub use chart::{AspectRatio, Chart, Title};
 pub use domain::Domain;
-pub use page::{Edge, Page};
+pub use page::Page;
 pub use plot::{Area, Line, Plot, Scatter};
 pub use point::{IntoPoint, Point};
+pub use rect::Edge;

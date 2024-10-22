@@ -4,7 +4,7 @@
 //
 //! Axis for charts
 //!
-use crate::page::{Edge, Rect};
+use crate::rect::{Edge, Rect};
 use crate::text::{Anchor, Label, Text, Tick};
 use std::fmt;
 
