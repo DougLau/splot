@@ -223,7 +223,8 @@ impl Axis {
         let text = Text::new(Edge::Top).class_name("tick");
         text.display(f)?;
         for tick in &self.ticks {
-            tick.tspan(self.edge, rect).display(f)?;
+            let tspan = tick.tspan(self.edge, rect);
+            write!(f, "{tspan}")?;
         }
         text.display_done(f)
     }
@@ -242,7 +243,8 @@ impl Axis {
         let text = Text::new(Edge::Top).anchor(anchor).class_name("tick");
         text.display(f)?;
         for tick in &self.ticks {
-            tick.tspan(self.edge, rect).display(f)?;
+            let tspan = tick.tspan(self.edge, rect);
+            write!(f, "{tspan}")?;
         }
         text.display_done(f)
     }

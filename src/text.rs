@@ -6,21 +6,8 @@ use crate::point::{IntoPoint, Point};
 use crate::rect::{Edge, Rect};
 use std::fmt;
 
-/// Text label point
-#[derive(Copy, Clone, Debug, PartialEq)]
-#[allow(dead_code)]
-pub enum LabelPoint {
-    /// Minimum point (start of bar/column)
-    Minimum,
-    /// Center point
-    Center,
-    /// Maximum point (end of bar/column)
-    Maximum,
-}
-
 /// Vertical offset relative to point
 #[derive(Copy, Clone, Debug, PartialEq)]
-#[allow(dead_code)]
 pub enum VerticalOffset {
     /// Label below point
     Below,
@@ -43,7 +30,6 @@ pub enum Anchor {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Label {
-    point: LabelPoint,
     offset: VerticalOffset,
     anchor: Anchor,
     rounding_precision: Option<usize>,
@@ -84,7 +70,6 @@ impl fmt::Display for Anchor {
 impl Default for Label {
     fn default() -> Self {
         Label {
-            point: LabelPoint::Center,
             offset: VerticalOffset::At,
             anchor: Anchor::Middle,
             rounding_precision: None,
@@ -98,26 +83,12 @@ impl Label {
         Self::default()
     }
 
-    pub fn label_point(&self) -> LabelPoint {
-        self.point
-    }
-
     pub fn vertical_offset(&self) -> f32 {
         match self.offset {
             VerticalOffset::Above => -1.0,
             VerticalOffset::At => 0.0,
             VerticalOffset::Below => 1.0,
         }
-    }
-
-    pub fn minimum(mut self) -> Self {
-        self.point = LabelPoint::Minimum;
-        self
-    }
-
-    pub fn maximum(mut self) -> Self {
-        self.point = LabelPoint::Maximum;
-        self
     }
 
     pub fn above(mut self) -> Self {
@@ -160,7 +131,7 @@ impl Label {
         let pt: Point = pt.into();
         let lbl = format!("({} {})", pt.x, pt.y);
         let tspan = Tspan::new(&lbl).x(x).y(y).dy(-0.66);
-        tspan.display(f)
+        write!(f, "{tspan}")
     }
 }
 
@@ -241,6 +212,23 @@ impl<'a> Text<'a> {
     }
 }
 
+impl<'a> fmt::Display for Tspan<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "<tspan")?;
+        if let Some(x) = self.x {
+            write!(f, " x='{x}'")?;
+        }
+        if let Some(y) = self.y {
+            write!(f, " y='{y}'")?;
+        }
+        if let Some(dy) = self.dy {
+            write!(f, " dy='{dy}em'")?;
+        }
+        write!(f, ">{}", &self.text)?;
+        writeln!(f, "</tspan>")
+    }
+}
+
 impl<'a> Tspan<'a> {
     pub fn new(text: &'a str) -> Self {
         Tspan {
@@ -264,21 +252,6 @@ impl<'a> Tspan<'a> {
     pub fn dy(mut self, dy: f32) -> Self {
         self.dy = Some(dy);
         self
-    }
-
-    pub fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<tspan")?;
-        if let Some(x) = self.x {
-            write!(f, " x='{x}'")?;
-        }
-        if let Some(y) = self.y {
-            write!(f, " y='{y}'")?;
-        }
-        if let Some(dy) = self.dy {
-            write!(f, " dy='{dy}em'")?;
-        }
-        write!(f, ">{}", &self.text)?;
-        writeln!(f, "</tspan>")
     }
 }
 
