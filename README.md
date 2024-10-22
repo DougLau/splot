@@ -9,7 +9,7 @@ Plot data to HTML / SVG
 ## Line Plot
 
 ```rust
-use splot::{Chart, Domain, Edge, Line, Page};
+use splot::{Chart, Domain, Edge, Page, Plot};
 
 let data = vec![(13, 74), (111, 37), (125, 52), (190, 66)];
 let domain = Domain::from_data(&data).set_x(&[0.0, 200.0]);
@@ -19,7 +19,7 @@ let page = Page::new().chart(
         .domain(domain)
         .axis("X Axis", Edge::Bottom)
         .axis("Y Axis", Edge::Right)
-        .plot(Line::new("Series", &data)),
+        .plot(Plot::line("Series", &data)),
 );
 println!("{page}");
 ```
@@ -27,7 +27,7 @@ println!("{page}");
 ## Scatter Plot
 
 ```rust
-use splot::{Chart, Domain, Edge, Page, Scatter};
+use splot::{Chart, Domain, Edge, Page, Plot};
 
 let data_a = vec![(13, 74), (111, 37), (125, 52), (190, 66)];
 let data_b = vec![(22, 50), (105, 44), (120, 67), (180, 39)];
@@ -39,8 +39,8 @@ let page = Page::new().chart(
         .axis("X Axis", Edge::Bottom)
         .axis("Y Axis", Edge::Left)
         .axis("", Edge::Right)
-        .plot(Scatter::new("Series A", &data_a).label())
-        .plot(Scatter::new("Series B", &data_b)),
+        .plot(Plot::scatter("Series A", &data_a).label())
+        .plot(Plot::scatter("Series B", &data_b)),
 );
 print!("{page}");
 ```

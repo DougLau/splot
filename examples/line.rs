@@ -1,4 +1,4 @@
-use splot::{Chart, Domain, Edge, Line, Page};
+use splot::{Chart, Domain, Edge, Page, Plot};
 
 fn main() {
     let data_a = vec![(13, 74), (111, 37), (125, 52), (190, 66)];
@@ -10,8 +10,8 @@ fn main() {
             .axis("X Axis", Edge::Bottom)
             .axis("Y Axis", Edge::Left)
             .axis("", Edge::Right)
-            .plot(Line::new("Series A", &data_a).label())
-            .plot(Line::new("Series B", &data_b)),
+            .plot(Plot::line("Series A", &data_a).label())
+            .plot(Plot::line("Series B", &data_b)),
     );
     print!("{page}");
 }

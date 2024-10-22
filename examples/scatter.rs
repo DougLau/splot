@@ -1,4 +1,4 @@
-use splot::{Chart, Domain, Edge, Page, Scatter};
+use splot::{Chart, Domain, Edge, Page, Plot};
 
 fn main() {
     let data_a = vec![(13, 74), (111, 37), (125, 52), (190, 66)];
@@ -11,8 +11,8 @@ fn main() {
             .axis("X Axis", Edge::Bottom)
             .axis("Y Axis", Edge::Left)
             .axis("", Edge::Right)
-            .plot(Scatter::new("Series A", &data_a).label())
-            .plot(Scatter::new("Series B", &data_b)),
+            .plot(Plot::scatter("Series A", &data_a).label())
+            .plot(Plot::scatter("Series B", &data_b)),
     );
     print!("{page}");
 }

@@ -14,6 +14,6 @@ mod text;
 pub use chart::{AspectRatio, Chart, Title};
 pub use domain::Domain;
 pub use page::Page;
-pub use plot::{Area, Line, Plot, Scatter};
+pub use plot::{Plot, PlotSettings};
 pub use point::{IntoPoint, Point};
 pub use rect::Edge;
