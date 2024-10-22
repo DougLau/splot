@@ -11,7 +11,6 @@ mod rect;
 mod scale;
 mod text;
 
-pub use axis::Axis;
 pub use chart::{AspectRatio, Chart, Title};
 pub use domain::Domain;
 pub use page::Page;
