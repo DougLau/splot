@@ -135,11 +135,7 @@ where
     }
 
     /// Add a `Plot`
-    pub fn plot<T>(mut self, plot: T) -> Self
-    where
-        T: Into<Plot<'a, P>>,
-    {
-        let mut plot = plot.into();
+    pub fn plot(mut self, mut plot: Plot<'a, P>) -> Self {
         plot.num(self.num);
         self.num = if self.num < 10 { self.num + 1 } else { 0 };
         let area = self.plot_area();
