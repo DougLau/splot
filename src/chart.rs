@@ -107,10 +107,13 @@ where
     /// Set the domain
     ///
     /// Panics if called after `axis` or `plot`.
-    pub fn domain(mut self, domain: Domain) -> Self {
+    pub fn domain<D>(mut self, domain: D) -> Self
+    where
+        D: Into<Domain>,
+    {
         assert!(self.axes.is_empty());
         assert!(self.plots.is_empty());
-        self.domain = domain;
+        self.domain = domain.into();
         self
     }
 

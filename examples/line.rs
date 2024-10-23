@@ -6,7 +6,7 @@ fn main() {
     let page = Page::new().chart(
         Chart::new()
             .title("Line Plot")
-            .domain(Domain::from_data(&data_a).including(&data_b))
+            .domain(Domain::from(&data_a[..]).including(&data_b))
             .axis("X Axis", Edge::Bottom)
             .axis("Y Axis", Edge::Left)
             .axis("", Edge::Right)

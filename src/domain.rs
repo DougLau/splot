@@ -26,17 +26,18 @@ pub struct BoundDomain {
     rect: Rect,
 }
 
-impl Domain {
-    /// Create a domain from a set of points
-    pub fn from_data<P>(data: &[P]) -> Self
-    where
-        P: IntoPoint,
-    {
+impl<P> From<&[P]> for Domain
+where
+    P: IntoPoint,
+{
+    fn from(data: &[P]) -> Self {
         let x_scale = Scale::from_data(data, |pt| pt.x);
         let y_scale = Scale::from_data(data, |pt| pt.y);
         Domain { x_scale, y_scale }
     }
+}
 
+impl Domain {
     /// Adjust domain to include a set of points
     pub fn including<P>(mut self, data: &[P]) -> Self
     where
@@ -122,7 +123,7 @@ mod tests {
     #[test]
     fn test() {
         let data = [(45.0, 150.0), (90.0, 200.0)];
-        let domain = Domain::from_data(&data);
+        let domain = Domain::from(&data[..]);
         let ticks = Numeric::new(45.0, 90.0).ticks();
         assert_eq!(
             domain.axis("", Edge::Bottom),
