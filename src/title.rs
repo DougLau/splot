@@ -7,29 +7,23 @@ use crate::text::{Anchor, Text};
 use std::fmt;
 
 /// Chart title
-pub struct Title {
-    text: String,
+pub struct Title<'a> {
+    text: &'a str,
     anchor: Anchor,
     pub(crate) edge: Edge,
 }
 
-impl<T> From<T> for Title
-where
-    T: Into<String>,
-{
-    fn from(text: T) -> Self {
-        Title::new(text.into())
+impl<'a> From<&'a str> for Title<'a> {
+    fn from(text: &'a str) -> Self {
+        Title::new(text)
     }
 }
 
-impl Title {
+impl<'a> Title<'a> {
     /// Create a new title
-    pub fn new<T>(text: T) -> Self
-    where
-        T: Into<String>,
-    {
+    pub fn new(text: &'a str) -> Self {
         Title {
-            text: text.into(),
+            text,
             anchor: Anchor::Middle,
             edge: Edge::Top,
         }

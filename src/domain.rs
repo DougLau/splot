@@ -66,10 +66,7 @@ impl Domain {
     }
 
     /// Get axis on one edge
-    pub(crate) fn axis<N>(&self, name: N, edge: Edge) -> Axis
-    where
-        N: Into<String>,
-    {
+    pub(crate) fn axis<'a>(&self, name: &'a str, edge: Edge) -> Axis<'a> {
         match edge {
             Edge::Bottom | Edge::Top => {
                 Axis::new(name, edge, self.x_scale.ticks())

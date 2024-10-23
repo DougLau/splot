@@ -10,23 +10,20 @@ use std::fmt;
 
 /// Axis for drawing labels on a `Chart`
 #[derive(Debug, PartialEq)]
-pub struct Axis {
+pub struct Axis<'a> {
     edge: Edge,
     ticks: Vec<Tick>,
-    name: String,
+    name: &'a str,
     label: Label,
 }
 
-impl Axis {
+impl<'a> Axis<'a> {
     /// Create a new axis
-    pub fn new<N>(name: N, edge: Edge, ticks: Vec<Tick>) -> Self
-    where
-        N: Into<String>,
-    {
+    pub fn new(name: &'a str, edge: Edge, ticks: Vec<Tick>) -> Self {
         Self {
             edge,
             ticks,
-            name: name.into(),
+            name,
             label: Label::new(),
         }
     }

@@ -43,9 +43,9 @@ where
 {
     stand_alone: bool,
     aspect_ratio: AspectRatio,
-    titles: Vec<Title>,
+    titles: Vec<Title<'a>>,
     domain: Domain,
-    axes: Vec<Axis>,
+    axes: Vec<Axis<'a>>,
     plots: Vec<Plot<'a, P>>,
     num: u32,
 }
@@ -116,7 +116,7 @@ where
     /// Panics if called after `axis` or `plot`.
     pub fn title<T>(mut self, title: T) -> Self
     where
-        T: Into<Title>,
+        T: Into<Title<'a>>,
     {
         assert!(self.axes.is_empty());
         assert!(self.plots.is_empty());
@@ -127,10 +127,7 @@ where
     /// Add an `Axis`
     ///
     /// Panics if called after `plot`.
-    pub fn axis<N>(mut self, name: N, edge: Edge) -> Self
-    where
-        N: Into<String>,
-    {
+    pub fn axis(mut self, name: &'a str, edge: Edge) -> Self {
         assert!(self.plots.is_empty());
         let axis = self.domain.axis(name, edge);
         self.axes.push(axis);
