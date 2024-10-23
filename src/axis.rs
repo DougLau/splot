@@ -15,6 +15,7 @@ pub struct Axis<'a> {
     ticks: Vec<Tick>,
     name: &'a str,
     label: Label,
+    rect: Rect,
 }
 
 impl<'a> Axis<'a> {
@@ -25,12 +26,14 @@ impl<'a> Axis<'a> {
             ticks,
             name,
             label: Label::new(),
+            rect: Rect::default(),
         }
     }
 
     /// Split axis area from rectangle
-    pub fn split(&self, area: &mut Rect) -> Rect {
-        area.split(self.edge, self.space())
+    pub fn split(&mut self, mut area: Rect) -> Rect {
+        (area, self.rect) = area.split(self.edge, self.space());
+        area
     }
 
     /// Get the space required
@@ -43,70 +46,21 @@ impl<'a> Axis<'a> {
     }
 
     /// Render the axis
-    pub fn display(
-        &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
-        area: Rect,
-    ) -> fmt::Result {
+    pub fn render(&self, f: &mut fmt::Formatter, area: Rect) -> fmt::Result {
         match self.edge {
-            Edge::Bottom | Edge::Top => self.display_horizontal(f, rect, area),
-            Edge::Left | Edge::Right => self.display_vertical(f, rect, area),
-        }
-    }
-
-    /// Render horizontal axis
-    fn display_horizontal(
-        &self,
-        f: &mut fmt::Formatter,
-        mut rect: Rect,
-        area: Rect,
-    ) -> fmt::Result {
-        rect.intersect_horiz(&area);
-        if !self.name.is_empty() {
-            let r = rect.split(self.edge, self.space() / 2);
-            let text = Text::new(self.edge).rect(r).class_name("axis");
-            text.display(f)?;
-            writeln!(f, "{}", &self.name)?;
-            text.display_done(f)?;
-        }
-        self.display_tick_lines(f, rect)?;
-        self.display_tick_labels(f, rect)
-    }
-
-    /// Render vertical axis
-    fn display_vertical(
-        &self,
-        f: &mut fmt::Formatter,
-        mut rect: Rect,
-        area: Rect,
-    ) -> fmt::Result {
-        rect.intersect_vert(&area);
-        if !&self.name.is_empty() {
-            let r = rect.split(self.edge, self.space() / 2);
-            let text = Text::new(self.edge).rect(r).class_name("axis");
-            text.display(f)?;
-            writeln!(f, "{}", &self.name)?;
-            text.display_done(f)?;
-        }
-        self.display_tick_lines(f, rect)?;
-        self.display_tick_labels(f, rect)
-    }
-
-    /// Render grid lines
-    pub fn display_grid(
-        &self,
-        f: &mut fmt::Formatter,
-        area: Rect,
-    ) -> fmt::Result {
-        match self.edge {
-            Edge::Bottom | Edge::Top => self.display_grid_horizontal(f, area),
-            Edge::Left | Edge::Right => self.display_grid_vertical(f, area),
+            Edge::Bottom | Edge::Top => {
+                self.render_grid_horizontal(f, area)?;
+                self.render_horizontal(f, area)
+            }
+            Edge::Left | Edge::Right => {
+                self.render_grid_vertical(f, area)?;
+                self.render_vertical(f, area)
+            }
         }
     }
 
     /// Render horizontal grid lines
-    fn display_grid_horizontal(
+    fn render_grid_horizontal(
         &self,
         f: &mut fmt::Formatter,
         area: Rect,
@@ -119,8 +73,28 @@ impl<'a> Axis<'a> {
         writeln!(f, "'/>")
     }
 
+    /// Render horizontal axis
+    fn render_horizontal(
+        &self,
+        f: &mut fmt::Formatter,
+        area: Rect,
+    ) -> fmt::Result {
+        let mut rect = self.rect;
+        rect.intersect_horiz(&area);
+        if !self.name.is_empty() {
+            let r;
+            (rect, r) = rect.split(self.edge, self.space() / 2);
+            let text = Text::new(self.edge).rect(r).class_name("axis");
+            text.display(f)?;
+            writeln!(f, "{}", &self.name)?;
+            text.display_done(f)?;
+        }
+        self.render_tick_lines(f, rect)?;
+        self.render_tick_labels(f, rect)
+    }
+
     /// Render vertical grid lines
-    fn display_grid_vertical(
+    fn render_grid_vertical(
         &self,
         f: &mut fmt::Formatter,
         area: Rect,
@@ -133,24 +107,44 @@ impl<'a> Axis<'a> {
         writeln!(f, "'/>")
     }
 
+    /// Render vertical axis
+    fn render_vertical(
+        &self,
+        f: &mut fmt::Formatter,
+        area: Rect,
+    ) -> fmt::Result {
+        let mut rect = self.rect;
+        rect.intersect_vert(&area);
+        if !&self.name.is_empty() {
+            let r;
+            (rect, r) = rect.split(self.edge, self.space() / 2);
+            let text = Text::new(self.edge).rect(r).class_name("axis");
+            text.display(f)?;
+            writeln!(f, "{}", &self.name)?;
+            text.display_done(f)?;
+        }
+        self.render_tick_lines(f, rect)?;
+        self.render_tick_labels(f, rect)
+    }
+
     /// Render tick lines
-    fn display_tick_lines(
+    fn render_tick_lines(
         &self,
         f: &mut fmt::Formatter,
         rect: Rect,
     ) -> fmt::Result {
         match self.edge {
             Edge::Bottom | Edge::Top => {
-                self.display_tick_lines_horizontal(f, rect)
+                self.render_tick_lines_horizontal(f, rect)
             }
             Edge::Left | Edge::Right => {
-                self.display_tick_lines_vertical(f, rect)
+                self.render_tick_lines_vertical(f, rect)
             }
         }
     }
 
     /// Render horizontal tick lines
-    fn display_tick_lines_horizontal(
+    fn render_tick_lines_horizontal(
         &self,
         f: &mut fmt::Formatter,
         rect: Rect,
@@ -173,7 +167,7 @@ impl<'a> Axis<'a> {
     }
 
     /// Render vertical tick lines
-    fn display_tick_lines_vertical(
+    fn render_tick_lines_vertical(
         &self,
         f: &mut fmt::Formatter,
         rect: Rect,
@@ -196,23 +190,23 @@ impl<'a> Axis<'a> {
     }
 
     /// Render tick labels
-    fn display_tick_labels(
+    fn render_tick_labels(
         &self,
         f: &mut fmt::Formatter,
         rect: Rect,
     ) -> fmt::Result {
         match self.edge {
             Edge::Bottom | Edge::Top => {
-                self.display_tick_labels_horizontal(f, rect)
+                self.render_tick_labels_horizontal(f, rect)
             }
             Edge::Left | Edge::Right => {
-                self.display_tick_labels_vertical(f, rect)
+                self.render_tick_labels_vertical(f, rect)
             }
         }
     }
 
     /// Render horizontal tick labels
-    fn display_tick_labels_horizontal(
+    fn render_tick_labels_horizontal(
         &self,
         f: &mut fmt::Formatter,
         rect: Rect,
@@ -227,7 +221,7 @@ impl<'a> Axis<'a> {
     }
 
     /// Render vertical tick labels
-    fn display_tick_labels_vertical(
+    fn render_tick_labels_vertical(
         &self,
         f: &mut fmt::Formatter,
         rect: Rect,

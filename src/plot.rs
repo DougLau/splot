@@ -181,17 +181,17 @@ where
     }
 
     /// Get plot name
-    pub fn name(&self) -> &str {
+    pub(crate) fn name(&self) -> &str {
         self.settings().name
     }
 
     /// Set plot number
-    pub fn num(&mut self, num: u32) {
+    pub(crate) fn num(&mut self, num: u32) {
         self.settings_mut().num = num;
     }
 
     /// Bind with domain
-    pub fn bind_domain(&mut self, domain: BoundDomain) {
+    pub(crate) fn bind_domain(&mut self, domain: BoundDomain) {
         self.settings_mut().domain = domain;
     }
 

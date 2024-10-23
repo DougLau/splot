@@ -48,6 +48,7 @@ where
     axes: Vec<Axis<'a>>,
     plots: Vec<Plot<'a, P>>,
     num: u32,
+    area: Rect,
 }
 
 impl AspectRatio {
@@ -74,6 +75,7 @@ where
             axes: vec![],
             plots: vec![],
             num: 0,
+            area: AspectRatio::Landscape.rect().inset(40),
         }
     }
 }
@@ -98,6 +100,7 @@ where
         assert!(self.axes.is_empty());
         assert!(self.plots.is_empty());
         self.aspect_ratio = aspect;
+        self.area = self.aspect_ratio.rect().inset(40);
         self
     }
 
@@ -120,7 +123,9 @@ where
     {
         assert!(self.axes.is_empty());
         assert!(self.plots.is_empty());
-        self.titles.push(title.into());
+        let mut title = title.into();
+        self.area = title.split(self.area);
+        self.titles.push(title);
         self
     }
 
@@ -129,7 +134,8 @@ where
     /// Panics if called after `plot`.
     pub fn axis(mut self, name: &'a str, edge: Edge) -> Self {
         assert!(self.plots.is_empty());
-        let axis = self.domain.axis(name, edge);
+        let mut axis = self.domain.axis(name, edge);
+        self.area = axis.split(self.area);
         self.axes.push(axis);
         self
     }
@@ -138,22 +144,9 @@ where
     pub fn plot(mut self, mut plot: Plot<'a, P>) -> Self {
         plot.num(self.num);
         self.num = if self.num < 10 { self.num + 1 } else { 0 };
-        let area = self.plot_area();
-        plot.bind_domain(self.domain.bind(area));
+        plot.bind_domain(self.domain.bind(self.area));
         self.plots.push(plot);
         self
-    }
-
-    /// Get area of plots
-    fn plot_area(&self) -> Rect {
-        let mut area = self.aspect_ratio.rect().inset(40);
-        for title in &self.titles {
-            area.split(title.edge, 100);
-        }
-        for axis in &self.axes {
-            axis.split(&mut area);
-        }
-        area
     }
 
     /// Render SVG element start
@@ -187,27 +180,18 @@ where
             writeln!(f, "</marker>")?;
         }
         writeln!(f, "<clipPath id='clip-chart'>")?;
-        writeln!(f, "{}", self.plot_area())?;
+        writeln!(f, "{}", self.area)?;
         writeln!(f, "</clipPath>")?;
         writeln!(f, "</defs>")
     }
 
     /// Render the chart "body"
     fn body(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut area = self.aspect_ratio.rect().inset(40);
         for title in &self.titles {
-            let rect = area.split(title.edge, 100);
-            title.display(f, rect)?;
+            writeln!(f, "{title}")?;
         }
-        let mut axis_rects = vec![];
         for axis in &self.axes {
-            axis_rects.push(axis.split(&mut area));
-        }
-        for axis in self.axes.iter() {
-            axis.display_grid(f, area)?;
-        }
-        for (axis, rect) in self.axes.iter().zip(axis_rects) {
-            axis.display(f, rect, area)?;
+            axis.render(f, self.area)?;
         }
         writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
         for plot in self.plots.iter() {
