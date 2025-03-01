@@ -1,29 +1,26 @@
 # splot
 
-Plot data to HTML / SVG
+Rust crate for plotting to SVG / HTML
 
-- Simple but powerful API
-- Styling using CSS
+- Styling with CSS
 - Usable in WebAssembly
 
-## Line Plot
+## Line Plot to SVG
 
 ```rust
-use splot::{Chart, Domain, Edge, Page, Plot};
+use splot::{Chart, Domain, Edge, Plot};
 
 let data = vec![(13, 74), (111, 37), (125, 52), (190, 66)];
-let page = Page::new().chart(
-    Chart::new()
-        .title("Line Plot")
-        .domain(Domain::from(&data[..]).set_x(&[0.0, 200.0]))
-        .axis("X Axis", Edge::Bottom)
-        .axis("Y Axis", Edge::Right)
-        .plot(Plot::line("Series", &data)),
-);
-println!("{page}");
+let chart = Chart::new()
+    .title("Line Plot")
+    .domain(Domain::from(&data[..]).set_x(&[0.0, 200.0]))
+    .axis("X Axis", Edge::Bottom)
+    .axis("Y Axis", Edge::Left)
+    .plot(Plot::line("Series", &data).label());
+print!("{chart}");
 ```
 
-## Scatter Plot
+## Scatter Plot to HTML
 
 ```rust
 use splot::{Chart, Edge, Page, Plot};
