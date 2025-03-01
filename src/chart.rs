@@ -1,6 +1,6 @@
 // chart.rs
 //
-// Copyright (c) 2021-2024  Douglas P Lau
+// Copyright (c) 2021-2025  Douglas P Lau
 //
 use crate::axis::Axis;
 use crate::domain::Domain;
@@ -33,7 +33,7 @@ pub enum AspectRatio {
     Portrait,
 }
 
-/// Chart for plotting data
+/// Chart for plotting data to SVG
 ///
 /// Multiple `Plot`s can be rendered in a single Chart, even with unrelated
 /// domains and axes.
@@ -49,6 +49,14 @@ where
     plots: Vec<Plot<'a, P>>,
     num: u32,
     area: Rect,
+}
+
+/// Legend for Chart as an HTML `<div>`
+pub struct Legend<'a, P>
+where
+    P: IntoPoint,
+{
+    chart: &'a Chart<'a, P>,
 }
 
 impl AspectRatio {
@@ -203,19 +211,8 @@ where
         writeln!(f, "</g>")
     }
 
-    /// Render the legend as an HTML fragment
-    fn legend(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "<div class='legend'>")?;
-        for (i, plot) in self.plots.iter().enumerate() {
-            writeln!(f, "<div>")?;
-            writeln!(f, "<svg width='20' height='10' viewBox='0 0 60 30'>")?;
-            write!(f, "<path class='plot-{i} legend-line'")?;
-            writeln!(f, " d='M0 15h30h30'/>")?;
-            writeln!(f, "</svg>")?;
-            writeln!(f, "{}", plot.name())?;
-            writeln!(f, "</div>")?;
-        }
-        writeln!(f, "</div>")
+    pub fn legend(&self) -> Legend<P> {
+        Legend { chart: self }
     }
 }
 
@@ -230,7 +227,25 @@ where
         }
         self.defs(f)?;
         self.body(f)?;
-        writeln!(f, "</svg>")?;
-        self.legend(f)
+        writeln!(f, "</svg>")
+    }
+}
+
+impl<'a, P> fmt::Display for Legend<'a, P>
+where
+    P: IntoPoint,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "<div class='legend'>")?;
+        for (i, plot) in self.chart.plots.iter().enumerate() {
+            writeln!(f, "<div>")?;
+            writeln!(f, "<svg width='20' height='10' viewBox='0 0 60 30'>")?;
+            write!(f, "<path class='plot-{i} legend-line'")?;
+            writeln!(f, " d='M0 15h30h30'/>")?;
+            writeln!(f, "</svg>")?;
+            writeln!(f, "{}", plot.name())?;
+            writeln!(f, "</div>")?;
+        }
+        writeln!(f, "</div>")
     }
 }

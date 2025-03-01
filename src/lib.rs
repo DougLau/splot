@@ -12,7 +12,7 @@ mod scale;
 mod text;
 mod title;
 
-pub use chart::{AspectRatio, Chart};
+pub use chart::{AspectRatio, Chart, Legend};
 pub use domain::Domain;
 pub use page::Page;
 pub use plot::{Plot, PlotSettings};

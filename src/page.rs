@@ -1,6 +1,6 @@
 // page.rs
 //
-// Copyright (c) 2021-2024  Douglas P Lau
+// Copyright (c) 2021-2025  Douglas P Lau
 //
 use crate::chart::Chart;
 use crate::point::IntoPoint;
@@ -58,6 +58,7 @@ where
         for chart in &self.charts {
             writeln!(f, "<div class='chart'>")?;
             writeln!(f, "{chart}")?;
+            writeln!(f, "{}", chart.legend())?;
             writeln!(f, "</div>")?;
         }
         writeln!(f, "</div>")?;
