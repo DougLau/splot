@@ -15,7 +15,7 @@ mod title;
 pub use chart::{AspectRatio, Chart, Legend};
 pub use domain::Domain;
 pub use page::Page;
-pub use plot::{Plot, PlotSettings};
+pub use plot::Plot;
 pub use point::{IntoPoint, Point};
 pub use rect::Edge;
 pub use title::Title;

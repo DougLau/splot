@@ -2,19 +2,30 @@
 //
 // Copyright (c) 2021-2025  Douglas P Lau
 //
-//! Plot types
-//!
 use crate::domain::BoundDomain;
 use crate::point::{IntoPoint, Point};
 use crate::rect::Edge;
 use crate::text::{Label, Text};
 use std::fmt;
 
-/// Plot settings
-pub struct PlotSettings<'a, P>
+/// Plot Type
+#[derive(Clone, Copy, Debug)]
+pub enum PlotType {
+    /// Stacked area plot
+    Area,
+    /// Line plot
+    Line,
+    /// Scatter plot
+    Scatter,
+}
+
+/// Plot for rendering data
+pub struct Plot<'a, P>
 where
     P: IntoPoint,
 {
+    /// Plot type
+    plot_tp: PlotType,
     /// Values name
     name: &'a str,
     /// Number within chart
@@ -27,32 +38,56 @@ where
     label: Option<Label>,
 }
 
-/// Plot for rendering data
-pub enum Plot<'a, P>
+impl<'a, P> Plot<'a, P>
 where
     P: IntoPoint,
 {
-    /// Stacked area plot
-    Area(PlotSettings<'a, P>),
-    /// Line plot
-    Line(PlotSettings<'a, P>),
-    /// Scatter plot
-    Scatter(PlotSettings<'a, P>),
-}
-
-impl<'a, P> PlotSettings<'a, P>
-where
-    P: IntoPoint,
-{
-    /// Create new plot settings
-    fn new(name: &'a str, data: &'a [P]) -> Self {
-        PlotSettings {
+    /// Create new plot
+    fn new(tp: PlotType, name: &'a str, data: &'a [P]) -> Self {
+        Plot {
+            plot_tp: tp,
             name,
             num: 0,
             domain: BoundDomain::default(),
             data,
             label: None,
         }
+    }
+
+    /// Create a new area plot
+    pub fn area(name: &'a str, data: &'a [P]) -> Self {
+        Plot::new(PlotType::Area, name, data)
+    }
+
+    /// Create a new line plot
+    pub fn line(name: &'a str, data: &'a [P]) -> Self {
+        Plot::new(PlotType::Line, name, data)
+    }
+
+    /// Create a new scatter plot
+    pub fn scatter(name: &'a str, data: &'a [P]) -> Self {
+        Plot::new(PlotType::Scatter, name, data)
+    }
+
+    /// Get plot name
+    pub(crate) fn name(&self) -> &str {
+        self.name
+    }
+
+    /// Get mutable plot number
+    pub(crate) fn num_mut(&mut self) -> &mut u32 {
+        &mut self.num
+    }
+
+    /// Get mutable domain
+    pub(crate) fn domain_mut(&mut self) -> &mut BoundDomain {
+        &mut self.domain
+    }
+
+    /// Add labels to plot
+    pub fn label(mut self) -> Self {
+        self.label = Some(Label::new());
+        self
     }
 
     /// Format an area plot
@@ -135,69 +170,10 @@ where
     P: IntoPoint,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Plot::Area(p) => p.area_fmt(f),
-            Plot::Line(p) => p.line_fmt(f),
-            Plot::Scatter(p) => p.scatter_fmt(f),
+        match self.plot_tp {
+            PlotType::Area => self.area_fmt(f),
+            PlotType::Line => self.line_fmt(f),
+            PlotType::Scatter => self.scatter_fmt(f),
         }
-    }
-}
-
-impl<'a, P> Plot<'a, P>
-where
-    P: IntoPoint,
-{
-    /// Create a new area plot
-    pub fn area(name: &'a str, data: &'a [P]) -> Self {
-        Plot::Area(PlotSettings::new(name, data))
-    }
-
-    /// Create a new line plot
-    pub fn line(name: &'a str, data: &'a [P]) -> Self {
-        Plot::Line(PlotSettings::new(name, data))
-    }
-
-    /// Create a new scatter plot
-    pub fn scatter(name: &'a str, data: &'a [P]) -> Self {
-        Plot::Scatter(PlotSettings::new(name, data))
-    }
-
-    /// Get plot settings
-    fn settings(&self) -> &PlotSettings<'a, P> {
-        match self {
-            Plot::Area(p) => p,
-            Plot::Line(p) => p,
-            Plot::Scatter(p) => p,
-        }
-    }
-
-    /// Get plot settings mutably
-    fn settings_mut(&mut self) -> &mut PlotSettings<'a, P> {
-        match self {
-            Plot::Area(p) => p,
-            Plot::Line(p) => p,
-            Plot::Scatter(p) => p,
-        }
-    }
-
-    /// Get plot name
-    pub(crate) fn name(&self) -> &str {
-        self.settings().name
-    }
-
-    /// Set plot number
-    pub(crate) fn num(&mut self, num: u32) {
-        self.settings_mut().num = num;
-    }
-
-    /// Bind with domain
-    pub(crate) fn bind_domain(&mut self, domain: BoundDomain) {
-        self.settings_mut().domain = domain;
-    }
-
-    /// Add labels to plot
-    pub fn label(mut self) -> Self {
-        self.settings_mut().label = Some(Label::new());
-        self
     }
 }

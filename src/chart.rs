@@ -153,9 +153,9 @@ where
 
     /// Add a `Plot`
     pub fn plot(mut self, mut plot: Plot<'a, P>) -> Self {
-        plot.num(self.num);
+        *plot.num_mut() = self.num;
         self.num = if self.num < 10 { self.num + 1 } else { 0 };
-        plot.bind_domain(self.domain.bind(self.area));
+        *plot.domain_mut() = self.domain.bind(self.area);
         self.plots.push(plot);
         self
     }
