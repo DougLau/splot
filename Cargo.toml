@@ -7,4 +7,4 @@ keywords = ["chart", "graph", "plot", "visualization"]
 categories = ["science", "visualization"]
 repository = "https://github.com/DougLau/splot"
 readme = "README.md"
-edition = "2021"
+edition = "2024"

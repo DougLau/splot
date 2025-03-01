@@ -38,11 +38,7 @@ impl<'a> Axis<'a> {
 
     /// Get the space required
     fn space(&self) -> u16 {
-        if self.name.is_empty() {
-            80
-        } else {
-            160
-        }
+        if self.name.is_empty() { 80 } else { 160 }
     }
 
     /// Render the axis
