@@ -18,7 +18,7 @@ where
     charts: Vec<Chart<'a, P>>,
 }
 
-impl<'a, P> Default for Page<'a, P>
+impl<P> Default for Page<'_, P>
 where
     P: IntoPoint,
 {
@@ -43,7 +43,7 @@ where
     }
 }
 
-impl<'a, P> fmt::Display for Page<'a, P>
+impl<P> fmt::Display for Page<'_, P>
 where
     P: IntoPoint,
 {

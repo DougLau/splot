@@ -1,6 +1,6 @@
 // plot.rs
 //
-// Copyright (c) 2021-2024  Douglas P Lau
+// Copyright (c) 2021-2025  Douglas P Lau
 //
 //! Plot types
 //!
@@ -130,7 +130,7 @@ where
     }
 }
 
-impl<'a, P> fmt::Display for Plot<'a, P>
+impl<P> fmt::Display for Plot<'_, P>
 where
     P: IntoPoint,
 {

@@ -1,6 +1,6 @@
 // title.rs
 //
-// Copyright (c) 2021-2024  Douglas P Lau
+// Copyright (c) 2021-2025  Douglas P Lau
 //
 use crate::rect::{Edge, Rect};
 use crate::text::{Anchor, Text};
@@ -38,7 +38,7 @@ impl<'a> From<(&'a str, Edge)> for Title<'a> {
     }
 }
 
-impl<'a> fmt::Display for Title<'a> {
+impl fmt::Display for Title<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let text = Text::new(self.edge)
             .rect(self.rect)

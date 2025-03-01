@@ -70,7 +70,7 @@ impl AspectRatio {
     }
 }
 
-impl<'a, P> Default for Chart<'a, P>
+impl<P> Default for Chart<'_, P>
 where
     P: IntoPoint,
 {
@@ -216,7 +216,7 @@ where
     }
 }
 
-impl<'a, P> fmt::Display for Chart<'a, P>
+impl<P> fmt::Display for Chart<'_, P>
 where
     P: IntoPoint,
 {
@@ -231,7 +231,7 @@ where
     }
 }
 
-impl<'a, P> fmt::Display for Legend<'a, P>
+impl<P> fmt::Display for Legend<'_, P>
 where
     P: IntoPoint,
 {

@@ -1,6 +1,6 @@
 // text.rs
 //
-// Copyright (c) 2021-2024  Douglas P Lau
+// Copyright (c) 2021-2025  Douglas P Lau
 //
 use crate::point::{IntoPoint, Point};
 use crate::rect::{Edge, Rect};
@@ -212,7 +212,7 @@ impl<'a> Text<'a> {
     }
 }
 
-impl<'a> fmt::Display for Tspan<'a> {
+impl fmt::Display for Tspan<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "<tspan")?;
         if let Some(x) = self.x {
