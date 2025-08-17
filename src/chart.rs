@@ -211,7 +211,7 @@ where
         writeln!(f, "</g>")
     }
 
-    pub fn legend(&self) -> Legend<P> {
+    pub fn legend(&self) -> Legend<'_, P> {
         Legend { chart: self }
     }
 }
