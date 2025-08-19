@@ -6,7 +6,7 @@
 //!
 use crate::rect::{Edge, Rect};
 use crate::text::{Anchor, Label, Text, Tick};
-use std::fmt;
+use hatmil::{Html, Svg};
 
 /// Axis for drawing labels on a `Chart`
 #[derive(Debug, PartialEq)]
@@ -41,198 +41,161 @@ impl<'a> Axis<'a> {
         if self.name.is_empty() { 80 } else { 160 }
     }
 
-    /// Render the axis
-    pub fn render(&self, f: &mut fmt::Formatter, area: Rect) -> fmt::Result {
+    /// Display the axis
+    pub fn display(&self, area: Rect, html: &mut Html) {
         match self.edge {
             Edge::Bottom | Edge::Top => {
-                self.render_grid_horizontal(f, area)?;
-                self.render_horizontal(f, area)
+                self.display_grid_horizontal(area, html);
+                self.display_horizontal(area, html);
             }
             Edge::Left | Edge::Right => {
-                self.render_grid_vertical(f, area)?;
-                self.render_vertical(f, area)
+                self.display_grid_vertical(area, html);
+                self.display_vertical(area, html)
             }
         }
     }
 
-    /// Render horizontal grid lines
-    fn render_grid_horizontal(
-        &self,
-        f: &mut fmt::Formatter,
-        area: Rect,
-    ) -> fmt::Result {
-        write!(f, "<path class='grid-x' d='")?;
+    /// Display horizontal grid lines
+    fn display_grid_horizontal(&self, area: Rect, html: &mut Html) {
+        let mut d = String::new();
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, area, 0);
-            write!(f, "M{x} {}v{}", area.y, area.height)?;
+            d.push_str(&format!("M{x} {}v{}", area.y, area.height));
         }
-        writeln!(f, "'/>")
+        let path = Svg::new(html).path();
+        path.attr("class", "grid-x").attr("d", d).end();
     }
 
-    /// Render horizontal axis
-    fn render_horizontal(
-        &self,
-        f: &mut fmt::Formatter,
-        area: Rect,
-    ) -> fmt::Result {
+    /// Display horizontal axis
+    fn display_horizontal(&self, area: Rect, html: &mut Html) {
         let mut rect = self.rect;
         rect.intersect_horiz(&area);
         if !self.name.is_empty() {
             let r;
             (rect, r) = rect.split(self.edge, self.space() / 2);
             let text = Text::new(self.edge).rect(r).class_name("axis");
-            text.display(f)?;
-            writeln!(f, "{}", &self.name)?;
-            text.display_done(f)?;
+            text.display(html);
+            html.text(self.name).end();
         }
-        self.render_tick_lines(f, rect)?;
-        self.render_tick_labels(f, rect)
+        self.display_tick_lines(rect, html);
+        self.display_tick_labels(rect, html);
     }
 
-    /// Render vertical grid lines
-    fn render_grid_vertical(
-        &self,
-        f: &mut fmt::Formatter,
-        area: Rect,
-    ) -> fmt::Result {
-        write!(f, "<path class='grid-y' d='")?;
+    /// Display vertical grid lines
+    fn display_grid_vertical(&self, area: Rect, html: &mut Html) {
+        let mut d = String::new();
         for tick in self.ticks.iter() {
             let y = tick.y(self.edge, area, 0);
-            write!(f, "M{} {y}h{}", area.x, area.width)?;
+            d.push_str(&format!("M{} {y}h{}", area.x, area.width));
         }
-        writeln!(f, "'/>")
+        let path = Svg::new(html).path();
+        path.attr("class", "grid-y").attr("d", d).end();
     }
 
-    /// Render vertical axis
-    fn render_vertical(
-        &self,
-        f: &mut fmt::Formatter,
-        area: Rect,
-    ) -> fmt::Result {
+    /// Display vertical axis
+    fn display_vertical(&self, area: Rect, html: &mut Html) {
         let mut rect = self.rect;
         rect.intersect_vert(&area);
         if !&self.name.is_empty() {
             let r;
             (rect, r) = rect.split(self.edge, self.space() / 2);
             let text = Text::new(self.edge).rect(r).class_name("axis");
-            text.display(f)?;
-            writeln!(f, "{}", &self.name)?;
-            text.display_done(f)?;
+            text.display(html);
+            html.text(self.name).end();
         }
-        self.render_tick_lines(f, rect)?;
-        self.render_tick_labels(f, rect)
+        self.display_tick_lines(rect, html);
+        self.display_tick_labels(rect, html);
     }
 
-    /// Render tick lines
-    fn render_tick_lines(
-        &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
-    ) -> fmt::Result {
+    /// Display tick lines
+    fn display_tick_lines(&self, rect: Rect, html: &mut Html) {
         match self.edge {
             Edge::Bottom | Edge::Top => {
-                self.render_tick_lines_horizontal(f, rect)
+                self.display_tick_lines_horizontal(rect, html)
             }
             Edge::Left | Edge::Right => {
-                self.render_tick_lines_vertical(f, rect)
+                self.display_tick_lines_vertical(rect, html)
             }
         }
     }
 
-    /// Render horizontal tick lines
-    fn render_tick_lines_horizontal(
-        &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
-    ) -> fmt::Result {
+    /// Display horizontal tick lines
+    fn display_tick_lines_horizontal(&self, rect: Rect, html: &mut Html) {
         let x = rect.x;
         let (y, height) = match self.edge {
             Edge::Top => (rect.bottom(), Tick::LEN),
             Edge::Bottom => (rect.y, -Tick::LEN),
             _ => unreachable!(),
         };
-        write!(f, "<path class='axis-line' d='M{x} {y}h{}", rect.width)?;
+        let mut d = String::new();
+        d.push_str(&format!("M{x} {y}h{}", rect.width));
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
             let y0 = y.min(y + height);
             let h = y.max(y + height) - y0;
-            write!(f, "M{x} {y0}v{h}")?;
+            d.push_str(&format!("M{x} {y0}v{h}"));
         }
-        writeln!(f, "'/>")
+        let path = Svg::new(html).path();
+        path.attr("class", "axis-line").attr("d", d).end();
     }
 
-    /// Render vertical tick lines
-    fn render_tick_lines_vertical(
-        &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
-    ) -> fmt::Result {
+    /// Display vertical tick lines
+    fn display_tick_lines_vertical(&self, rect: Rect, html: &mut Html) {
         let (x, width) = match self.edge {
             Edge::Left => (rect.right(), Tick::LEN),
             Edge::Right => (rect.x, -Tick::LEN),
             _ => unreachable!(),
         };
-        write!(f, "<path class='axis-line'")?;
-        write!(f, " d='M{x} {}v{}", rect.y, rect.height)?;
+        let mut d = String::new();
+        d.push_str(&format!("M{x} {}v{}", rect.y, rect.height));
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
             let x0 = x.min(x + width);
             let w = x.max(x + width) - x0;
-            write!(f, " M{x0} {y}h{w}")?;
+            d.push_str(&format!("M{x0} {y}h{w}"));
         }
-        writeln!(f, "'/>")
+        let path = Svg::new(html).path();
+        path.attr("class", "axis-line").attr("d", d).end();
     }
 
-    /// Render tick labels
-    fn render_tick_labels(
-        &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
-    ) -> fmt::Result {
+    /// Display tick labels
+    fn display_tick_labels(&self, rect: Rect, html: &mut Html) {
         match self.edge {
             Edge::Bottom | Edge::Top => {
-                self.render_tick_labels_horizontal(f, rect)
+                self.display_tick_labels_horizontal(rect, html);
             }
             Edge::Left | Edge::Right => {
-                self.render_tick_labels_vertical(f, rect)
+                self.display_tick_labels_vertical(rect, html);
             }
         }
     }
 
-    /// Render horizontal tick labels
-    fn render_tick_labels_horizontal(
-        &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
-    ) -> fmt::Result {
+    /// Display horizontal tick labels
+    fn display_tick_labels_horizontal(&self, rect: Rect, html: &mut Html) {
         let text = Text::new(Edge::Top).class_name("tick");
-        text.display(f)?;
+        text.display(html);
         for tick in &self.ticks {
             let tspan = tick.tspan(self.edge, rect);
-            write!(f, "{tspan}")?;
+            tspan.display(html);
         }
-        text.display_done(f)
+        html.end();
     }
 
-    /// Render vertical tick labels
-    fn render_tick_labels_vertical(
-        &self,
-        f: &mut fmt::Formatter,
-        rect: Rect,
-    ) -> fmt::Result {
+    /// Display vertical tick labels
+    fn display_tick_labels_vertical(&self, rect: Rect, html: &mut Html) {
         let anchor = match self.edge {
             Edge::Left => Anchor::End,
             Edge::Right => Anchor::Start,
             _ => unreachable!(),
         };
         let text = Text::new(Edge::Top).anchor(anchor).class_name("tick");
-        text.display(f)?;
+        text.display(html);
         for tick in &self.ticks {
             let tspan = tick.tspan(self.edge, rect);
-            write!(f, "{tspan}")?;
+            tspan.display(html);
         }
-        text.display_done(f)
+        html.end();
     }
 }

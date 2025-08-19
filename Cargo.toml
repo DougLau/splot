@@ -8,3 +8,6 @@ categories = ["science", "visualization"]
 repository = "https://github.com/DougLau/splot"
 readme = "README.md"
 edition = "2024"
+
+[dependencies]
+hatmil = "0.6.0"

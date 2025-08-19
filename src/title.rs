@@ -4,7 +4,7 @@
 //
 use crate::rect::{Edge, Rect};
 use crate::text::{Anchor, Text};
-use std::fmt;
+use hatmil::Html;
 
 /// Chart title
 ///
@@ -38,18 +38,6 @@ impl<'a> From<(&'a str, Edge)> for Title<'a> {
     }
 }
 
-impl fmt::Display for Title<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let text = Text::new(self.edge)
-            .rect(self.rect)
-            .anchor(self.anchor)
-            .class_name("title");
-        text.display(f)?;
-        writeln!(f, "{}", self.text)?;
-        text.display_done(f)
-    }
-}
-
 impl<'a> Title<'a> {
     /// Create a new title
     pub fn new(text: &'a str) -> Self {
@@ -77,5 +65,15 @@ impl<'a> Title<'a> {
     pub(crate) fn split(&mut self, mut area: Rect) -> Rect {
         (area, self.rect) = area.split(self.edge, 100);
         area
+    }
+
+    pub(crate) fn display(&self, html: &mut Html) {
+        let text = Text::new(self.edge)
+            .rect(self.rect)
+            .anchor(self.anchor)
+            .class_name("title");
+        text.display(html);
+        html.text(self.text);
+        html.end();
     }
 }

@@ -4,7 +4,7 @@
 //
 use crate::point::{IntoPoint, Point};
 use crate::rect::{Edge, Rect};
-use std::fmt;
+use hatmil::{Html, Svg};
 
 /// Vertical offset relative to point
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -57,12 +57,12 @@ pub struct Tick {
     text: String,
 }
 
-impl fmt::Display for Anchor {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl Anchor {
+    fn value(self) -> &'static str {
         match self {
-            Anchor::Start => write!(f, " text-anchor='start'"),
-            Anchor::Middle => write!(f, " text-anchor='middle'"),
-            Anchor::End => write!(f, " text-anchor='end'"),
+            Anchor::Start => "start",
+            Anchor::Middle => "middle",
+            Anchor::End => "end",
         }
     }
 }
@@ -118,20 +118,14 @@ impl Label {
         }
     }
 
-    pub fn display<P>(
-        &self,
-        f: &mut fmt::Formatter,
-        x: i32,
-        y: i32,
-        pt: P,
-    ) -> fmt::Result
+    pub fn display_at<P>(&self, x: i32, y: i32, pt: P, html: &mut Html)
     where
         P: IntoPoint,
     {
         let pt: Point = pt.into();
         let lbl = format!("({} {})", pt.x, pt.y);
         let tspan = Tspan::new(&lbl).x(x).y(y).dy(-0.66);
-        write!(f, "{tspan}")
+        tspan.display(html);
     }
 }
 
@@ -167,25 +161,23 @@ impl<'a> Text<'a> {
         self
     }
 
-    pub fn display(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<text")?;
+    pub fn display(&self, html: &mut Html) {
+        let svg = Svg::new(html);
+        let mut t = svg.text();
         if let Some(class_name) = self.class_name {
-            write!(f, " class='{}'", class_name)?;
+            t = t.attr("class", class_name);
         }
-        if let Some(rect) = self.rect {
-            self.transform(f, rect)?;
+        if let Some(transform) = self.transform() {
+            t = t.attr("transform", transform);
         }
         if let Some(dy) = self.dy {
-            write!(f, " dy='{dy}em'")?;
+            t = t.attr("dy", format!("{dy}em'"));
         }
-        writeln!(f, "{}>", self.anchor)
+        t.attr("text-anchor", self.anchor.value());
     }
 
-    pub fn display_done(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "</text>")
-    }
-
-    fn transform(&self, f: &mut fmt::Formatter, rect: Rect) -> fmt::Result {
+    fn transform(&self) -> Option<String> {
+        let rect = self.rect?;
         let x = match (self.edge, self.anchor) {
             (Edge::Top, Anchor::Start) | (Edge::Bottom, Anchor::Start) => {
                 rect.x
@@ -202,30 +194,13 @@ impl<'a> Text<'a> {
             }
             _ => rect.y + i32::from(rect.height) / 2,
         };
-        write!(f, " transform='translate({x} {y})")?;
+        let mut t = format!("translate({x} {y})");
         match self.edge {
-            Edge::Left => write!(f, " rotate(-90)")?,
-            Edge::Right => write!(f, " rotate(90)")?,
+            Edge::Left => t.push_str(" rotate(-90)"),
+            Edge::Right => t.push_str(" rotate(90)"),
             _ => (),
         }
-        write!(f, "'")
-    }
-}
-
-impl fmt::Display for Tspan<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<tspan")?;
-        if let Some(x) = self.x {
-            write!(f, " x='{x}'")?;
-        }
-        if let Some(y) = self.y {
-            write!(f, " y='{y}'")?;
-        }
-        if let Some(dy) = self.dy {
-            write!(f, " dy='{dy}em'")?;
-        }
-        write!(f, ">{}", &self.text)?;
-        writeln!(f, "</tspan>")
+        Some(t)
     }
 }
 
@@ -252,6 +227,22 @@ impl<'a> Tspan<'a> {
     pub fn dy(mut self, dy: f32) -> Self {
         self.dy = Some(dy);
         self
+    }
+
+    pub fn display(&self, html: &mut Html) {
+        let svg = Svg::new(html);
+        let mut t = svg.tspan();
+        if let Some(x) = self.x {
+            t = t.attr("x", format!("{x}"));
+        }
+        if let Some(y) = self.y {
+            t = t.attr("y", format!("{y}"));
+        }
+        if let Some(dy) = self.dy {
+            t.attr("dy", format!("{dy}em"));
+        }
+        html.text(self.text);
+        html.end(); // tspan
     }
 }
 

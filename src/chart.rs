@@ -6,20 +6,21 @@ use crate::axis::Axis;
 use crate::domain::Domain;
 use crate::plot::Plot;
 use crate::point::IntoPoint;
-use crate::rect::{Edge, Rect, ViewBox};
+use crate::rect::{Edge, Rect};
 use crate::title::Title;
+use hatmil::{Html, Svg};
 use std::fmt;
 
 /// Marker shapes
 const MARKERS: &[&str] = &[
-    "<circle r='1'/>",
-    "<rect x='-1' y='-1' width='2' height='2'/>",
-    "<path d='M0 -1 1 1 -1 1z'/>",
-    "<path d='M1 0 -1 1 -1 -1z'/>",
-    "<path d='M0 1 -1 -1 1 -1z'/>",
-    "<path d='M-1 0 1 -1 1 1z'/>",
-    "<path d='M0 -1 1 0 0 1 -1 0z'/>",
-    "<path d='M-1 -1 0 -0.5 1 -1 0.5 0 1 1 0 0.5 -1 1 -0.5 0z'/>",
+    "M0 1A1 1 0 0 1 0 -1 A1 1 0 0 1 0 1",
+    "M-1 -1h2v2h-2z",
+    "M0 -1 1 1 -1 1z",
+    "M1 0 -1 1 -1 -1z",
+    "M0 1 -1 -1 1 -1z",
+    "M-1 0 1 -1 1 1z",
+    "M0 -1 1 0 0 1 -1 0z",
+    "M-1 -1 0 -0.5 1 -1 0.5 0 1 1 0 0.5 -1 1 -0.5 0z",
 ];
 
 /// Chart aspect ratio
@@ -49,14 +50,6 @@ where
     plots: Vec<Plot<'a, P>>,
     num: u32,
     area: Rect,
-}
-
-/// Legend for Chart as an HTML `<div>`
-pub struct Legend<'a, P>
-where
-    P: IntoPoint,
-{
-    chart: &'a Chart<'a, P>,
 }
 
 impl AspectRatio {
@@ -161,58 +154,89 @@ where
     }
 
     /// Render SVG element start
-    fn svg(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let view_box = ViewBox(self.aspect_ratio.rect());
-        write!(f, "<svg")?;
+    fn svg(&self, html: &mut Html) {
+        let mut svg = html.svg();
         if self.stand_alone {
-            write!(f, " xmlns='http://www.w3.org/2000/svg'")?;
+            svg = svg.attr("xmlns", "http://www.w3.org/2000/svg");
         }
-        writeln!(f, " {view_box}>")
+        svg.attr("viewBox", self.aspect_ratio.rect().view_box());
     }
 
     /// Render link to CSS
-    fn link(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<link")?;
-        write!(f, " xmlns='http://www.w3.org/1999/xhtml'")?;
-        write!(f, " type='text/css'")?;
-        write!(f, " rel='stylesheet'")?;
-        writeln!(f, " href='./css/splot.css' />")
+    fn link(&self, html: &mut Html) {
+        let svg = Svg::new(html);
+        svg.link()
+            .attr("xmlns", "http://www.w3.org/1999/xhtml")
+            .attr("type", "text/css")
+            .attr("rel", "stylesheet")
+            .attr("href", "./css/splot.css")
+            .end();
     }
 
     /// Render defs element
-    fn defs(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "<defs>")?;
+    fn defs(&self, html: &mut Html) {
+        Svg::new(html).defs();
         for i in 0..self.plots.len() {
-            write!(f, "<marker id='marker-{i}'")?;
-            write!(f, " class='plot-{i}'")?;
-            write!(f, " viewBox='-1 -1 2 2'")?;
-            writeln!(f, " markerWidth='5' markerHeight='5'>")?;
-            writeln!(f, "{}", MARKERS[i % MARKERS.len()])?;
-            writeln!(f, "</marker>")?;
+            let mut marker = Svg::new(html).marker();
+            marker = marker.attr("id", format!("marker-{i}"));
+            marker = marker.attr("class", format!("plot-{i}"));
+            marker = marker.attr("viewBox", "-1 -1 2 2");
+            marker = marker.attr("markerWidth", "5");
+            marker = marker.attr("markerHeight", "5");
+            let path = marker.path();
+            path.attr("d", MARKERS[i % MARKERS.len()]);
+            html.end().end(); // path, marker
         }
-        writeln!(f, "<clipPath id='clip-chart'>")?;
-        writeln!(f, "{}", self.area)?;
-        writeln!(f, "</clipPath>")?;
-        writeln!(f, "</defs>")
+        let cp = Svg::new(html).clip_path();
+        cp.attr("id", "clip-chart");
+        self.area.display(html);
+        html.end().end(); // clipPath, defs
     }
 
     /// Render the chart "body"
-    fn body(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn body(&self, html: &mut Html) {
         for title in &self.titles {
-            writeln!(f, "{title}")?;
+            title.display(html);
         }
         for axis in &self.axes {
-            axis.render(f, self.area)?;
+            axis.display(self.area, html);
         }
-        writeln!(f, "<g clip-path='url(#clip-chart)'>")?;
+        let g = Svg::new(html).g();
+        g.attr("clip-path", "url(#clip-chart)");
         for plot in self.plots.iter() {
-            writeln!(f, "{plot}")?;
+            plot.display(html);
         }
-        writeln!(f, "</g>")
+        html.end(); // g
     }
 
-    pub fn legend(&self) -> Legend<'_, P> {
-        Legend { chart: self }
+    /// Display char as HTML
+    pub fn display(&self, html: &mut Html) {
+        self.svg(html);
+        if self.stand_alone {
+            self.link(html);
+        }
+        self.defs(html);
+        self.body(html);
+        html.end(); // svg
+    }
+
+    /// Display legend as HTML `<div>`
+    pub fn legend(&self, html: &mut Html) {
+        html.div().class("legend");
+        for (i, plot) in self.plots.iter().enumerate() {
+            html.div();
+            let mut svg = html.svg();
+            svg = svg.attr("width", "20");
+            svg = svg.attr("height", "10");
+            svg = svg.attr("viewBox", "0 0 60 30");
+            let mut path = svg.path();
+            path = path.attr("class", format!("plot-{i} legend-line"));
+            path.attr("d", "M0 15h30h30");
+            html.end().end(); // path, svg
+            html.text(plot.name());
+            html.end(); // div
+        }
+        html.end(); // div
     }
 }
 
@@ -221,31 +245,8 @@ where
     P: IntoPoint,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.svg(f)?;
-        if self.stand_alone {
-            self.link(f)?;
-        }
-        self.defs(f)?;
-        self.body(f)?;
-        writeln!(f, "</svg>")
-    }
-}
-
-impl<P> fmt::Display for Legend<'_, P>
-where
-    P: IntoPoint,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "<div class='legend'>")?;
-        for (i, plot) in self.chart.plots.iter().enumerate() {
-            writeln!(f, "<div>")?;
-            writeln!(f, "<svg width='20' height='10' viewBox='0 0 60 30'>")?;
-            write!(f, "<path class='plot-{i} legend-line'")?;
-            writeln!(f, " d='M0 15h30h30'/>")?;
-            writeln!(f, "</svg>")?;
-            writeln!(f, "{}", plot.name())?;
-            writeln!(f, "</div>")?;
-        }
-        writeln!(f, "</div>")
+        let mut html = Html::new();
+        self.display(&mut html);
+        writeln!(f, "{}", String::from(html))
     }
 }

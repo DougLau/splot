@@ -6,7 +6,7 @@ use crate::domain::BoundDomain;
 use crate::point::{IntoPoint, Point};
 use crate::rect::Edge;
 use crate::text::{Label, Text};
-use std::fmt;
+use hatmil::{Html, Svg};
 
 /// Plot Type
 #[derive(Clone, Copy, Debug)]
@@ -90,90 +90,94 @@ where
         self
     }
 
-    /// Format an area plot
-    fn area_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<path class='plot-{} plot-area' d='", self.num)?;
+    /// Display a plot
+    pub(crate) fn display(&self, html: &mut Html) {
+        match self.plot_tp {
+            PlotType::Area => self.display_area(html),
+            PlotType::Line => self.display_line(html),
+            PlotType::Scatter => self.display_scatter(html),
+        }
+    }
+
+    /// Display an area plot
+    fn display_area(&self, html: &mut Html) {
+        let cls = format!("plot-{} plot-area", self.num);
+        let mut d = String::new();
         if let Some(pt) = self.data.first() {
             let pt: Point = (*pt).into();
             let x = self.domain.x_map(pt.x);
             let y = self.domain.y_map(0.0);
-            write!(f, "M{x} {y}")?;
+            d.push_str(&format!("M{x} {y}"));
         }
         for pt in self.data.iter() {
             let pt: Point = (*pt).into();
             let x = self.domain.x_map(pt.x);
             let y = self.domain.y_map(pt.y);
-            write!(f, " {x} {y}")?;
+            d.push_str(&format!(" {x} {y}"));
         }
         if let Some(pt) = self.data.last() {
             let pt: Point = (*pt).into();
             let x = self.domain.x_map(pt.x);
             let y = self.domain.y_map(0.0);
-            write!(f, " {x} {y}")?;
+            d.push_str(&format!(" {x} {y}"));
         }
-        writeln!(f, "' />")
+        let path = Svg::new(html).path();
+        path.attr("class", cls).attr("d", d).end();
+        self.display_labels(html);
     }
 
-    /// Format a line plot
-    fn line_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<path class='plot-{} plot-line' d='", self.num)?;
+    /// Display a line plot
+    fn display_line(&self, html: &mut Html) {
+        let cls = format!("plot-{} plot-line", self.num);
+        let mut d = String::new();
         for (i, pt) in self.data.iter().enumerate() {
+            if i == 0 {
+                d.push('M');
+            } else {
+                d.push(' ');
+            }
             let pt = (*pt).into();
             let x = self.domain.x_map(pt.x);
             let y = self.domain.y_map(pt.y);
-            if i == 0 {
-                write!(f, "M{x} {y}")?;
-            } else {
-                write!(f, " {x} {y}")?;
-            }
+            d.push_str(&format!("{x} {y}"));
         }
-        writeln!(f, "'/>")?;
-        self.labels_fmt(f)
+        let path = Svg::new(html).path();
+        path.attr("class", cls).attr("d", d).end();
+        self.display_labels(html);
     }
 
-    /// Format a scatter plot
-    fn scatter_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<path class='plot-{} plot-scatter' d='", self.num)?;
+    /// Display a scatter plot
+    fn display_scatter(&self, html: &mut Html) {
+        let cls = format!("plot-{} plot-scatter", self.num);
+        let mut d = String::new();
         for (i, pt) in self.data.iter().enumerate() {
+            if i == 0 {
+                d.push('M');
+            } else {
+                d.push(' ');
+            }
             let pt = (*pt).into();
             let x = self.domain.x_map(pt.x);
             let y = self.domain.y_map(pt.y);
-            if i == 0 {
-                write!(f, "M{x} {y}")?;
-            } else {
-                write!(f, " {x} {y}")?;
-            }
+            d.push_str(&format!("{x} {y}"));
         }
-        writeln!(f, "' />")?;
-        self.labels_fmt(f)
+        let path = Svg::new(html).path();
+        path.attr("class", cls).attr("d", d).end();
+        self.display_labels(html);
     }
 
-    /// Format plot labels
-    fn labels_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    /// Display plot labels
+    fn display_labels(&self, html: &mut Html) {
         if let Some(label) = &self.label {
             let text = Text::new(Edge::Top).class_name("plot-label");
-            text.display(f)?;
+            text.display(html);
             for pt in self.data.iter() {
                 let pt = (*pt).into();
                 let x = self.domain.x_map(pt.x);
                 let y = self.domain.y_map(pt.y);
-                label.display(f, x, y, pt)?;
+                label.display_at(x, y, pt, html);
             }
-            text.display_done(f)?;
-        }
-        Ok(())
-    }
-}
-
-impl<P> fmt::Display for Plot<'_, P>
-where
-    P: IntoPoint,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.plot_tp {
-            PlotType::Area => self.area_fmt(f),
-            PlotType::Line => self.line_fmt(f),
-            PlotType::Scatter => self.scatter_fmt(f),
+            html.end(); // text
         }
     }
 }

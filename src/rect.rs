@@ -1,8 +1,8 @@
 // rect.rs
 //
-// Copyright (c) 2021-2024  Douglas P Lau
+// Copyright (c) 2021-2025  Douglas P Lau
 //
-use std::fmt;
+use hatmil::{Html, Svg};
 
 /// Edge of rendered item
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -21,10 +21,6 @@ pub struct Rect {
     pub width: u16,
     pub height: u16,
 }
-
-/// SVG view box
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct ViewBox(pub Rect);
 
 impl Rect {
     /// Create a new rectangle
@@ -111,24 +107,17 @@ impl Rect {
         self.y = y;
         self.height = (y2 - y) as u16;
     }
-}
 
-impl fmt::Display for Rect {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "<rect x='{}' y='{}' width='{}' height='{}'/>",
-            self.x, self.y, self.width, self.height
-        )
+    pub fn display(&self, html: &mut Html) {
+        let mut r = Svg::new(html).rect();
+        r = r.attr("x", format!("{}", self.x));
+        r = r.attr("y", format!("{}", self.y));
+        r = r.attr("width", format!("{}", self.width));
+        r = r.attr("height", format!("{}", self.height));
+        r.end();
     }
-}
 
-impl fmt::Display for ViewBox {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "viewBox='{} {} {} {}'",
-            self.0.x, self.0.y, self.0.width, self.0.height
-        )
+    pub fn view_box(&self) -> String {
+        format!("{} {} {} {}", self.x, self.y, self.width, self.height)
     }
 }

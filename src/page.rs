@@ -4,6 +4,7 @@
 //
 use crate::chart::Chart;
 use crate::point::IntoPoint;
+use hatmil::Html;
 use std::fmt;
 
 /// Page to render charts as HTML
@@ -48,21 +49,20 @@ where
     P: IntoPoint,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "<html>")?;
-        writeln!(f, "<head>")?;
-        writeln!(f, "<meta charset='UTF-8'>")?;
-        writeln!(f, "<link href='./css/splot.css' rel='stylesheet'/>")?;
-        writeln!(f, "</head>")?;
-        writeln!(f, "<body>")?;
-        writeln!(f, "<div class='page'>")?;
+        let mut html = Html::new();
+        html.html();
+        html.head();
+        html.meta().attr("charset", "UTF-8");
+        html.link().href("./css/splot.css").rel("stylesheet");
+        html.end(); // head
+        html.body();
+        html.div().class("page");
         for chart in &self.charts {
-            writeln!(f, "<div class='chart'>")?;
-            writeln!(f, "{chart}")?;
-            writeln!(f, "{}", chart.legend())?;
-            writeln!(f, "</div>")?;
+            html.div().class("chart");
+            chart.display(&mut html);
+            chart.legend(&mut html);
+            html.end(); // div
         }
-        writeln!(f, "</div>")?;
-        writeln!(f, "</body>")?;
-        Ok(())
+        writeln!(f, "{html}")
     }
 }
