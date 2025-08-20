@@ -244,7 +244,7 @@ where
     P: IntoPoint,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut html = Html::new();
+        let mut html = Html::new_xml_compatible();
         self.display(&mut html);
         writeln!(f, "{}", String::from(html))
     }
