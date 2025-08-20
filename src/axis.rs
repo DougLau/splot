@@ -63,7 +63,7 @@ impl<'a> Axis<'a> {
             d.push_str(&format!("M{x} {}v{}", area.y, area.height));
         }
         let path = Svg::new(html).path();
-        path.attr("class", "grid-x").attr("d", d).end();
+        path.class("grid-x").d(d).end();
     }
 
     /// Display horizontal axis
@@ -89,7 +89,7 @@ impl<'a> Axis<'a> {
             d.push_str(&format!("M{} {y}h{}", area.x, area.width));
         }
         let path = Svg::new(html).path();
-        path.attr("class", "grid-y").attr("d", d).end();
+        path.class("grid-y").d(d).end();
     }
 
     /// Display vertical axis
@@ -137,7 +137,7 @@ impl<'a> Axis<'a> {
             d.push_str(&format!("M{x} {y0}v{h}"));
         }
         let path = Svg::new(html).path();
-        path.attr("class", "axis-line").attr("d", d).end();
+        path.class("axis-line").d(d).end();
     }
 
     /// Display vertical tick lines
@@ -157,7 +157,7 @@ impl<'a> Axis<'a> {
             d.push_str(&format!("M{x0} {y}h{w}"));
         }
         let path = Svg::new(html).path();
-        path.attr("class", "axis-line").attr("d", d).end();
+        path.class("axis-line").d(d).end();
     }
 
     /// Display tick labels

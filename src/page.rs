@@ -52,7 +52,6 @@ where
         let mut html = Html::new();
         html.html();
         html.head();
-        html.meta().attr("charset", "UTF-8");
         html.link().href("./css/splot.css").rel("stylesheet");
         html.end(); // head
         html.body();

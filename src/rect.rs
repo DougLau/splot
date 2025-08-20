@@ -108,13 +108,15 @@ impl Rect {
         self.height = (y2 - y) as u16;
     }
 
+    /// Display the rectangle
     pub fn display(&self, html: &mut Html) {
-        let mut r = Svg::new(html).rect();
-        r = r.attr("x", format!("{}", self.x));
-        r = r.attr("y", format!("{}", self.y));
-        r = r.attr("width", format!("{}", self.width));
-        r = r.attr("height", format!("{}", self.height));
-        r.end();
+        Svg::new(html)
+            .rect()
+            .x(format!("{}", self.x))
+            .y(format!("{}", self.y))
+            .width(format!("{}", self.width))
+            .height(format!("{}", self.height))
+            .end();
     }
 
     pub fn view_box(&self) -> String {

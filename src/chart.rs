@@ -159,7 +159,7 @@ where
         if self.stand_alone {
             svg = svg.attr("xmlns", "http://www.w3.org/2000/svg");
         }
-        svg.attr("viewBox", self.aspect_ratio.rect().view_box());
+        svg.view_box(self.aspect_ratio.rect().view_box());
     }
 
     /// Render link to CSS
@@ -167,9 +167,9 @@ where
         let svg = Svg::new(html);
         svg.link()
             .attr("xmlns", "http://www.w3.org/1999/xhtml")
-            .attr("type", "text/css")
-            .attr("rel", "stylesheet")
-            .attr("href", "./css/splot.css")
+            .r#type("text/css")
+            .rel("stylesheet")
+            .href("./css/splot.css")
             .end();
     }
 
@@ -177,18 +177,19 @@ where
     fn defs(&self, html: &mut Html) {
         Svg::new(html).defs();
         for i in 0..self.plots.len() {
-            let mut marker = Svg::new(html).marker();
-            marker = marker.attr("id", format!("marker-{i}"));
-            marker = marker.attr("class", format!("plot-{i}"));
-            marker = marker.attr("viewBox", "-1 -1 2 2");
-            marker = marker.attr("markerWidth", "5");
-            marker = marker.attr("markerHeight", "5");
+            let marker = Svg::new(html)
+                .marker()
+                .id(format!("marker-{i}"))
+                .class(format!("plot-{i}"))
+                .view_box("-1 -1 2 2")
+                .marker_width("5")
+                .marker_height("5");
             let path = marker.path();
-            path.attr("d", MARKERS[i % MARKERS.len()]);
+            path.d(MARKERS[i % MARKERS.len()]);
             html.end().end(); // path, marker
         }
         let cp = Svg::new(html).clip_path();
-        cp.attr("id", "clip-chart");
+        cp.id("clip-chart");
         self.area.display(html);
         html.end().end(); // clipPath, defs
     }
@@ -225,14 +226,12 @@ where
         html.div().class("legend");
         for (i, plot) in self.plots.iter().enumerate() {
             html.div();
-            let mut svg = html.svg();
-            svg = svg.attr("width", "20");
-            svg = svg.attr("height", "10");
-            svg = svg.attr("viewBox", "0 0 60 30");
-            let mut path = svg.path();
-            path = path.attr("class", format!("plot-{i} legend-line"));
-            path.attr("d", "M0 15h30h30");
-            html.end().end(); // path, svg
+            let svg = html.svg().width("20").height("10").view_box("0 0 60 30");
+            svg.path()
+                .class(format!("plot-{i} legend-line"))
+                .d("M0 15h30h30")
+                .end();
+            html.end(); // svg
             html.text(plot.name());
             html.end(); // div
         }
