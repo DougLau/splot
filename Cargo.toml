@@ -10,4 +10,4 @@ readme = "README.md"
 edition = "2024"
 
 [dependencies]
-hatmil = "0.7.1"
+hatmil = "0.8.0"

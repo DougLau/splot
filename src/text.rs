@@ -233,10 +233,10 @@ impl<'a> Tspan<'a> {
         let svg = Svg::new(html);
         let mut t = svg.tspan();
         if let Some(x) = self.x {
-            t = t.attr("x", format!("{x}"));
+            t = t.attr("x", x);
         }
         if let Some(y) = self.y {
-            t = t.attr("y", format!("{y}"));
+            t = t.attr("y", y);
         }
         if let Some(dy) = self.dy {
             t.attr("dy", format!("{dy}em"));

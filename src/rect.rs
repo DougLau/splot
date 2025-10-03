@@ -112,10 +112,10 @@ impl Rect {
     pub fn display(&self, html: &mut Html) {
         Svg::new(html)
             .rect()
-            .x(format!("{}", self.x))
-            .y(format!("{}", self.y))
-            .width(format!("{}", self.width))
-            .height(format!("{}", self.height))
+            .x(self.x)
+            .y(self.y)
+            .width(self.width)
+            .height(self.height)
             .end();
     }
 
