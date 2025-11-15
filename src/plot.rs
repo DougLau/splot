@@ -142,7 +142,7 @@ where
             d.push_str(&format!("{x} {y}"));
         }
         let path = Svg::new(html).path();
-        path.attr("class", cls).attr("d", d).end();
+        path.class(cls).d(d).end();
         self.display_labels(html);
     }
 
@@ -162,7 +162,7 @@ where
             d.push_str(&format!("{x} {y}"));
         }
         let path = Svg::new(html).path();
-        path.attr("class", cls).attr("d", d).end();
+        path.class(cls).d(d).end();
         self.display_labels(html);
     }
 
