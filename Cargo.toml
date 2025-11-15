@@ -1,6 +1,6 @@
 [package]
 name = "splot"
-version = "0.6.0"
+version = "0.7.0"
 license = "MIT OR Apache-2.0"
 description = "Plot data to HTML"
 keywords = ["chart", "graph", "plot", "visualization"]
