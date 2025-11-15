@@ -165,15 +165,15 @@ impl<'a> Text<'a> {
         let svg = Svg::new(html);
         let mut t = svg.text();
         if let Some(class_name) = self.class_name {
-            t = t.attr("class", class_name);
+            t = t.class(class_name);
         }
         if let Some(transform) = self.transform() {
-            t = t.attr("transform", transform);
+            t = t.transform(transform);
         }
         if let Some(dy) = self.dy {
-            t = t.attr("dy", format!("{dy}em'"));
+            t = t.dy(format!("{dy}em'"));
         }
-        t.attr("text-anchor", self.anchor.value());
+        t.text_anchor(self.anchor.value());
     }
 
     fn transform(&self) -> Option<String> {
@@ -233,13 +233,13 @@ impl<'a> Tspan<'a> {
         let svg = Svg::new(html);
         let mut t = svg.tspan();
         if let Some(x) = self.x {
-            t = t.attr("x", x);
+            t = t.x(x);
         }
         if let Some(y) = self.y {
-            t = t.attr("y", y);
+            t = t.y(y);
         }
         if let Some(dy) = self.dy {
-            t.attr("dy", format!("{dy}em"));
+            t.dy(format!("{dy}em"));
         }
         html.text(self.text);
         html.end(); // tspan
