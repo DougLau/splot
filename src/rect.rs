@@ -7,18 +7,26 @@ use hatmil::{Html, Svg};
 /// Edge of rendered item
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Edge {
+    /// Top edge
     Top,
+    /// Left edge
     Left,
+    /// Bottom edge
     Bottom,
+    /// Right edge
     Right,
 }
 
 /// Rendering rectangle
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Rect {
+    /// X position
     pub x: i32,
+    /// Y position
     pub y: i32,
+    /// Rectangle width
     pub width: u16,
+    /// Rectangle height
     pub height: u16,
 }
 

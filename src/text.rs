@@ -28,6 +28,7 @@ pub enum Anchor {
     End,
 }
 
+/// Chart label
 #[derive(Clone, Debug, PartialEq)]
 pub struct Label {
     offset: VerticalOffset,
@@ -35,6 +36,7 @@ pub struct Label {
     rounding_precision: Option<usize>,
 }
 
+/// Text element
 pub struct Text<'a> {
     edge: Edge,
     anchor: Anchor,
@@ -43,6 +45,7 @@ pub struct Text<'a> {
     class_name: Option<&'a str>,
 }
 
+/// Text span
 pub struct Tspan<'a> {
     text: &'a str,
     x: Option<i32>,
@@ -79,10 +82,12 @@ impl Default for Label {
 
 #[allow(dead_code)]
 impl Label {
+    /// Create a new label
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Get the vertical offset
     pub fn vertical_offset(&self) -> f32 {
         match self.offset {
             VerticalOffset::Above => -1.0,
@@ -91,26 +96,31 @@ impl Label {
         }
     }
 
+    /// Make label above
     pub fn above(mut self) -> Self {
         self.offset = VerticalOffset::Above;
         self
     }
 
+    /// Make label below
     pub fn below(mut self) -> Self {
         self.offset = VerticalOffset::Below;
         self
     }
 
+    /// Set anchor to start
     pub fn start(mut self) -> Self {
         self.anchor = Anchor::Start;
         self
     }
 
+    /// Set anchor to end
     pub fn end(mut self) -> Self {
         self.anchor = Anchor::End;
         self
     }
 
+    /// Get rounded value
     pub fn rounded(&self, value: f32) -> String {
         match self.rounding_precision {
             None => value.to_string(),
@@ -118,6 +128,7 @@ impl Label {
         }
     }
 
+    /// Display at a location
     pub fn display_at<P>(&self, x: i32, y: i32, pt: P, html: &mut Html)
     where
         P: IntoPoint,
@@ -130,6 +141,7 @@ impl Label {
 }
 
 impl<'a> Text<'a> {
+    /// Create a new text element
     pub fn new(edge: Edge) -> Self {
         Text {
             edge,
@@ -140,27 +152,32 @@ impl<'a> Text<'a> {
         }
     }
 
+    /// Set anchor position
     pub fn anchor(mut self, anchor: Anchor) -> Self {
         self.anchor = anchor;
         self
     }
 
+    /// Set `dy`
     #[allow(dead_code)]
     pub fn dy(mut self, dy: f32) -> Self {
         self.dy = Some(dy);
         self
     }
 
+    /// Set rectangle
     pub fn rect(mut self, rect: Rect) -> Self {
         self.rect = Some(rect);
         self
     }
 
+    /// Set class name
     pub fn class_name(mut self, class_name: &'a str) -> Self {
         self.class_name = Some(class_name);
         self
     }
 
+    /// Display as HTML
     pub fn display(&self, html: &mut Html) {
         let svg = Svg::new(html);
         let mut t = svg.text();
@@ -176,6 +193,7 @@ impl<'a> Text<'a> {
         t.text_anchor(self.anchor.value());
     }
 
+    /// Get transform
     fn transform(&self) -> Option<String> {
         let rect = self.rect?;
         let x = match (self.edge, self.anchor) {
@@ -205,6 +223,7 @@ impl<'a> Text<'a> {
 }
 
 impl<'a> Tspan<'a> {
+    /// Create a new text span
     pub fn new(text: &'a str) -> Self {
         Tspan {
             text,
@@ -214,21 +233,25 @@ impl<'a> Tspan<'a> {
         }
     }
 
+    /// Set X
     pub fn x(mut self, x: i32) -> Self {
         self.x = Some(x);
         self
     }
 
+    /// Set Y
     pub fn y(mut self, y: i32) -> Self {
         self.y = Some(y);
         self
     }
 
+    /// Set DY
     pub fn dy(mut self, dy: f32) -> Self {
         self.dy = Some(dy);
         self
     }
 
+    /// Display as HTML
     pub fn display(&self, html: &mut Html) {
         let svg = Svg::new(html);
         let mut t = svg.tspan();
@@ -251,6 +274,7 @@ impl Tick {
     pub const HLEN: i32 = Tick::LEN + 8;
     pub const VLEN: i32 = Tick::LEN * 2;
 
+    /// Create a new tick
     pub fn new<T>(value: f32, text: T) -> Self
     where
         T: Into<String>,
@@ -259,10 +283,12 @@ impl Tick {
         Tick { value, text }
     }
 
+    /// Get text
     pub fn text(&self) -> &str {
         &self.text
     }
 
+    /// Get X
     pub fn x(&self, edge: Edge, rect: Rect, len: i32) -> i32 {
         match edge {
             Edge::Left => rect.right() - len,
@@ -271,6 +297,7 @@ impl Tick {
         }
     }
 
+    /// Get Y
     pub fn y(&self, edge: Edge, rect: Rect, len: i32) -> i32 {
         match edge {
             Edge::Top => rect.bottom() - len,
@@ -279,6 +306,7 @@ impl Tick {
         }
     }
 
+    /// Make text span
     pub fn tspan(&self, edge: Edge, rect: Rect) -> Tspan<'_> {
         let x = self.x(edge, rect, Tick::HLEN);
         let y = self.y(edge, rect, Tick::VLEN);
