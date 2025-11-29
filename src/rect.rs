@@ -119,6 +119,7 @@ impl Rect {
             .end();
     }
 
+    /// Get as `viewBox`
     pub fn view_box(&self) -> String {
         format!("{} {} {} {}", self.x, self.y, self.width, self.height)
     }

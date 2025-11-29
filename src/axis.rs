@@ -1,12 +1,12 @@
 // axis.rs
 //
-// Copyright (c) 2021-2024  Douglas P Lau
+// Copyright (c) 2021-2025  Douglas P Lau
 //
 //! Axis for charts
 //!
 use crate::rect::{Edge, Rect};
 use crate::text::{Anchor, Label, Text, Tick};
-use hatmil::{Html, Svg};
+use hatmil::{Html, PathDef, Svg};
 
 /// Axis for drawing labels on a `Chart`
 #[derive(Debug, PartialEq)]
@@ -57,13 +57,13 @@ impl<'a> Axis<'a> {
 
     /// Display horizontal grid lines
     fn display_grid_horizontal(&self, area: Rect, html: &mut Html) {
-        let mut d = String::new();
+        let mut d = PathDef::new();
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, area, 0);
-            d.push_str(&format!("M{x} {}v{}", area.y, area.height));
+            d.move_to((x, area.y)).line((x, area.bottom()));
         }
         let path = Svg::new(html).path();
-        path.class("grid-x").d(d).end();
+        path.class("grid-x").d::<String>(d.into()).end();
     }
 
     /// Display horizontal axis
@@ -83,13 +83,13 @@ impl<'a> Axis<'a> {
 
     /// Display vertical grid lines
     fn display_grid_vertical(&self, area: Rect, html: &mut Html) {
-        let mut d = String::new();
+        let mut d = PathDef::new();
         for tick in self.ticks.iter() {
             let y = tick.y(self.edge, area, 0);
-            d.push_str(&format!("M{} {y}h{}", area.x, area.width));
+            d.move_to((area.x, y)).line((area.right(), y));
         }
         let path = Svg::new(html).path();
-        path.class("grid-y").d(d).end();
+        path.class("grid-y").d::<String>(d.into()).end();
     }
 
     /// Display vertical axis
@@ -127,17 +127,17 @@ impl<'a> Axis<'a> {
             Edge::Bottom => (rect.y, -Tick::LEN),
             _ => unreachable!(),
         };
-        let mut d = String::new();
-        d.push_str(&format!("M{x} {y}h{}", rect.width));
+        let mut d = PathDef::new();
+        d.move_to((x, y)).line((rect.right(), y));
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
             let y0 = y.min(y + height);
-            let h = y.max(y + height) - y0;
-            d.push_str(&format!("M{x} {y0}v{h}"));
+            let y1 = y.max(y + height);
+            d.move_to((x, y0)).line((x, y1));
         }
         let path = Svg::new(html).path();
-        path.class("axis-line").d(d).end();
+        path.class("axis-line").d::<String>(d.into()).end();
     }
 
     /// Display vertical tick lines
@@ -147,17 +147,17 @@ impl<'a> Axis<'a> {
             Edge::Right => (rect.x, -Tick::LEN),
             _ => unreachable!(),
         };
-        let mut d = String::new();
-        d.push_str(&format!("M{x} {}v{}", rect.y, rect.height));
+        let mut d = PathDef::new();
+        d.move_to((x, rect.y)).line((x, rect.bottom()));
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
             let y = tick.y(self.edge, rect, Tick::LEN);
             let x0 = x.min(x + width);
-            let w = x.max(x + width) - x0;
-            d.push_str(&format!("M{x0} {y}h{w}"));
+            let x1 = x.max(x + width);
+            d.move_to((x0, y)).line((x1, y));
         }
         let path = Svg::new(html).path();
-        path.class("axis-line").d(d).end();
+        path.class("axis-line").d::<String>(d.into()).end();
     }
 
     /// Display tick labels
