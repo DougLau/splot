@@ -5,16 +5,20 @@
 //! Axis for charts
 //!
 use crate::rect::{Edge, Rect};
-use crate::text::{Anchor, Label, Text, Tick};
-use hatmil::{Html, PathDef, Svg};
+use crate::text::{Anchor, Tick};
+use crate::title::Title;
+use hatmil::svg::{G, Path};
 
 /// Axis for drawing labels on a `Chart`
 #[derive(Debug, PartialEq)]
 pub struct Axis<'a> {
+    /// Chart edge
     edge: Edge,
+    /// Ticks to display
     ticks: Vec<Tick>,
+    /// Axis name
     name: &'a str,
-    label: Label,
+    /// Rectangle containing axis name and ticks
     rect: Rect,
 }
 
@@ -25,15 +29,13 @@ impl<'a> Axis<'a> {
             edge,
             ticks,
             name,
-            label: Label::new(),
             rect: Rect::default(),
         }
     }
 
     /// Split axis area from rectangle
-    pub fn split(&mut self, mut area: Rect) -> Rect {
-        (area, self.rect) = area.split(self.edge, self.space());
-        area
+    pub fn split(&mut self, area: &mut Rect) {
+        self.rect = area.split(self.edge, self.space());
     }
 
     /// Get the space required
@@ -42,92 +44,57 @@ impl<'a> Axis<'a> {
     }
 
     /// Display the axis
-    pub fn display(&self, area: Rect, html: &mut Html) {
+    pub fn display<'p>(&self, area: Rect, g: &'p mut G<'p>) {
         match self.edge {
-            Edge::Bottom | Edge::Top => {
-                self.display_grid_horizontal(area, html);
-                self.display_horizontal(area, html);
-            }
-            Edge::Left | Edge::Right => {
-                self.display_grid_vertical(area, html);
-                self.display_vertical(area, html)
-            }
+            Edge::Top | Edge::Bottom => self.display_x(area, g),
+            Edge::Left | Edge::Right => self.display_y(area, g),
         }
     }
 
-    /// Display horizontal grid lines
-    fn display_grid_horizontal(&self, area: Rect, html: &mut Html) {
-        let mut d = PathDef::new();
+    /// Display X-axis lines and labels
+    fn display_x<'p>(&self, area: Rect, g: &'p mut G<'p>) {
+        let mut rect = self.rect;
+        // Shrink axis width to match plot area
+        rect.intersect_horiz(&area);
+        if !self.name.is_empty() {
+            let mut title = Title::from(self.name).on_edge(self.edge);
+            title.split(&mut rect, self.space() / 2);
+            let mut text = g.text();
+            text.class("axis");
+            if let Some(transform) = title.transform() {
+                text.transform(transform);
+            }
+            text.text_anchor(Anchor::Middle);
+            text.cdata(self.name);
+            text.close();
+        }
+        g.path().class("grid-x").d(self.build_x_ticks(area)).close();
+        g.path()
+            .class("axis-line")
+            .d(self.build_x_tick_lines(rect))
+            .close();
+        self.display_tick_labels(rect, g);
+    }
+
+    /// Build X ticks path
+    fn build_x_ticks(&self, area: Rect) -> String {
+        let mut d = Path::def_builder();
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, area, 0);
             d.move_to((x, area.y)).line((x, area.bottom()));
         }
-        let path = Svg::new(html).path();
-        path.class("grid-x").d::<String>(d.into()).end();
+        String::from(d)
     }
 
-    /// Display horizontal axis
-    fn display_horizontal(&self, area: Rect, html: &mut Html) {
-        let mut rect = self.rect;
-        rect.intersect_horiz(&area);
-        if !self.name.is_empty() {
-            let r;
-            (rect, r) = rect.split(self.edge, self.space() / 2);
-            let text = Text::new(self.edge).rect(r).class_name("axis");
-            text.display(html);
-            html.text(self.name).end();
-        }
-        self.display_tick_lines(rect, html);
-        self.display_tick_labels(rect, html);
-    }
-
-    /// Display vertical grid lines
-    fn display_grid_vertical(&self, area: Rect, html: &mut Html) {
-        let mut d = PathDef::new();
-        for tick in self.ticks.iter() {
-            let y = tick.y(self.edge, area, 0);
-            d.move_to((area.x, y)).line((area.right(), y));
-        }
-        let path = Svg::new(html).path();
-        path.class("grid-y").d::<String>(d.into()).end();
-    }
-
-    /// Display vertical axis
-    fn display_vertical(&self, area: Rect, html: &mut Html) {
-        let mut rect = self.rect;
-        rect.intersect_vert(&area);
-        if !&self.name.is_empty() {
-            let r;
-            (rect, r) = rect.split(self.edge, self.space() / 2);
-            let text = Text::new(self.edge).rect(r).class_name("axis");
-            text.display(html);
-            html.text(self.name).end();
-        }
-        self.display_tick_lines(rect, html);
-        self.display_tick_labels(rect, html);
-    }
-
-    /// Display tick lines
-    fn display_tick_lines(&self, rect: Rect, html: &mut Html) {
-        match self.edge {
-            Edge::Bottom | Edge::Top => {
-                self.display_tick_lines_horizontal(rect, html)
-            }
-            Edge::Left | Edge::Right => {
-                self.display_tick_lines_vertical(rect, html)
-            }
-        }
-    }
-
-    /// Display horizontal tick lines
-    fn display_tick_lines_horizontal(&self, rect: Rect, html: &mut Html) {
+    /// Build X tick lines path
+    fn build_x_tick_lines(&self, rect: Rect) -> String {
         let x = rect.x;
         let (y, height) = match self.edge {
             Edge::Top => (rect.bottom(), Tick::LEN),
             Edge::Bottom => (rect.y, -Tick::LEN),
             _ => unreachable!(),
         };
-        let mut d = PathDef::new();
+        let mut d = Path::def_builder();
         d.move_to((x, y)).line((rect.right(), y));
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
@@ -136,18 +103,52 @@ impl<'a> Axis<'a> {
             let y1 = y.max(y + height);
             d.move_to((x, y0)).line((x, y1));
         }
-        let path = Svg::new(html).path();
-        path.class("axis-line").d::<String>(d.into()).end();
+        String::from(d)
     }
 
-    /// Display vertical tick lines
-    fn display_tick_lines_vertical(&self, rect: Rect, html: &mut Html) {
+    /// Display Y-axis lines and labels
+    fn display_y<'p>(&self, area: Rect, g: &'p mut G<'p>) {
+        let mut rect = self.rect;
+        // Shrink axis height to match plot area
+        rect.intersect_vert(&area);
+        if !&self.name.is_empty() {
+            let mut title = Title::from(self.name).on_edge(self.edge);
+            title.split(&mut rect, self.space() / 2);
+            let mut text = g.text();
+            text.class("axis");
+            if let Some(transform) = title.transform() {
+                text.transform(transform);
+            }
+            text.text_anchor(Anchor::Middle);
+            text.cdata(self.name);
+            text.close();
+        }
+        g.path().class("grid-y").d(self.build_y_ticks(area)).close();
+        g.path()
+            .class("axis-line")
+            .d(self.build_y_tick_lines(rect))
+            .close();
+        self.display_tick_labels(rect, g);
+    }
+
+    /// Build Y ticks path
+    fn build_y_ticks(&self, area: Rect) -> String {
+        let mut d = Path::def_builder();
+        for tick in self.ticks.iter() {
+            let y = tick.y(self.edge, area, 0);
+            d.move_to((area.x, y)).line((area.right(), y));
+        }
+        String::from(d)
+    }
+
+    /// Build Y tick lines
+    fn build_y_tick_lines(&self, rect: Rect) -> String {
         let (x, width) = match self.edge {
             Edge::Left => (rect.right(), Tick::LEN),
             Edge::Right => (rect.x, -Tick::LEN),
             _ => unreachable!(),
         };
-        let mut d = PathDef::new();
+        let mut d = Path::def_builder();
         d.move_to((x, rect.y)).line((x, rect.bottom()));
         for tick in self.ticks.iter() {
             let x = tick.x(self.edge, rect, Tick::LEN);
@@ -156,46 +157,30 @@ impl<'a> Axis<'a> {
             let x1 = x.max(x + width);
             d.move_to((x0, y)).line((x1, y));
         }
-        let path = Svg::new(html).path();
-        path.class("axis-line").d::<String>(d.into()).end();
+        String::from(d)
     }
 
     /// Display tick labels
-    fn display_tick_labels(&self, rect: Rect, html: &mut Html) {
-        match self.edge {
-            Edge::Bottom | Edge::Top => {
-                self.display_tick_labels_horizontal(rect, html);
-            }
-            Edge::Left | Edge::Right => {
-                self.display_tick_labels_vertical(rect, html);
-            }
-        }
-    }
-
-    /// Display horizontal tick labels
-    fn display_tick_labels_horizontal(&self, rect: Rect, html: &mut Html) {
-        let text = Text::new(Edge::Top).class_name("tick");
-        text.display(html);
-        for tick in &self.ticks {
-            let tspan = tick.tspan(self.edge, rect);
-            tspan.display(html);
-        }
-        html.end();
-    }
-
-    /// Display vertical tick labels
-    fn display_tick_labels_vertical(&self, rect: Rect, html: &mut Html) {
+    fn display_tick_labels<'p>(&self, rect: Rect, g: &'p mut G<'p>) {
         let anchor = match self.edge {
+            Edge::Top | Edge::Bottom => Anchor::Middle,
             Edge::Left => Anchor::End,
             Edge::Right => Anchor::Start,
-            _ => unreachable!(),
         };
-        let text = Text::new(Edge::Top).anchor(anchor).class_name("tick");
-        text.display(html);
+        let mut text = g.text();
+        text.class("tick");
+        text.text_anchor(anchor);
         for tick in &self.ticks {
-            let tspan = tick.tspan(self.edge, rect);
-            tspan.display(html);
+            let x = tick.x(self.edge, rect, Tick::HLEN);
+            let y = tick.y(self.edge, rect, Tick::VLEN);
+            text.tspan()
+                .x(x)
+                .y(y)
+                .dy("0.33em")
+                .cdata(tick.text())
+                .close();
         }
-        html.end();
+        text.close(); // text
+        g.close(); // g
     }
 }

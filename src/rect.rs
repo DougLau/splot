@@ -2,7 +2,6 @@
 //
 // Copyright (c) 2021-2025  Douglas P Lau
 //
-use hatmil::{Html, Svg};
 
 /// Edge of rendered item
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -63,39 +62,35 @@ impl Rect {
     }
 
     /// Split off rectangle from an edge
-    pub fn split(&self, edge: Edge, value: u16) -> (Self, Self) {
+    pub fn split(&mut self, edge: Edge, value: u16) -> Self {
         match edge {
             Edge::Top => {
+                let y = self.y;
                 let height = self.height.saturating_sub(value);
                 let h = self.height - height;
-                (
-                    Rect::new(self.x, self.y + h as i32, self.width, height),
-                    Rect::new(self.x, self.y, self.width, h),
-                )
+                self.y += h as i32;
+                self.height = height;
+                Rect::new(self.x, y, self.width, h)
             }
             Edge::Left => {
+                let x = self.x;
                 let width = self.width.saturating_sub(value);
                 let w = self.width - width;
-                (
-                    Rect::new(self.x + w as i32, self.y, width, self.height),
-                    Rect::new(self.x, self.y, w, self.height),
-                )
+                self.x += w as i32;
+                self.width = width;
+                Rect::new(x, self.y, w, self.height)
             }
             Edge::Bottom => {
                 let height = self.height.saturating_sub(value);
                 let h = self.height - height;
-                (
-                    Rect::new(self.x, self.y, self.width, height),
-                    Rect::new(self.x, self.y + height as i32, self.width, h),
-                )
+                self.height = height;
+                Rect::new(self.x, self.y + height as i32, self.width, h)
             }
             Edge::Right => {
                 let width = self.width.saturating_sub(value);
                 let w = self.width - width;
-                (
-                    Rect::new(self.x, self.y, width, self.height),
-                    Rect::new(self.x + width as i32, self.y, w, self.height),
-                )
+                self.width = width;
+                Rect::new(self.x + width as i32, self.y, w, self.height)
             }
         }
     }
@@ -114,17 +109,6 @@ impl Rect {
         let y2 = self.bottom().min(rhs.bottom());
         self.y = y;
         self.height = (y2 - y) as u16;
-    }
-
-    /// Display the rectangle
-    pub fn display(&self, html: &mut Html) {
-        Svg::new(html)
-            .rect()
-            .x(self.x)
-            .y(self.y)
-            .width(self.width)
-            .height(self.height)
-            .end();
     }
 
     /// Get as `viewBox`

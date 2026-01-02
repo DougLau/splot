@@ -4,9 +4,8 @@
 //
 use crate::domain::BoundDomain;
 use crate::point::{IntoPoint, Point};
-use crate::rect::Edge;
-use crate::text::{Label, Text};
-use hatmil::{Html, PathDef, Svg};
+use crate::text::Label;
+use hatmil::svg::{G, Path};
 
 /// Plot Type
 #[derive(Clone, Copy, Debug)]
@@ -91,18 +90,19 @@ where
     }
 
     /// Display a plot
-    pub(crate) fn display(&self, html: &mut Html) {
+    pub(crate) fn display<'p>(&self, g: &'p mut G<'p>) {
+        g.class("plot");
         match self.plot_tp {
-            PlotType::Area => self.display_area(html),
-            PlotType::Line => self.display_line(html),
-            PlotType::Scatter => self.display_scatter(html),
+            PlotType::Area => self.display_area(g),
+            PlotType::Line => self.display_line(g),
+            PlotType::Scatter => self.display_scatter(g),
         }
     }
 
     /// Display an area plot
-    fn display_area(&self, html: &mut Html) {
+    fn display_area<'p>(&self, g: &'p mut G<'p>) {
         let cls = format!("plot-{} plot-area", self.num);
-        let mut d = PathDef::new();
+        let mut d = Path::def_builder();
         if let Some(pt) = self.data.first() {
             let pt: Point = (*pt).into();
             let x = self.domain.x_map(pt.x);
@@ -121,15 +121,14 @@ where
             let y = self.domain.y_map(0.0);
             d.line((x, y));
         }
-        let path = Svg::new(html).path();
-        path.class(cls).d::<String>(d.into()).end();
-        self.display_labels(html);
+        g.path().class(cls).d::<String>(d.into()).close();
+        self.display_labels(g);
     }
 
     /// Display a line plot
-    fn display_line(&self, html: &mut Html) {
+    fn display_line<'p>(&self, g: &'p mut G<'p>) {
         let cls = format!("plot-{} plot-line", self.num);
-        let mut d = PathDef::new();
+        let mut d = Path::def_builder();
         for (i, pt) in self.data.iter().enumerate() {
             let pt = (*pt).into();
             let x = self.domain.x_map(pt.x);
@@ -140,15 +139,14 @@ where
                 d.line((x, y));
             }
         }
-        let path = Svg::new(html).path();
-        path.class(cls).d::<String>(d.into()).end();
-        self.display_labels(html);
+        g.path().class(cls).d::<String>(d.into()).close();
+        self.display_labels(g);
     }
 
     /// Display a scatter plot
-    fn display_scatter(&self, html: &mut Html) {
+    fn display_scatter<'p>(&self, g: &'p mut G<'p>) {
         let cls = format!("plot-{} plot-scatter", self.num);
-        let mut d = PathDef::new();
+        let mut d = Path::def_builder();
         for (i, pt) in self.data.iter().enumerate() {
             let pt = (*pt).into();
             let x = self.domain.x_map(pt.x);
@@ -159,23 +157,25 @@ where
                 d.line((x, y));
             }
         }
-        let path = Svg::new(html).path();
-        path.class(cls).d::<String>(d.into()).end();
-        self.display_labels(html);
+        g.path().class(cls).d::<String>(d.into()).close();
+        self.display_labels(g);
     }
 
     /// Display plot labels
-    fn display_labels(&self, html: &mut Html) {
-        if let Some(label) = &self.label {
-            let text = Text::new(Edge::Top).class_name("plot-label");
-            text.display(html);
+    fn display_labels<'p>(&self, g: &'p mut G<'p>) {
+        if let Some(_label) = &self.label {
+            // FIXME: use Label attributes (precision, etc.)
+            let mut text = g.text();
+            text.class("plot-label");
             for pt in self.data.iter() {
-                let pt = (*pt).into();
+                let pt: Point = (*pt).into();
                 let x = self.domain.x_map(pt.x);
                 let y = self.domain.y_map(pt.y);
-                label.display_at(x, y, pt, html);
+                let lbl = format!("({} {})", pt.x, pt.y);
+                text.tspan().x(x).y(y).dy("-0.66em").cdata(lbl).close();
             }
-            html.end(); // text
+            text.close(); // text
         }
+        g.close();
     }
 }

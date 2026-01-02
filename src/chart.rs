@@ -8,7 +8,11 @@ use crate::plot::Plot;
 use crate::point::IntoPoint;
 use crate::rect::{Edge, Rect};
 use crate::title::Title;
-use hatmil::{Html, Svg};
+use hatmil::{
+    Page,
+    html::Div,
+    svg::{Defs, G, Svg},
+};
 use std::fmt;
 
 /// Marker shapes
@@ -42,13 +46,21 @@ pub struct Chart<'a, P>
 where
     P: IntoPoint,
 {
+    /// Stand-alone SVG
     stand_alone: bool,
+    /// Aspect ratio
     aspect_ratio: AspectRatio,
+    /// Chart titles
     titles: Vec<Title<'a>>,
+    /// Plotting domain
     domain: Domain,
+    /// Axes (vertical/horizontal)
     axes: Vec<Axis<'a>>,
+    /// Chart plots
     plots: Vec<Plot<'a, P>>,
+    /// Chart number
     num: u32,
+    /// Total chart area rectangle
     area: Rect,
 }
 
@@ -128,7 +140,7 @@ where
         assert!(self.axes.is_empty());
         assert!(self.plots.is_empty());
         let mut title = title.into();
-        self.area = title.split(self.area);
+        title.split(&mut self.area, 100);
         self.titles.push(title);
         self
     }
@@ -139,7 +151,7 @@ where
     pub fn axis(mut self, name: &'a str, edge: Edge) -> Self {
         assert!(self.plots.is_empty());
         let mut axis = self.domain.axis(name, edge);
-        self.area = axis.split(self.area);
+        axis.split(&mut self.area);
         self.axes.push(axis);
         self
     }
@@ -153,89 +165,86 @@ where
         self
     }
 
-    /// Render SVG element start
-    fn svg(&self, html: &mut Html) {
-        let mut svg = html.svg();
-        if self.stand_alone {
-            svg = svg.attr("xmlns", "http://www.w3.org/2000/svg");
-        }
-        svg.view_box(self.aspect_ratio.rect().view_box());
-    }
-
-    /// Render link to CSS
-    fn link(&self, html: &mut Html) {
-        let svg = Svg::new(html);
-        svg.link()
-            .attr("xmlns", "http://www.w3.org/1999/xhtml")
-            .r#type("text/css")
-            .rel("stylesheet")
-            .href("./css/splot.css")
-            .end();
-    }
-
     /// Render defs element
-    fn defs(&self, html: &mut Html) {
-        Svg::new(html).defs();
+    fn defs<'p>(&self, defs: &'p mut Defs<'p>) {
         for i in 0..self.plots.len() {
-            let marker = Svg::new(html)
-                .marker()
+            let mut marker = defs.marker();
+            marker
                 .id(format!("marker-{i}"))
                 .class(format!("plot-{i}"))
                 .view_box("-1 -1 2 2")
                 .marker_width("5")
                 .marker_height("5");
-            let path = marker.path();
-            path.d(MARKERS[i % MARKERS.len()]);
-            html.end().end(); // path, marker
+            let mut path = marker.path();
+            path.d(MARKERS[i % MARKERS.len()]).close(); // path
+            marker.close(); // marker
         }
-        let cp = Svg::new(html).clip_path();
-        cp.id("clip-chart");
-        self.area.display(html);
-        html.end().end(); // clipPath, defs
+        let mut cp = defs.clip_path();
+        cp.id("clip-plot")
+            .rect()
+            .x(self.area.x)
+            .y(self.area.y)
+            .width(self.area.width)
+            .height(self.area.height)
+            .close() // rect
+            .close(); // clipPath
+        defs.close(); // defs
     }
 
     /// Render the chart "body"
-    fn body(&self, html: &mut Html) {
+    fn body<'p>(&self, g: &'p mut G<'p>) {
         for title in &self.titles {
-            title.display(html);
+            let mut text = g.text();
+            text.class("title");
+            if let Some(transform) = title.transform() {
+                text.transform(transform);
+            }
+            text.text_anchor(title.anchor());
+            text.cdata(title.text());
+            text.close();
         }
         for axis in &self.axes {
-            axis.display(self.area, html);
+            axis.display(self.area, &mut g.g());
         }
-        let g = Svg::new(html).g();
-        g.attr("clip-path", "url(#clip-chart)");
         for plot in self.plots.iter() {
-            plot.display(html);
+            plot.display(&mut g.g());
         }
-        html.end(); // g
+        g.close(); // body
     }
 
-    /// Display char as HTML
-    pub fn display(&self, html: &mut Html) {
-        self.svg(html);
+    /// Display chart as SVG
+    pub fn display<'p>(&self, svg: &'p mut Svg<'p>) {
+        svg.view_box(self.aspect_ratio.rect().view_box());
         if self.stand_alone {
-            self.link(html);
+            svg.link()
+                .xmlns("http://www.w3.org/1999/xhtml")
+                .r#type("text/css")
+                .rel("stylesheet")
+                .href("./css/splot.css")
+                .close();
         }
-        self.defs(html);
-        self.body(html);
-        html.end(); // svg
+        self.defs(&mut svg.defs());
+        self.body(&mut svg.g());
+        svg.close(); // svg
     }
 
     /// Display legend as HTML `<div>`
-    pub fn legend(&self, html: &mut Html) {
-        html.div().class("legend");
+    pub fn legend<'p>(&self, div: &'p mut Div<'p>) {
+        div.class("legend");
         for (i, plot) in self.plots.iter().enumerate() {
-            html.div();
-            let svg = html.svg().width("20").height("10").view_box("0 0 60 30");
-            svg.path()
+            let mut div2 = div.div();
+            div2.svg()
+                .width("20")
+                .height("10")
+                .view_box("0 0 60 30")
+                .path()
                 .class(format!("plot-{i} legend-line"))
                 .d("M0 15h30h30")
-                .end();
-            html.end(); // svg
-            html.text(plot.name());
-            html.end(); // div
+                .close() // path
+                .close(); // svg
+            div2.cdata(plot.name()).close(); // div2
         }
-        html.end(); // div
+        div.close(); // div
     }
 }
 
@@ -244,8 +253,9 @@ where
     P: IntoPoint,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut html = Html::new_xml_compatible();
-        self.display(&mut html);
-        writeln!(f, "{}", String::from(html))
+        let mut page = Page::default();
+        let mut svg = page.frag::<Svg>();
+        self.display(&mut svg);
+        writeln!(f, "{}", String::from(page))
     }
 }

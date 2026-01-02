@@ -3,8 +3,8 @@
 
 mod axis;
 mod chart;
+mod charts;
 mod domain;
-mod page;
 mod plot;
 mod point;
 mod rect;
@@ -13,8 +13,8 @@ mod text;
 mod title;
 
 pub use chart::{AspectRatio, Chart};
+pub use charts::Charts;
 pub use domain::Domain;
-pub use page::Page;
 pub use plot::Plot;
 pub use point::{IntoPoint, Point};
 pub use rect::Edge;

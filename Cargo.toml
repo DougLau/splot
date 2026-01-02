@@ -10,4 +10,6 @@ readme = "README.md"
 edition = "2024"
 
 [dependencies]
-hatmil = "0.10"
+hatmil = "0.12"
+
+[patch.crates-io]

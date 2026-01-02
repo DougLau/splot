@@ -14,7 +14,7 @@
   background: var(--bg);
   color: var(--fg);
 }
-.page {
+.charts {
   display: flex;
   flex-direction: column;
 }
@@ -45,6 +45,9 @@
 .tick {
   fill: var(--fg);
   font-size: 32px;
+}
+.plot {
+  clip-path: url(#clip-plot);
 }
 .plot-label {
   fill: var(--fg);
