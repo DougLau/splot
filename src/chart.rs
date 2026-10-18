@@ -98,6 +98,8 @@ where
     P: IntoPoint,
 {
     /// Create a new chart
+    ///
+    /// The default aspect ratio is Landscape.
     pub fn new() -> Self {
         Self::default()
     }
@@ -109,9 +111,11 @@ where
     }
 
     /// Adjust the aspect ratio
+    ///
+    /// Also clears all existing plots and axes.
     pub fn aspect_ratio(mut self, aspect: AspectRatio) -> Self {
-        assert!(self.axes.is_empty());
-        assert!(self.plots.is_empty());
+        self.axes.clear();
+        self.plots.clear();
         self.aspect_ratio = aspect;
         self.area = self.aspect_ratio.rect().inset(40);
         self
@@ -119,26 +123,26 @@ where
 
     /// Set the domain
     ///
-    /// Panics if called after `axis` or `plot`.
+    /// Also clears all existing plots and axes.
     pub fn domain<D>(mut self, domain: D) -> Self
     where
         D: Into<Domain>,
     {
-        assert!(self.axes.is_empty());
-        assert!(self.plots.is_empty());
+        self.axes.clear();
+        self.plots.clear();
         self.domain = domain.into();
         self
     }
 
     /// Add a chart title
     ///
-    /// Panics if called after `axis` or `plot`.
+    /// Also clears all existing plots and axes.
     pub fn title<T>(mut self, title: T) -> Self
     where
         T: Into<Title<'a>>,
     {
-        assert!(self.axes.is_empty());
-        assert!(self.plots.is_empty());
+        self.axes.clear();
+        self.plots.clear();
         let mut title = title.into();
         title.split(&mut self.area, 100);
         self.titles.push(title);
@@ -147,9 +151,9 @@ where
 
     /// Add an `Axis`
     ///
-    /// Panics if called after `plot`.
+    /// Also clears all existing plots.
     pub fn axis(mut self, name: &'a str, edge: Edge) -> Self {
-        assert!(self.plots.is_empty());
+        self.plots.clear();
         let mut axis = self.domain.axis(name, edge);
         axis.split(&mut self.area);
         self.axes.push(axis);
