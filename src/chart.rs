@@ -1,6 +1,6 @@
 // chart.rs
 //
-// Copyright (c) 2021-2025  Douglas P Lau
+// Copyright (c) 2021-2026  Douglas P Lau
 //
 use crate::axis::Axis;
 use crate::domain::Domain;
@@ -9,7 +9,7 @@ use crate::point::IntoPoint;
 use crate::rect::{Edge, Rect};
 use crate::title::Title;
 use hatmil::{
-    Page,
+    Tree,
     html::Div,
     svg::{Defs, G, Svg},
 };
@@ -253,9 +253,9 @@ where
     P: IntoPoint,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut page = Page::default();
-        let mut svg = page.frag::<Svg>();
+        let mut tree = Tree::default();
+        let mut svg = tree.root::<Svg>();
         self.display(&mut svg);
-        writeln!(f, "{}", String::from(page))
+        writeln!(f, "{}", String::from(tree))
     }
 }

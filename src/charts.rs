@@ -1,10 +1,10 @@
 // charts.rs
 //
-// Copyright (c) 2021-2025  Douglas P Lau
+// Copyright (c) 2021-2026  Douglas P Lau
 //
 use crate::chart::Chart;
 use crate::point::IntoPoint;
-use hatmil::Page;
+use hatmil::Tree;
 use std::fmt;
 
 /// Container for multiple Charts as HTML
@@ -49,7 +49,7 @@ where
     P: IntoPoint,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut page = Page::default();
+        let mut page = Tree::default();
         let mut html = page.html();
         let mut head = html.head();
         head.link()
